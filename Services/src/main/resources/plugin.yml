@@ -1,0 +1,21 @@
+main: de.g4memas0n.services.Services
+name: Services
+version: 1.0.0-dev
+description: A plugin that provides moderators god mode while holding service items.
+author: G4meMas0n
+api-version: "1.13"
+
+commands:
+  services:
+    description: The main services command.
+    permission: services.use
+    usage: /<command> (reload|version)
+
+permissions:
+  services.environment.*:
+    description: Allows to use services in all environments.
+    default: false
+    children:
+      services.environment.nether: true
+      services.environment.normal: true
+      services.environment.the_end: true
