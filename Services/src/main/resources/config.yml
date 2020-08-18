@@ -1,0 +1,59 @@
+##################################################
+#      Services - Plugin Configuration File      #
+##################################################
+
+# Sets whether the plugin should log debug information's to the console: (Type: Boolean, Default: false)
+debug: false
+
+# Sets the locale of the plugin: (Type: String, Default: "en")
+# Note: Locale names are of the form: "<language>[_<country>[_<variant>]]"
+locale: "en"
+
+# Sets various period options to regulate timings between service enabling and disabling:
+period:
+
+  # Sets the warmup period, after that the service gets enabled, in seconds: (Type: Integer, Default: 3)
+  # Note: To disable the warmup period set the value to: 'warmup: 0'
+  # Note: The value must be between 0 and 10. If it is not between these numbers, the default value will be used.
+  warmup: 3
+
+  # Sets the grace period, after that the service gets disabled, in seconds: (Type: Integer, Default: 1)
+  # Note: To disable the grace period set the value to: 'grace: 0'
+  # Note: The value must be between 0 and 10. If it is not between these numbers, the default value will be used.
+  grace: 1
+
+# Sets various permission options for service conditions:
+permission:
+
+  # Sets whether the service environments should be regulated by extra permissions: (Type: Boolean, Default: false)
+  # Note: If enabled, environment permissions are of the form: "services.environment.<environment>"
+  per-environment: false
+
+  # Sets whether the service items should be regulated by extra permissions: (Type: Boolean, Default: false)
+  # Note: If enabled, item permissions are of the form: "services.item.<item-key>"
+  per-item: false
+
+  # Sets whether the service worlds should be regulated by extra permissions: (Type: Boolean, Default: false)
+  # Note: If enabled, world permissions are of the form: "services.world.<world>"
+  per-world: false
+
+# Sets various options to regulate service conditions:
+service:
+
+  # Sets the environments in their services should be active: (Type: String Array, Default: ["NETHER", "NORMAL"])
+  # Note: To allow services in all existing environments set the value to: 'environments: []'
+  # Note: Each entry must be equals to the name of an existing environment.
+  environments:
+    - "NETHER"
+    - "NORMAL"
+
+  # Sets the items that activates services. (Type: String Array, Default: ["minecraft:bedrock", "minecraft:wooden_axe"])
+  # Note: Each entry must be equal to the name-spaced key of an existing Material.
+  items:
+    - "minecraft:bedrock"
+    - "minecraft:wooden_axe"
+
+  # Sets the worlds in their services should be active: (Type: String Array, Default: [])
+  # Note: To allows services in all existing worlds set the value to: 'worlds: []'
+  # Note: Each entry must be equal to the name of an existing world.
+  worlds: []
