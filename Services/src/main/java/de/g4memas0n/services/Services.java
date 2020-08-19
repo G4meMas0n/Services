@@ -184,14 +184,8 @@ public final class Services extends JavaPlugin {
 
     public void handleConditionCheck(@NotNull final Player target) {
         if (!target.hasPermission(Permission.SERVICE.getNode())) {
-            if (this.manager.removeFromCondition(target)) {
-                this.logger.debug(String.format("Player '%s' is no longer in condition, as he is no longer permitted to use services.", target.getName()));
-
-                if (this.manager.removeFromWarmup(target) || this.manager.removeFromService(target)) {
-                    this.manager.removeFromGrace(target);
-
-                    target.sendMessage(this.messages.translate("serviceDenied"));
-                }
+            if (this.handleConditionRemove(target)) {
+                target.sendMessage(this.messages.translate("serviceDenied"));
             }
 
             return;
@@ -204,14 +198,9 @@ public final class Services extends JavaPlugin {
                 // Filter world if per world permission is enabled.
                 if (this.settings.isPermissionPerWorld()) {
                     if (!target.hasPermission(Permission.WORLD.getChildren(target.getWorld().getName()))) {
-                        if (this.manager.removeFromCondition(target)) {
-                            this.logger.debug(String.format("Service player '%s' no longer in condition.", target.getName()));
-
-                            if (this.manager.removeFromWarmup(target) || this.manager.removeFromService(target)) {
-                                this.manager.removeFromGrace(target);
-
-                                target.sendMessage(this.messages.format("worldDenied", target.getWorld().getName()));
-                            }
+                        // Check if player gets removed from condition and from warmup or service.
+                        if (this.handleConditionRemove(target)) {
+                            target.sendMessage(this.messages.format("worldDenied", target.getWorld().getName()));
                         }
 
                         return;
@@ -223,19 +212,10 @@ public final class Services extends JavaPlugin {
                     // Filter environment if per environment permission is enabled.
                     if (this.settings.isPermissionPerEnvironment()) {
                         if (!target.hasPermission(Permission.ENVIRONMENT.getChildren(target.getWorld().getEnvironment().name().toLowerCase()))) {
-                            // Check if player gets removed from condition.
-                            if (this.manager.removeFromCondition(target)) {
-                                this.logger.debug(String.format("Service player '%s' no longer in condition.", target.getName()));
-
-                                // If true, check if player gets removed from warmup or services.
-                                if (this.manager.removeFromWarmup(target) || this.manager.removeFromService(target)) {
-                                    this.manager.removeFromGrace(target);
-
-                                    final String name = target.getWorld().getEnvironment().name().charAt(0)
-                                            + target.getWorld().getEnvironment().name().substring(1).toLowerCase();
-
-                                    target.sendMessage(this.messages.format("environmentDenied", name));
-                                }
+                            // Check if player gets removed from condition and from warmup or service.
+                            if (this.handleConditionRemove(target)) {
+                                target.sendMessage(this.messages.format("environmentDenied", target.getWorld().getEnvironment().name().charAt(0)
+                                        + target.getWorld().getEnvironment().name().substring(1).toLowerCase()));
                             }
 
                             return;
@@ -244,57 +224,62 @@ public final class Services extends JavaPlugin {
 
                     // If true, check if player gets added to condition.
                     if (this.manager.addToCondition(target)) {
-                        this.logger.debug(String.format("Service player '%s' is now in condition.", target.getName()));
+                        this.logger.debug(String.format("Service player '%s' is now in condition for service.", target.getName()));
 
                         this.handleServiceCheck(target, target.getInventory().getItemInMainHand().getType());
                     }
 
                     return;
                 }
-                // Check if player gets removed from condition.
-                if (this.manager.removeFromCondition(target)) {
-                    this.logger.debug(String.format("Service player '%s' no longer in condition.", target.getName()));
 
-                    // If true, check if player gets removed from warmup or services.
-                    if (this.manager.removeFromWarmup(target) || this.manager.removeFromService(target)) {
-                        this.manager.removeFromGrace(target);
-
-                        final String name = target.getWorld().getEnvironment().name().charAt(0)
-                                + target.getWorld().getEnvironment().name().substring(1).toLowerCase();
-
-                        target.sendMessage(this.messages.format("noServiceEnvironment", name));
-                    }
+                // Check if player gets removed from condition and from warmup or service.
+                if (this.handleConditionRemove(target)) {
+                    target.sendMessage(this.messages.format("noServiceEnvironment", target.getWorld().getEnvironment().name().charAt(0)
+                            + target.getWorld().getEnvironment().name().substring(1).toLowerCase()));
                 }
 
                 return;
             }
 
-            // Check if player gets removed from condition.
-            if (this.manager.removeFromCondition(target)) {
-                this.logger.debug(String.format("Service player '%s' no longer in condition.", target.getName()));
-
-                // If true, check if player gets removed from warmup or services.
-                if (this.manager.removeFromWarmup(target) || this.manager.removeFromService(target)) {
-                    this.manager.removeFromGrace(target);
-
-                    target.sendMessage(this.messages.format("noServiceWorld", target.getWorld().getName()));
-                }
+            // Check if player gets removed from condition and from warmup or service.
+            if (this.handleConditionRemove(target)) {
+                target.sendMessage(this.messages.format("noServiceWorld", target.getWorld().getName()));
             }
 
             return;
         }
 
+        // Check if player gets removed from condition and from warmup or service.
+        if (this.handleConditionRemove(target)) {
+            target.sendMessage(this.messages.format("noServiceGameMode", target.getGameMode().name().charAt(0)
+                    + target.getGameMode().name().substring(1).toLowerCase()));
+        }
+    }
+
+    public boolean handleConditionRemove(@NotNull final Player target) {
         // Check if player gets removed from condition.
         if (this.manager.removeFromCondition(target)) {
-            this.logger.debug(String.format("Service player '%s' no longer in condition.", target.getName()));
+            this.logger.debug(String.format("Service player '%s' no longer in condition for service.", target.getName()));
 
             // If true, check if player gets removed from warmup or services.
-            if (this.manager.removeFromWarmup(target) || this.manager.removeFromService(target)) {
-                final String mode = target.getGameMode().name().charAt(0) + target.getGameMode().name().substring(1).toLowerCase();
+            if (this.manager.removeFromWarmup(target)) {
+                this.logger.debug(String.format("Service player '%s' is no longer in warmup timer.", target.getName()));
 
-                target.sendMessage(this.messages.format("noServiceGameMode", mode));
+                return true;
+            }
+
+            if (this.manager.removeFromService(target)) {
+                if (this.manager.removeFromGrace(target)) {
+                    this.logger.debug(String.format("Service player '%s' is no longer in service mode and grace timer.", target.getName()));
+                } else {
+                    this.logger.debug(String.format("Service player '%s' is no longer in service mode.", target.getName()));
+                }
+
+                return true;
             }
         }
+
+        return false;
     }
 
     public void handleServiceCheck(@NotNull final Player target, @Nullable final Material item) {
@@ -310,6 +295,8 @@ public final class Services extends JavaPlugin {
                 if (!target.hasPermission(Permission.ITEM.getChildren(item.getKey().getKey()))) {
                     // If not, check if player gets removed from warmup.
                     if (this.manager.removeFromWarmup(target)) {
+                        this.logger.debug(String.format("Service player '%s' is no longer in warmup timer.", target.getName()));
+
                         target.sendMessage(this.messages.translate("warmupAbort"));
                     }
 
@@ -319,11 +306,15 @@ public final class Services extends JavaPlugin {
                         if (this.settings.isGracePeriod()) {
                             // If true, check if player gets added to grace.
                             if (this.manager.addToGrace(target, this.settings.getGracePeriod())) {
+                                this.logger.debug(String.format("Service player '%s' is now in grace timer.", target.getName()));
+
                                 target.sendMessage(this.messages.format("graceStart", this.settings.getGracePeriod()));
                             }
                         } else {
                             // If false, check if player gets removed from service.
                             if (this.manager.removeFromService(target)) {
+                                this.logger.debug(String.format("Service player '%s' is no longer in service mode.", target.getName()));
+
                                 target.sendMessage(this.messages.translate("serviceDisable"));
                             }
                         }
@@ -335,6 +326,8 @@ public final class Services extends JavaPlugin {
 
             // Check if player gets removed from grace.
             if (this.manager.removeFromGrace(target)) {
+                this.logger.debug(String.format("Service player '%s' is no longer in grace timer.", target.getName()));
+
                 return; // Maybe add information message about grace abort.
             }
 
@@ -342,11 +335,15 @@ public final class Services extends JavaPlugin {
             if (this.settings.isWarmupPeriod()) {
                 // Check if player gets added to warmup.
                 if (this.manager.addToWarmup(target, this.settings.getWarmupPeriod())) {
+                    this.logger.debug(String.format("Service player '%s' is now in warmup timer.", target.getName()));
+
                     target.sendMessage(this.messages.format("warmupStart", this.settings.getWarmupPeriod()));
                 }
             } else {
                 // Check if player gets added to service.
                 if (this.manager.addToService(target)) {
+                    this.logger.debug(String.format("Service player '%s' is now in service mode.", target.getName()));
+
                     target.sendMessage(this.messages.translate("serviceEnabled"));
                 }
             }
@@ -356,6 +353,8 @@ public final class Services extends JavaPlugin {
 
         // Check if player gets removed from warmup.
         if (this.manager.removeFromWarmup(target)) {
+            this.logger.debug(String.format("Service player '%s' is no longer in warmup timer.", target.getName()));
+
             target.sendMessage(this.messages.translate("warmupAbort"));
         }
 
@@ -365,11 +364,15 @@ public final class Services extends JavaPlugin {
             if (this.settings.isGracePeriod()) {
                 // If true, check if player gets added to grace.
                 if (this.manager.addToGrace(target, this.settings.getGracePeriod())) {
+                    this.logger.debug(String.format("Service player '%s' is now in grace timer.", target.getName()));
+
                     target.sendMessage(this.messages.format("graceStart", this.settings.getGracePeriod()));
                 }
             } else {
                 // If false, check if player gets removed from service.
                 if (this.manager.removeFromService(target)) {
+                    this.logger.debug(String.format("Service player '%s' is no longer in service mode.", target.getName()));
+
                     target.sendMessage(this.messages.translate("serviceDisable"));
                 }
             }

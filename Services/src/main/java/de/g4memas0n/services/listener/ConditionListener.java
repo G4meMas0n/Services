@@ -32,7 +32,7 @@ public final class ConditionListener extends BasicListener {
     public void onPlayerQuit(@NotNull final PlayerQuitEvent event) {
         // Check if player gets removed from condition for services.
         if (this.getInstance().getServiceManager().removeFromCondition(event.getPlayer())) {
-            this.getInstance().getLogger().debug("Service player '%s' is no longer in condition.");
+            this.getInstance().getLogger().debug(String.format("Service player '%s' is no longer in condition for service.", event.getPlayer().getName()));
 
             // If true, remove it from warmup, grace and service if it is in.
             this.getInstance().getServiceManager().removeFromWarmup(event.getPlayer());
@@ -46,21 +46,17 @@ public final class ConditionListener extends BasicListener {
         if (this.getInstance().getServiceManager().isInCondition(event.getPlayer().getUniqueId())) {
             final World world = event.getPlayer().getWorld();
 
+            this.getInstance().getLogger().debug(String.format("Service player '%s' changed to world '%s' with environment '%s'.",
+                    event.getPlayer(), world.getName(), world.getEnvironment().name()));
+
             // If true, check if players world is still a service world.
             if (this.getInstance().getSettings().isServiceWorld(world)) {
                 // Filter world if per world permission is enabled.
                 if (this.getInstance().getSettings().isPermissionPerWorld()) {
                     if (!event.getPlayer().hasPermission(Permission.WORLD.getChildren(world.getName()))) {
-                        // Check if player gets removed from warmup or service.
-                        if (this.getInstance().getServiceManager().removeFromWarmup(event.getPlayer())
-                                || this.getInstance().getServiceManager().removeFromService(event.getPlayer())) {
-                            this.getInstance().getServiceManager().removeFromGrace(event.getPlayer());
-
+                        // Check if player gets removed from condition and from warmup or service.
+                        if (this.getInstance().handleConditionRemove(event.getPlayer())) {
                             event.getPlayer().sendMessage(tl("worldDenied", world.getName()));
-                        }
-
-                        if (this.getInstance().getServiceManager().removeFromCondition(event.getPlayer())) {
-                            this.getInstance().getLogger().debug("Service player '%s' is no longer in condition.");
                         }
 
                         return;
@@ -74,17 +70,10 @@ public final class ConditionListener extends BasicListener {
                     // Filter environment is per environment permission is enabled.
                     if (this.getInstance().getSettings().isPermissionPerEnvironment()) {
                         if (!event.getPlayer().hasPermission(Permission.ENVIRONMENT.getChildren(environment.name().toLowerCase()))) {
-                            // Check if player gets removed from warmup or service.
-                            if (this.getInstance().getServiceManager().removeFromWarmup(event.getPlayer())
-                                    || this.getInstance().getServiceManager().removeFromService(event.getPlayer())) {
-                                this.getInstance().getServiceManager().removeFromGrace(event.getPlayer());
-
+                            // Check if player gets removed from condition and from warmup or service.
+                            if (this.getInstance().handleConditionRemove(event.getPlayer())) {
                                 event.getPlayer().sendMessage(tl("environmentDenied", environment.name().charAt(0)
                                         + environment.name().substring(1).toLowerCase()));
-                            }
-
-                            if (this.getInstance().getServiceManager().removeFromCondition(event.getPlayer())) {
-                                this.getInstance().getLogger().debug("Service player '%s' is no longer in condition.");
                             }
 
                             return;
@@ -94,30 +83,18 @@ public final class ConditionListener extends BasicListener {
                     return; // Player is still in condition.
                 }
 
-                if (this.getInstance().getServiceManager().removeFromWarmup(event.getPlayer())
-                        || this.getInstance().getServiceManager().removeFromService(event.getPlayer())) {
-                    this.getInstance().getServiceManager().removeFromGrace(event.getPlayer());
-
+                // Check if player gets removed from condition and from warmup or service.
+                if (this.getInstance().handleConditionRemove(event.getPlayer())) {
                     event.getPlayer().sendMessage(tl("noServiceEnvironment", environment.name().charAt(0)
                             + environment.name().substring(1).toLowerCase()));
-                }
-
-                if (this.getInstance().getServiceManager().removeFromCondition(event.getPlayer())) {
-                    this.getInstance().getLogger().debug("Service player '%s' is no longer in condition.");
                 }
 
                 return;
             }
 
-            if (this.getInstance().getServiceManager().removeFromWarmup(event.getPlayer())
-                    || this.getInstance().getServiceManager().removeFromService(event.getPlayer())) {
-                this.getInstance().getServiceManager().removeFromGrace(event.getPlayer());
-
+            // Check if player gets removed from condition and from warmup or service.
+            if (this.getInstance().handleConditionRemove(event.getPlayer())) {
                 event.getPlayer().sendMessage(tl("noServiceWorld", world.getName()));
-            }
-
-            if (this.getInstance().getServiceManager().removeFromCondition(event.getPlayer())) {
-                this.getInstance().getLogger().debug("Service player '%s' is no longer in condition.");
             }
 
             return;
@@ -129,22 +106,18 @@ public final class ConditionListener extends BasicListener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerGameModeChangeEvent(@NotNull final PlayerGameModeChangeEvent event) {
         if (this.getInstance().getServiceManager().isInCondition(event.getPlayer().getUniqueId())) {
+            this.getInstance().getLogger().debug(String.format("Service player '%s' changed to game-mode '%s'.",
+                    event.getPlayer().getName(), event.getNewGameMode().name()));
+
             // If true, check if players new game-mode is also a service game-mode.
             if (this.getInstance().getSettings().isServiceGameMode(event.getNewGameMode())) {
                 return; // Player is still in condition.
             }
 
-            // If not, remove player from warmup or service if it is in.
-            if (this.getInstance().getServiceManager().removeFromWarmup(event.getPlayer())
-                    || this.getInstance().getServiceManager().removeFromService(event.getPlayer())) {
-                this.getInstance().getServiceManager().removeFromGrace(event.getPlayer());
-
+            // Check if player gets removed from condition and from warmup or service.
+            if (this.getInstance().handleConditionRemove(event.getPlayer())) {
                 event.getPlayer().sendMessage(tl("noServiceGameMode", event.getNewGameMode().name().charAt(0)
                         + event.getNewGameMode().name().substring(1).toLowerCase()));
-            }
-
-            if (this.getInstance().getServiceManager().removeFromCondition(event.getPlayer())) {
-                this.getInstance().getLogger().debug("Service player '%s' is no longer in condition.");
             }
 
             return;
