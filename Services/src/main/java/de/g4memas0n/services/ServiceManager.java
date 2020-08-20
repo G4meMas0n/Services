@@ -62,6 +62,7 @@ public final class ServiceManager {
                     this.warmups.remove(player.getUniqueId());
 
                     if (this.services.add(player.getUniqueId())) {
+                        this.instance.getLogger().debug(String.format("Service player '%s' is longer in warmup timer and now in service mode.", player.getName()));
                         this.instance.sendMessage(player, tl("serviceEnable"));
                     }
                 }
@@ -108,17 +109,22 @@ public final class ServiceManager {
             return false;
         }
 
-        this.graces.put(player.getUniqueId(), this.instance.scheduleTask(() -> {
-            if (this.graces.containsKey(player.getUniqueId())) {
-                this.graces.remove(player.getUniqueId());
+        if (this.instance.getSettings().isGracePeriod()) {
+            this.graces.put(player.getUniqueId(), this.instance.scheduleTask(() -> {
+                if (this.graces.containsKey(player.getUniqueId())) {
+                    this.graces.remove(player.getUniqueId());
 
-                if (this.services.remove(player.getUniqueId())) {
-                    this.instance.sendMessage(player, tl("serviceDisable"));
+                    if (this.services.remove(player.getUniqueId())) {
+                        this.instance.getLogger().debug(String.format("Service player '%s' is no longer in service mode and grace timer.", player.getName()));
+                        this.instance.sendMessage(player, tl("serviceDisable"));
+                    }
                 }
-            }
-        }, period * 20));
+            }, period * 20));
 
-        return true;
+            return true;
+        }
+
+        return false;
     }
 
     public boolean removeFromGrace(@NotNull final Player player) {
