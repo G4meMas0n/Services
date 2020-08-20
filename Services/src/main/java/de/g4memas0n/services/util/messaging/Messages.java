@@ -170,6 +170,7 @@ public final class Messages {
         return instance.translate("prefixError") + " " + instance.format(key, arguments);
     }
 
+    @SuppressWarnings("unused")
     public static @NotNull String tlJoin(@NotNull final String key,
                                          @NotNull final Collection<String> collection) {
         if (instance == null) {
@@ -177,14 +178,6 @@ public final class Messages {
         }
 
         return instance.formatJoining(key, collection);
-    }
-
-    public static @NotNull String tlState(final boolean state) {
-        if (instance == null) {
-            return state ? "enabled" : "disabled";
-        }
-
-        return instance.translate(state ? "enabled" : "disabled");
     }
 
     /**
