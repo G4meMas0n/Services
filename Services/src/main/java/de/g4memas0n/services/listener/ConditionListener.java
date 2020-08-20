@@ -56,7 +56,7 @@ public final class ConditionListener extends BasicListener {
                     if (!event.getPlayer().hasPermission(Permission.WORLD.getChildren(world.getName()))) {
                         // Check if player gets removed from condition and from warmup or service.
                         if (this.getInstance().handleConditionRemove(event.getPlayer())) {
-                            event.getPlayer().sendMessage(tl("worldDenied", world.getName()));
+                            this.getInstance().sendMessage(event.getPlayer(), tl("worldDenied", world.getName()));
                         }
 
                         return;
@@ -72,7 +72,7 @@ public final class ConditionListener extends BasicListener {
                         if (!event.getPlayer().hasPermission(Permission.ENVIRONMENT.getChildren(environment.name().toLowerCase()))) {
                             // Check if player gets removed from condition and from warmup or service.
                             if (this.getInstance().handleConditionRemove(event.getPlayer())) {
-                                event.getPlayer().sendMessage(tl("environmentDenied", environment.name().charAt(0)
+                                this.getInstance().sendMessage(event.getPlayer(), tl("environmentDenied", environment.name().charAt(0)
                                         + environment.name().substring(1).toLowerCase()));
                             }
 
@@ -85,7 +85,7 @@ public final class ConditionListener extends BasicListener {
 
                 // Check if player gets removed from condition and from warmup or service.
                 if (this.getInstance().handleConditionRemove(event.getPlayer())) {
-                    event.getPlayer().sendMessage(tl("noServiceEnvironment", environment.name().charAt(0)
+                    this.getInstance().sendMessage(event.getPlayer(), tl("noServiceEnvironment", environment.name().charAt(0)
                             + environment.name().substring(1).toLowerCase()));
                 }
 
@@ -94,7 +94,7 @@ public final class ConditionListener extends BasicListener {
 
             // Check if player gets removed from condition and from warmup or service.
             if (this.getInstance().handleConditionRemove(event.getPlayer())) {
-                event.getPlayer().sendMessage(tl("noServiceWorld", world.getName()));
+                this.getInstance().sendMessage(event.getPlayer(), tl("noServiceWorld", world.getName()));
             }
 
             return;
@@ -116,7 +116,7 @@ public final class ConditionListener extends BasicListener {
 
             // Check if player gets removed from condition and from warmup or service.
             if (this.getInstance().handleConditionRemove(event.getPlayer())) {
-                event.getPlayer().sendMessage(tl("noServiceGameMode", event.getNewGameMode().name().charAt(0)
+                this.getInstance().sendMessage(event.getPlayer(), tl("noServiceGameMode", event.getNewGameMode().name().charAt(0)
                         + event.getNewGameMode().name().substring(1).toLowerCase()));
             }
 

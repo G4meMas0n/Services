@@ -62,7 +62,7 @@ public final class ServiceManager {
                     this.warmups.remove(player.getUniqueId());
 
                     if (this.services.add(player.getUniqueId())) {
-                        player.sendMessage(tl("serviceEnable"));
+                        this.instance.sendMessage(player, tl("serviceEnable"));
                     }
                 }
             }, period * 20));
@@ -113,7 +113,7 @@ public final class ServiceManager {
                 this.graces.remove(player.getUniqueId());
 
                 if (this.services.remove(player.getUniqueId())) {
-                    player.sendMessage(tl(("serviceDisable")));
+                    this.instance.sendMessage(player, tl("serviceDisable"));
                 }
             }
         }, period * 20));
