@@ -91,6 +91,8 @@ public final class Services extends JavaPlugin {
             this.onLoad();
         }
 
+        this.messages.enable();
+
         if (this.commands.isEmpty()) {
             this.commands.add(new ServicesCommand());
         }
