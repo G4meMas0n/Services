@@ -30,15 +30,7 @@ public final class ConditionListener extends BasicListener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerQuit(@NotNull final PlayerQuitEvent event) {
-        // Check if player gets removed from condition for services.
-        if (this.getInstance().getServiceManager().removeFromCondition(event.getPlayer())) {
-            this.getInstance().getLogger().debug(String.format("Service player '%s' is no longer in condition for service.", event.getPlayer().getName()));
-
-            // If true, remove it from warmup, grace and service if it is in.
-            this.getInstance().getServiceManager().removeFromWarmup(event.getPlayer());
-            this.getInstance().getServiceManager().removeFromService(event.getPlayer());
-            this.getInstance().getServiceManager().removeFromGrace(event.getPlayer());
-        }
+        this.getInstance().handleConditionRemove(event.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)

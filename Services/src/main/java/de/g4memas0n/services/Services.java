@@ -103,9 +103,8 @@ public final class Services extends JavaPlugin {
 
         this.getLogger().debug("All plugin commands and listeners has been registered.");
 
-        for (final Player player : this.getServer().getOnlinePlayers()) {
-            this.handleConditionCheck(player);
-        }
+        // Check for all online players the condition and the service.
+        this.getServer().getOnlinePlayers().forEach(this::handleConditionCheck);
 
         this.enabled = true;
     }
@@ -117,15 +116,10 @@ public final class Services extends JavaPlugin {
             return;
         }
 
+        // Remove for all online players the condition and the service.
         for (final Player player : this.getServer().getOnlinePlayers()) {
-            if (this.manager.removeFromCondition(player)) {
-                if (this.manager.removeFromWarmup(player) || this.manager.removeFromService(player)) {
-                    this.manager.removeFromGrace(player);
-
-                    player.sendMessage(this.messages.translate("serviceDisable"));
-                }
-
-                this.manager.removeFromGrace(player);
+            if (this.handleConditionRemove(player)) {
+                player.sendMessage(this.messages.translate("serviceDisable"));
             }
         }
 
@@ -164,9 +158,7 @@ public final class Services extends JavaPlugin {
         }
 
         // Check for all online players the condition and the service.
-        for (final Player player : this.getServer().getOnlinePlayers()) {
-            this.handleConditionCheck(player);
-        }
+        this.getServer().getOnlinePlayers().forEach(this::handleConditionCheck);
     }
 
     @Override

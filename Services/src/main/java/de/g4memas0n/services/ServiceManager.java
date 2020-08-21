@@ -90,8 +90,6 @@ public final class ServiceManager {
 
     // Service collection methods:
     public boolean addToService(@NotNull final Player player) {
-        this.warmups.remove(player.getUniqueId());
-
         return this.services.add(player.getUniqueId());
     }
 
