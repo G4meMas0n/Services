@@ -1,5 +1,6 @@
 package de.g4memas0n.services;
 
+import de.g4memas0n.services.command.BasicCommand;
 import de.g4memas0n.services.command.BasicPluginCommand;
 import de.g4memas0n.services.command.ServicesCommand;
 import de.g4memas0n.services.listener.BasicListener;
@@ -68,6 +69,8 @@ public final class Services extends JavaPlugin {
         this.settings = new Settings(this);
         this.settings.load();
 
+        this.logger.setDebug(this.settings.isDebug());
+
         this.messages = new Messages(this.getDataFolder(), this.logger);
         this.messages.setLocale(this.settings.getLocale());
 
@@ -99,6 +102,7 @@ public final class Services extends JavaPlugin {
 
         this.getLogger().debug("Register all plugin commands and listeners...");
 
+        this.commands.forEach(command -> command.register(this));
         this.listeners.forEach(listener -> listener.register(this));
 
         this.getLogger().debug("All plugin commands and listeners has been registered.");
@@ -125,6 +129,7 @@ public final class Services extends JavaPlugin {
 
         this.getLogger().debug("Unregister all plugin commands and listeners...");
 
+        this.commands.forEach(BasicCommand::unregister);
         this.listeners.forEach(BasicListener::unregister);
 
         this.getLogger().debug("All plugin commands and listeners has been unregistered.");
@@ -149,7 +154,6 @@ public final class Services extends JavaPlugin {
         this.settings.load();
 
         this.logger.setDebug(this.settings.isDebug());
-
         this.messages.setLocale(this.settings.getLocale());
 
         // Update for all plugin commands the no-permission message.
