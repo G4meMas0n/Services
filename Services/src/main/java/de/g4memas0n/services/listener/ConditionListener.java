@@ -115,6 +115,7 @@ public final class ConditionListener extends BasicListener {
             return;
         }
 
-        this.getInstance().handleConditionCheck(event.getPlayer());
+        // Schedule task to next server tick, to check the correct game-mode.
+        this.getInstance().runTask(() -> this.getInstance().handleConditionCheck(event.getPlayer()));
     }
 }
