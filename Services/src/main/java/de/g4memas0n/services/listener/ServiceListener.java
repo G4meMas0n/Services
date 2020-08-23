@@ -1,6 +1,5 @@
 package de.g4memas0n.services.listener;
 
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -10,7 +9,9 @@ import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerItemBreakEvent;
+import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
@@ -68,7 +69,7 @@ public final class ServiceListener extends BasicListener {
 
         // Check if player is in condition.
         if (this.getInstance().getServiceManager().isInCondition(event.getPlayer().getUniqueId())) {
-            final Material item = event.getPlayer().getInventory().getItemInMainHand().getType();
+            final ItemStack item = event.getPlayer().getInventory().getItemInMainHand();
 
             // If true, execute service check.
             this.getInstance().handleServiceCheck((Player) event.getPlayer(), item);
@@ -81,6 +82,7 @@ public final class ServiceListener extends BasicListener {
             return;
         }
 
+        // Check if player is in service.
         if (this.getInstance().getServiceManager().isInService(event.getEntity().getUniqueId())) {
             event.setCancelled(true);
         }
@@ -108,6 +110,50 @@ public final class ServiceListener extends BasicListener {
         }
     }
 
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPlayerItemBreak(@NotNull final PlayerItemBreakEvent event) {
+        // Check if player is in condition.
+        if (this.getInstance().getServiceManager().isInCondition(event.getPlayer().getUniqueId())) {
+            // If true, check if broken item is a service item.
+            if (this.getInstance().getSettings().isServiceItem(event.getBrokenItem().getType())) {
+                // If true, check if player is already in grace.
+                if (this.getInstance().getServiceManager().isInGrace(event.getPlayer().getUniqueId())) {
+                    return; // If true, no check is required.
+                }
+
+                // Check if a new Event got fired before the check routine got called.
+                if (this.schedules.containsKey(event.getPlayer().getUniqueId())) {
+                    // If true, cancel the scheduled check routine and schedule a new one.
+                    this.schedules.remove(event.getPlayer().getUniqueId()).cancel();
+                }
+
+                this.schedules.put(event.getPlayer().getUniqueId(), this.getInstance().runTask(() -> handleServiceCheck(event.getPlayer())));
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerItemConsume(@NotNull final PlayerItemConsumeEvent event) {
+        // Check if player is in condition.
+        if (this.getInstance().getServiceManager().isInCondition(event.getPlayer().getUniqueId())) {
+            // If true, check if consumed item is a service item.
+            if (this.getInstance().getSettings().isServiceItem(event.getItem().getType())) {
+                // If true, check if player is already in grace.
+                if (this.getInstance().getServiceManager().isInGrace(event.getPlayer().getUniqueId())) {
+                    return; // If true, no check is required.
+                }
+
+                // Check if a new Event got fired before the check routine got called.
+                if (this.schedules.containsKey(event.getPlayer().getUniqueId())) {
+                    // If true, cancel the scheduled check routine and schedule a new one.
+                    this.schedules.remove(event.getPlayer().getUniqueId()).cancel();
+                }
+
+                this.schedules.put(event.getPlayer().getUniqueId(), this.getInstance().runTask(() -> handleServiceCheck(event.getPlayer())));
+            }
+        }
+    }
+
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerItemHeld(@NotNull final PlayerItemHeldEvent event) {
         // Check if player is in condition.
@@ -115,7 +161,7 @@ public final class ServiceListener extends BasicListener {
             final ItemStack item = event.getPlayer().getInventory().getItem(event.getNewSlot());
 
             // If true, execute service check.
-            this.getInstance().handleServiceCheck(event.getPlayer(), item != null ? item.getType() : null);
+            this.getInstance().handleServiceCheck(event.getPlayer(), item);
         }
     }
 
@@ -146,25 +192,12 @@ public final class ServiceListener extends BasicListener {
         }
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onPlayerItemBreak(@NotNull final PlayerItemBreakEvent event) {
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerSwapHandItem(@NotNull final PlayerSwapHandItemsEvent event) {
         // Check if player is in condition.
         if (this.getInstance().getServiceManager().isInCondition(event.getPlayer().getUniqueId())) {
-            // If true, check if broken item is a service item.
-            if (this.getInstance().getSettings().isServiceItem(event.getBrokenItem().getType())) {
-                // If true, check if player is already in grace.
-                if (this.getInstance().getServiceManager().isInGrace(event.getPlayer().getUniqueId())) {
-                    return; // If true, no check is required.
-                }
-
-                // Check if a new Event got fired before the check routine got called.
-                if (this.schedules.containsKey(event.getPlayer().getUniqueId())) {
-                    // If true, cancel the scheduled check routine and schedule a new one.
-                    this.schedules.remove(event.getPlayer().getUniqueId()).cancel();
-                }
-
-                this.schedules.put(event.getPlayer().getUniqueId(), this.getInstance().runTask(() -> handleServiceCheck(event.getPlayer())));
-            }
+            // If true, execute service check.
+            this.getInstance().handleServiceCheck(event.getPlayer(), event.getMainHandItem());
         }
     }
 
@@ -179,6 +212,6 @@ public final class ServiceListener extends BasicListener {
             return;
         }
 
-        this.getInstance().handleServiceCheck(target, target.getInventory().getItemInMainHand().getType());
+        this.getInstance().handleServiceCheck(target, target.getInventory().getItemInMainHand());
     }
 }

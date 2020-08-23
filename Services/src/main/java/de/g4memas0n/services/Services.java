@@ -10,8 +10,8 @@ import de.g4memas0n.services.storage.configuration.Settings;
 import de.g4memas0n.services.util.Permission;
 import de.g4memas0n.services.util.logging.BasicLogger;
 import de.g4memas0n.services.util.messaging.Messages;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
@@ -230,7 +230,7 @@ public final class Services extends JavaPlugin {
                     if (this.manager.addToCondition(target)) {
                         this.logger.debug(String.format("Service player '%s' is now in condition for service.", target.getName()));
 
-                        this.handleServiceCheck(target, target.getInventory().getItemInMainHand().getType());
+                        this.handleServiceCheck(target, target.getInventory().getItemInMainHand());
                     }
 
                     return;
@@ -297,19 +297,19 @@ public final class Services extends JavaPlugin {
      * Checks if the given item is a service item and adds/removes the given player to/from services.
      *
      * @param target the player that should be checked.
-     * @param item the main hand item of the player.
+     * @param item the main hand item stack of the player.
      */
-    public void handleServiceCheck(@NotNull final Player target, @Nullable final Material item) {
+    public void handleServiceCheck(@NotNull final Player target, @Nullable final ItemStack item) {
         if (!this.manager.isInCondition(target.getUniqueId())) {
             return;
         }
 
         // Check if new item slot contains a item and if it is a service item.
-        if (item != null && this.settings.isServiceItem(item)) {
+        if (item != null && this.settings.isServiceItem(item.getType())) {
             // Check if permission per item is enabled.
             if (this.settings.isPermissionPerItem()) {
                 // If true, check if player has permission for this service item.
-                if (!target.hasPermission(Permission.ITEM.getChildren(item.getKey().getKey()))) {
+                if (!target.hasPermission(Permission.ITEM.getChildren(item.getType().getKey().getKey()))) {
                     // If not, check if player gets removed from warmup.
                     if (this.manager.removeFromWarmup(target)) {
                         this.logger.debug(String.format("Service player '%s' is no longer in warmup timer.", target.getName()));
