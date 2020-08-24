@@ -307,7 +307,7 @@ public final class Settings {
 
             // Checks if the current material is an entity type. Throws IllegalArgumentException if not.
             try {
-                EntityType.valueOf(name.toUpperCase());
+                EntityType.valueOf(material.getKey().getKey().toUpperCase());
 
                 this.instance.getLogger().warning(String.format("Detected invalid item in configuration file '%s': "
                         + "Material '%s' is not an allowed item.", this.storage.getFile().getName(), name));
