@@ -256,7 +256,7 @@ public final class Settings {
         final Set<Material> materials = new HashSet<>();
 
         for (final String name : this.storage.getStringList("service.items")) {
-            final Material material = Material.matchMaterial(name);
+            final Material material = Material.matchMaterial(name, false);
 
             if (material == null) {
                 this.instance.getLogger().warning(String.format("Detected invalid item in configuration file '%s': "
@@ -267,6 +267,12 @@ public final class Settings {
             if (!material.isItem()) {
                 this.instance.getLogger().warning(String.format("Detected invalid item in configuration file '%s': "
                         + "Material '%s' is not an obtainable item.", this.storage.getFile().getName(), name));
+                continue;
+            }
+
+            if (material.isEdible()) {
+                this.instance.getLogger().warning(String.format("Detected invalid item in configuration file '%s': "
+                        + "Material '%s' is not an allowed item.", this.storage.getFile().getName(), name));
                 continue;
             }
 

@@ -9,7 +9,6 @@ import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerItemBreakEvent;
-import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.EquipmentSlot;
@@ -116,28 +115,6 @@ public final class ServiceListener extends BasicListener {
         if (this.getInstance().getServiceManager().isInCondition(event.getPlayer().getUniqueId())) {
             // If true, check if broken item is a service item.
             if (this.getInstance().getSettings().isServiceItem(event.getBrokenItem().getType())) {
-                // If true, check if player is already in grace.
-                if (this.getInstance().getServiceManager().isInGrace(event.getPlayer().getUniqueId())) {
-                    return; // If true, no check is required.
-                }
-
-                // Check if a new Event got fired before the check routine got called.
-                if (this.schedules.containsKey(event.getPlayer().getUniqueId())) {
-                    // If true, cancel the scheduled check routine and schedule a new one.
-                    this.schedules.remove(event.getPlayer().getUniqueId()).cancel();
-                }
-
-                this.schedules.put(event.getPlayer().getUniqueId(), this.getInstance().runTask(() -> handleServiceCheck(event.getPlayer())));
-            }
-        }
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onPlayerItemConsume(@NotNull final PlayerItemConsumeEvent event) {
-        // Check if player is in condition.
-        if (this.getInstance().getServiceManager().isInCondition(event.getPlayer().getUniqueId())) {
-            // If true, check if consumed item is a service item.
-            if (this.getInstance().getSettings().isServiceItem(event.getItem().getType())) {
                 // If true, check if player is already in grace.
                 if (this.getInstance().getServiceManager().isInGrace(event.getPlayer().getUniqueId())) {
                     return; // If true, no check is required.
