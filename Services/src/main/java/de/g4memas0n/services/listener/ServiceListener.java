@@ -8,7 +8,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
-import org.bukkit.event.player.PlayerBucketEvent;
+import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerItemBreakEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
@@ -78,7 +78,53 @@ public final class ServiceListener extends BasicListener {
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onPlayerBucketUse(@NotNull final PlayerBucketEvent event) {
+    public void onPlayerBucketFill(@NotNull final PlayerBucketFillEvent event) {
+        // Check if player is in condition.
+        if (this.getInstance().getServiceManager().isInCondition(event.getPlayer().getUniqueId())) {
+            // If true, check if the used bucket is a service item.
+            if (this.getInstance().getSettings().isServiceItem(event.getBucket())) {
+                // If true, check if player is already in grace.
+                if (this.getInstance().getServiceManager().isInGrace(event.getPlayer().getUniqueId())) {
+                    return; // If true, no check is required.
+                }
+
+                // Check if a new Event got fired before the check routine got called.
+                if (this.schedules.containsKey(event.getPlayer().getUniqueId())) {
+                    // If true, cancel the scheduled check routine and schedule a new one.
+                    this.schedules.remove(event.getPlayer().getUniqueId()).cancel();
+                }
+
+                this.schedules.put(event.getPlayer().getUniqueId(), this.getInstance().runTask(() -> handleServiceCheck(event.getPlayer())));
+
+                return;
+            }
+
+            // Return if no resulting item exist after the event.
+            if (event.getItemStack() == null) {
+                return;
+            }
+
+            // If exist, check if resulting item is a service item.
+            if (this.getInstance().getSettings().isServiceItem(event.getItemStack().getType())) {
+                // If true, check if player is already in warmup or service.
+                if (this.getInstance().getServiceManager().isInWarmup(event.getPlayer().getUniqueId())
+                        || this.getInstance().getServiceManager().isInService(event.getPlayer().getUniqueId())) {
+                    return; // If true, no check is required.
+                }
+
+                // Check if a new Event got fired before the check routine got called.
+                if (this.schedules.containsKey(event.getPlayer().getUniqueId())) {
+                    // If true, cancel the scheduled check routine and schedule a new one.
+                    this.schedules.remove(event.getPlayer().getUniqueId()).cancel();
+                }
+
+                this.schedules.put(event.getPlayer().getUniqueId(), this.getInstance().runTask(() -> handleServiceCheck(event.getPlayer())));
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerBucketEmpty(@NotNull final PlayerBucketEmptyEvent event) {
         // Check if player is in condition.
         if (this.getInstance().getServiceManager().isInCondition(event.getPlayer().getUniqueId())) {
             // If true, check if the used bucket is a service item.
@@ -125,7 +171,7 @@ public final class ServiceListener extends BasicListener {
 
     // Event Listener for the hidden unlimited buckets configuration option.
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onPlayerBucketEmpty(@NotNull final PlayerBucketEmptyEvent event) {
+    public void onPlayerBucketUnlimited(@NotNull final PlayerBucketEmptyEvent event) {
         // Check if player is in condition.
         if (this.getInstance().getServiceManager().isInCondition(event.getPlayer().getUniqueId())) {
             // If true, check if filled bucket is a service item.
