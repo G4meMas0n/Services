@@ -103,7 +103,7 @@ public final class ServiceManager {
 
     // Grace collection methods:
     public boolean addToGrace(@NotNull final Player player, final long period) {
-        if (this.warmups.containsKey(player.getUniqueId())) {
+        if (this.warmups.containsKey(player.getUniqueId()) || this.graces.containsKey(player.getUniqueId())) {
             return false;
         }
 
