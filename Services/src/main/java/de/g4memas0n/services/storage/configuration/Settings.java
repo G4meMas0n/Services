@@ -7,6 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
 import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 import java.io.File;
@@ -33,12 +34,14 @@ public final class Settings {
     private final YamlStorageFile storage;
 
     private Set<Environment> environments;
+    private Set<GameMode> modes;
     private Set<Material> items;
     private Set<String> worlds;
 
     private boolean environment;
     private boolean item;
     private boolean world;
+    private boolean unlimited;
 
     private int warmup;
     private int grace;
@@ -98,12 +101,14 @@ public final class Settings {
         }
 
         this.environments = this._getServiceEnvironments();
+        this.modes = this._getServiceGameModes();
         this.items = this._getServiceItems();
         this.worlds = this._getServiceWorlds();
 
         this.environment = this._getPermissionPerEnvironment();
         this.item = this._getPermissionPerItem();
         this.world = this._getPermissionPerWorld();
+        this.unlimited = this._getUnlimitedBuckets();
 
         this.warmup = this._getWarmupPeriod();
         this.grace = this._getGracePeriod();
@@ -220,7 +225,7 @@ public final class Settings {
 
         for (final String name : this.storage.getStringList("service.environments")) {
             try {
-                environments.add(Environment.valueOf(name));
+                environments.add(Environment.valueOf(name.toUpperCase()));
             } catch (IllegalArgumentException ex) {
                 this.instance.getLogger().warning(String.format("Detected invalid environment in configuration file '%s': "
                         + "Environment '%s' does not exist.", this.storage.getFile().getName(), name));
@@ -243,13 +248,37 @@ public final class Settings {
         return this.environments.contains(environment);
     }
 
-    @SuppressWarnings("unused")
-    public @NotNull @Unmodifiable Set<GameMode> getServiceGameModes() {
+    protected @NotNull @Unmodifiable Set<GameMode> _getServiceGameModes() {
+        // Check if hidden configuration option is set.
+        if (this.storage.contains("service.game-modes")) {
+            final Set<GameMode> modes = new HashSet<>();
+
+            for (final String name : this.storage.getStringList("service.game-modes")) {
+                try {
+                    modes.add(GameMode.valueOf(name.toUpperCase()));
+                } catch (IllegalArgumentException ex) {
+                    this.instance.getLogger().warning(String.format("Detected invalid game-mode in configuration file '%s': "
+                            + "Game-Mode '%s' does not exist.", this.storage.getFile().getName(), name));
+                }
+            }
+
+            return Collections.unmodifiableSet(modes);
+        }
+
         return Collections.singleton(GameMode.SURVIVAL);
     }
 
-    public boolean isServiceGameMode(@NotNull final GameMode gameMode) {
-        return gameMode == GameMode.SURVIVAL;
+    @SuppressWarnings("unused")
+    public @NotNull @Unmodifiable Set<GameMode> getServiceGameModes() {
+        return this.modes;
+    }
+
+    public boolean isServiceGameMode(@NotNull final GameMode mode) {
+        if (this.modes.isEmpty()) {
+            return true;
+        }
+
+        return this.modes.contains(mode);
     }
 
     protected @NotNull @Unmodifiable Set<Material> _getServiceItems() {
@@ -276,7 +305,15 @@ public final class Settings {
                 continue;
             }
 
-            materials.add(material);
+            // Checks if the current material is an entity type. Throws IllegalArgumentException if not.
+            try {
+                EntityType.valueOf(name.toUpperCase());
+
+                this.instance.getLogger().warning(String.format("Detected invalid item in configuration file '%s': "
+                        + "Material '%s' is not an allowed item.", this.storage.getFile().getName(), name));
+            } catch (IllegalArgumentException ex) {
+                materials.add(material);
+            }
         }
 
         if (materials.isEmpty()) {
@@ -317,5 +354,18 @@ public final class Settings {
         }
 
         return this.worlds.contains(world.getName());
+    }
+
+    protected boolean _getUnlimitedBuckets() {
+        // Check if hidden configuration option is set.
+        if (this.storage.contains("unlimited.buckets")) {
+            return this.storage.getBoolean("unlimited.buckets", false);
+        }
+
+        return false;
+    }
+
+    public boolean isUnlimitedBuckets() {
+        return this.unlimited;
     }
 }

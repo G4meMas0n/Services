@@ -48,8 +48,8 @@ service:
     - "NORMAL"
 
   # Sets the items that activates services. (Type: String Array, Default: ["minecraft:bedrock", "minecraft:wooden_axe"])
-  # Note: Each entry must be equal to the name-spaced key of an existing Material.
-  # Note: Please do not use throwable materials and any art of buckets as service item.
+  # Note: Each entry must be equal to the name-spaced key of an existing and allowed Material.
+  # Note: Edible, throwable or non item Materials are not allowed as service item.
   items:
     - "minecraft:bedrock"
     - "minecraft:wooden_axe"
