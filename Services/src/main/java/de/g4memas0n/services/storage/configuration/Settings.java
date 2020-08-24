@@ -41,7 +41,8 @@ public final class Settings {
     private boolean environment;
     private boolean item;
     private boolean world;
-    private boolean unlimited;
+
+    private boolean lava;
 
     private int warmup;
     private int grace;
@@ -108,7 +109,8 @@ public final class Settings {
         this.environment = this._getPermissionPerEnvironment();
         this.item = this._getPermissionPerItem();
         this.world = this._getPermissionPerWorld();
-        this.unlimited = this._getUnlimitedBuckets();
+
+        this.lava = this._getUnlimitedLava();
 
         this.warmup = this._getWarmupPeriod();
         this.grace = this._getGracePeriod();
@@ -356,16 +358,16 @@ public final class Settings {
         return this.worlds.contains(world.getName());
     }
 
-    protected boolean _getUnlimitedBuckets() {
+    protected boolean _getUnlimitedLava() {
         // Check if hidden configuration option is set.
-        if (this.storage.contains("unlimited.buckets")) {
-            return this.storage.getBoolean("unlimited.buckets", false);
+        if (this.storage.contains("unlimited.lava")) {
+            return this.storage.getBoolean("unlimited.lava", false);
         }
 
         return false;
     }
 
-    public boolean isUnlimitedBuckets() {
-        return this.unlimited;
+    public boolean isUnlimitedLava() {
+        return this.lava;
     }
 }
