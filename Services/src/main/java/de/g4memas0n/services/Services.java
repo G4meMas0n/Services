@@ -5,6 +5,7 @@ import de.g4memas0n.services.command.BasicPluginCommand;
 import de.g4memas0n.services.command.ServicesCommand;
 import de.g4memas0n.services.listener.BasicListener;
 import de.g4memas0n.services.listener.ConditionListener;
+import de.g4memas0n.services.listener.FeatureListener;
 import de.g4memas0n.services.listener.ServiceListener;
 import de.g4memas0n.services.storage.configuration.Settings;
 import de.g4memas0n.services.util.Permission;
@@ -41,7 +42,7 @@ public final class Services extends JavaPlugin {
 
     public Services() {
         this.commands = new HashSet<>(2, 1);
-        this.listeners = new HashSet<>(3, 1);
+        this.listeners = new HashSet<>(4, 1);
 
         this.logger = new BasicLogger(super.getLogger(), "Plugin", "Services");
     }
@@ -99,6 +100,7 @@ public final class Services extends JavaPlugin {
 
         if (this.listeners.isEmpty()) {
             this.listeners.add(new ConditionListener());
+            this.listeners.add(new FeatureListener());
             this.listeners.add(new ServiceListener());
         }
 

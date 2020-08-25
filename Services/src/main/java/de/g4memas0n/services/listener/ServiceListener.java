@@ -1,6 +1,5 @@
 package de.g4memas0n.services.listener;
 
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -166,30 +165,6 @@ public final class ServiceListener extends BasicListener {
                 }
 
                 this.schedules.put(event.getPlayer().getUniqueId(), this.getInstance().runTask(() -> handleServiceCheck(event.getPlayer())));
-            }
-        }
-    }
-
-    // Event Listener for the hidden unlimited lava configuration option.
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onPlayerBucketUnlimited(@NotNull final PlayerBucketEmptyEvent event) {
-        // Check if player is in condition.
-        if (this.getInstance().getServiceManager().isInCondition(event.getPlayer().getUniqueId())) {
-            // Return if filled bucket is not a lava bucket.
-            if (event.getBucket() != Material.LAVA_BUCKET) {
-                return;
-            }
-
-            // If true, check if lava bucket is a service item.
-            if (this.getInstance().getSettings().isServiceItem(event.getBucket())) {
-                // If true, check if unlimited service buckets is enabled.
-                if (this.getInstance().getSettings().isUnlimitedLava()) {
-                    // If true, check if player is in service.
-                    if (this.getInstance().getServiceManager().isInService(event.getPlayer().getUniqueId())) {
-                        event.getBlockClicked().getRelative(event.getBlockFace()).setType(Material.LAVA);
-                        event.setCancelled(true);
-                    }
-                }
             }
         }
     }
