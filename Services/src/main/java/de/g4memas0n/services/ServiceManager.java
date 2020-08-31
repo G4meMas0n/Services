@@ -9,8 +9,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import static de.g4memas0n.services.util.messaging.Messages.tl;
-
 /**
  * Service Manager, that manages all players in warmup, service, grace and also in condition.
  *
@@ -63,7 +61,7 @@ public final class ServiceManager {
 
                     if (this.services.add(player.getUniqueId())) {
                         this.instance.getLogger().debug(String.format("Service player '%s' is longer in warmup timer and now in service mode.", player.getName()));
-                        this.instance.sendMessage(player, tl("serviceEnable"));
+                        this.instance.sendMessage(player, this.instance.getMessages().translate("serviceEnable"));
                     }
                 }
             }, period * 20));
@@ -114,7 +112,7 @@ public final class ServiceManager {
 
                     if (this.services.remove(player.getUniqueId())) {
                         this.instance.getLogger().debug(String.format("Service player '%s' is no longer in service mode and grace timer.", player.getName()));
-                        this.instance.sendMessage(player, tl("serviceDisable"));
+                        this.instance.sendMessage(player, this.instance.getMessages().translate("serviceDisable"));
                     }
                 }
             }, period * 20));

@@ -1,6 +1,5 @@
 package de.g4memas0n.services;
 
-import de.g4memas0n.services.command.BasicCommand;
 import de.g4memas0n.services.command.BasicPluginCommand;
 import de.g4memas0n.services.command.ServicesCommand;
 import de.g4memas0n.services.listener.BasicListener;
@@ -28,9 +27,9 @@ import java.util.Set;
  */
 public final class Services extends JavaPlugin {
 
-    private final Set<BasicPluginCommand> commands;
     private final Set<BasicListener> listeners;
 
+    private final BasicPluginCommand command;
     private final BasicLogger logger;
 
     private ServiceManager manager;
@@ -41,8 +40,8 @@ public final class Services extends JavaPlugin {
     private boolean enabled;
 
     public Services() {
-        this.commands = new HashSet<>(2, 1);
         this.listeners = new HashSet<>(4, 1);
+        this.command = new ServicesCommand();
 
         this.logger = new BasicLogger(super.getLogger(), "Plugin", "Services");
     }
@@ -55,7 +54,6 @@ public final class Services extends JavaPlugin {
         return this.settings;
     }
 
-    @SuppressWarnings("unused")
     public @NotNull Messages getMessages() {
         return this.messages;
     }
@@ -94,9 +92,9 @@ public final class Services extends JavaPlugin {
 
         this.messages.enable();
 
-        if (this.commands.isEmpty()) {
-            this.commands.add(new ServicesCommand());
-        }
+        this.getLogger().debug("Register plugin command and listeners...");
+
+        this.command.register(this);
 
         if (this.listeners.isEmpty()) {
             this.listeners.add(new ConditionListener());
@@ -104,12 +102,9 @@ public final class Services extends JavaPlugin {
             this.listeners.add(new ServiceListener());
         }
 
-        this.getLogger().debug("Register all plugin commands and listeners...");
-
-        this.commands.forEach(command -> command.register(this));
         this.listeners.forEach(listener -> listener.register(this));
 
-        this.getLogger().debug("All plugin commands and listeners has been registered.");
+        this.getLogger().debug("Plugin command and listeners has been registered.");
 
         // Check for all online players the condition and the service.
         this.getServer().getOnlinePlayers().forEach(this::handleConditionCheck);
@@ -131,12 +126,12 @@ public final class Services extends JavaPlugin {
             }
         }
 
-        this.getLogger().debug("Unregister all plugin commands and listeners...");
+        this.getLogger().debug("Unregister plugin command and listeners...");
 
-        this.commands.forEach(BasicCommand::unregister);
+        this.command.unregister();
         this.listeners.forEach(BasicListener::unregister);
 
-        this.getLogger().debug("All plugin commands and listeners has been unregistered.");
+        this.getLogger().debug("Plugin command and listeners has been unregistered.");
 
         this.messages.disable();
 
@@ -159,11 +154,7 @@ public final class Services extends JavaPlugin {
 
         this.logger.setDebug(this.settings.isDebug());
         this.messages.setLocale(this.settings.getLocale());
-
-        // Update for all plugin commands the no-permission message.
-        for (final BasicPluginCommand command : this.commands) {
-            command.getCommand().setPermissionMessage(this.messages.translate("noPermission"));
-        }
+        this.command.getCommand().setPermissionMessage(this.messages.translate("noPermission"));
 
         // Check for all online players the condition and the service.
         this.getServer().getOnlinePlayers().forEach(this::handleConditionCheck);
