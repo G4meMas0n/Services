@@ -5,6 +5,19 @@
 # Sets whether the plugin should log debug information's to the console: (Type: Boolean, Default: false)
 debug: false
 
+# Sets various feature options for players currently in service:
+features:
+
+  # Sets whether players in service has unlimited buckets: (Type: Boolean, Default: false)
+  # Note: If enabled, players in service can place unlimited fluids of their buckets, as they gets not emptied.
+  # Note: Only functional if the used filled bucket is registered as service item.
+  unlimited-buckets: false
+
+  # Sets whether players in service has unlimited durability: (Type: Boolean, Default: false)
+  # Note: If enabled, players in service can use their tools unlimited, as they gets not damaged.
+  # Note: Only functional if the used tool is registered as service item.
+  unlimited-durability: false
+
 # Sets the locale of the plugin: (Type: String, Default: "en")
 # Note: Locale names are of the form: "<language>[_<country>[_<variant>]]"
 locale: "en"
