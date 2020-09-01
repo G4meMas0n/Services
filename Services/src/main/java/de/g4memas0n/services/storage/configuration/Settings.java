@@ -178,19 +178,17 @@ public final class Settings {
 
     // Period-Settings Methods:
     protected int _getWarmupPeriod() {
-        final int period = this.storage.getInt("period.warmup", WARM_UP_PERIOD);
+        final int period = this.storage.getInt("period.warmup", 3);
 
         if (period < 0 || period > 10) {
             this.instance.getLogger().warning(String.format("Detected invalid warmup period in configuration file '%s': "
                     + "Period is out of range.", this.storage.getFile().getName()));
 
-            return WARM_UP_PERIOD;
+            return 3;
         }
 
         return period;
     }
-
-    public final int WARM_UP_PERIOD = 3;
 
     public int getWarmupPeriod() {
         return this.warmup;
@@ -201,19 +199,17 @@ public final class Settings {
     }
 
     protected int _getGracePeriod() {
-        final int period = this.storage.getInt("period.grace", GRACE_PERIOD);
+        final int period = this.storage.getInt("period.grace", 1);
 
         if (period < 0 || period > 10) {
             this.instance.getLogger().warning(String.format("Detected invalid grace period in configuration file '%s': "
                     + "Period is out of range.", this.storage.getFile().getName()));
 
-            return GRACE_PERIOD;
+            return 1;
         }
 
         return period;
     }
-
-    public final int GRACE_PERIOD = 1;
 
     public int getGracePeriod() {
         return this.grace;
@@ -354,7 +350,21 @@ public final class Settings {
     }
 
     protected @NotNull @Unmodifiable Set<String> _getServiceWorlds() {
-        return Collections.unmodifiableSet(new HashSet<>(this.storage.getStringList("service.worlds")));
+        final Set<String> worlds = new HashSet<>();
+
+        for (final String name : this.storage.getStringList("service.worlds")) {
+            final World world = this.instance.getServer().getWorld(name);
+
+            if (world == null) {
+                this.instance.getLogger().warning(String.format("Detected invalid world in configuration file '%s': "
+                        + "World '%s' does not exist.", this.storage.getFile().getName(), name));
+                continue;
+            }
+
+            worlds.add(world.getName());
+        }
+
+        return Collections.unmodifiableSet(worlds);
     }
 
     public boolean isServiceWorld(@NotNull final World world) {

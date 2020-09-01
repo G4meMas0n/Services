@@ -26,8 +26,14 @@ public final class VersionCommand extends BasicCommand {
     public boolean execute(@NotNull final CommandSender sender,
                            @NotNull final String[] arguments) {
         if (this.argsInRange(arguments.length)) {
-            sender.sendMessage(tl("versionInfo", this.getInstance().getName(), this.getInstance().getDescription().getVersion()));
-            sender.sendMessage(tl("versionInfo", this.getInstance().getServer().getName(), this.getInstance().getServer().getBukkitVersion()));
+            // Show plugin name and version.
+            sender.sendMessage(tl("versionInfo", this.getInstance().getName(),
+                    this.getInstance().getDescription().getVersion()));
+
+            // Show server name, version and build.
+            sender.sendMessage(tl("versionServer", this.getInstance().getServer().getName(),
+                    this.getInstance().getServer().getBukkitVersion(),
+                    this.getInstance().getServer().getVersion()));
 
             return true;
         }
