@@ -168,8 +168,14 @@ public final class Services extends JavaPlugin {
         this.messages.setLocale(this.settings.getLocale());
         this.command.getCommand().setPermissionMessage(this.messages.translate("noPermission"));
 
-        // Check for all online players the condition and the service.
-        this.getServer().getOnlinePlayers().forEach(this::handleConditionCheck);
+        // Check if players are online and if then check the players condition and service.
+        if (!this.getServer().getOnlinePlayers().isEmpty()) {
+            this.getLogger().debug("Checking service conditions for all online players...");
+
+            this.getServer().getOnlinePlayers().forEach(this::handleConditionCheck);
+
+            this.getLogger().debug("Service conditions for all online players has been checked.");
+        }
     }
 
     @Override
