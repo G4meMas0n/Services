@@ -33,17 +33,22 @@ public final class Settings {
     private final Services instance;
     private final YamlStorageFile storage;
 
+    // Service-Condition-Settings:
     private Set<Environment> environments;
     private Set<GameMode> modes;
     private Set<Material> items;
     private Set<String> worlds;
 
+    // Permission-Settings:
     private boolean environment;
     private boolean item;
     private boolean world;
 
-    private boolean bucket;
+    // Feature-Settings:
+    private boolean buckets;
+    private boolean durability;
 
+    // Period-Settings:
     private int warmup;
     private int grace;
 
@@ -110,7 +115,8 @@ public final class Settings {
         this.item = this._getPermissionPerItem();
         this.world = this._getPermissionPerWorld();
 
-        this.bucket = this._getUnlimitedBucket();
+        this.buckets = this._getUnlimitedBuckets();
+        this.durability = this._getUnlimitedDurability();
 
         this.warmup = this._getWarmupPeriod();
         this.grace = this._getGracePeriod();
@@ -130,6 +136,7 @@ public final class Settings {
          */
     }
 
+    // Plugin-Settings Methods:
     protected boolean _getDebug() {
         return this.storage.getBoolean("debug", false);
     }
@@ -152,6 +159,24 @@ public final class Settings {
         return this._getLocale();
     }
 
+    // Feature-Settings Methods:
+    protected boolean _getUnlimitedBuckets() {
+        return this.storage.getBoolean("features.unlimited-buckets", false);
+    }
+
+    public boolean isUnlimitedBuckets() {
+        return this.buckets;
+    }
+
+    protected boolean _getUnlimitedDurability() {
+        return this.storage.getBoolean("features.unlimited-durability", false);
+    }
+
+    public boolean isUnlimitedDurability() {
+        return this.durability;
+    }
+
+    // Period-Settings Methods:
     protected int _getWarmupPeriod() {
         final int period = this.storage.getInt("period.warmup", WARM_UP_PERIOD);
 
@@ -198,6 +223,7 @@ public final class Settings {
         return this.grace > 0;
     }
 
+    // Permission-Settings Methods:
     protected boolean _getPermissionPerEnvironment() {
         return this.storage.getBoolean("permission.per-environment", true);
     }
@@ -222,6 +248,7 @@ public final class Settings {
         return this.world;
     }
 
+    // Service-Condition-Settings Methods:
     protected @NotNull @Unmodifiable Set<Environment> _getServiceEnvironments() {
         final Set<Environment> environments = new HashSet<>();
 
@@ -235,11 +262,6 @@ public final class Settings {
         }
 
         return Collections.unmodifiableSet(environments);
-    }
-
-    @SuppressWarnings("unused")
-    public @NotNull @Unmodifiable Set<Environment> getServiceEnvironments() {
-        return this.environments;
     }
 
     public boolean isServiceEnvironment(@NotNull final Environment environment) {
@@ -268,11 +290,6 @@ public final class Settings {
         }
 
         return Collections.singleton(GameMode.SURVIVAL);
-    }
-
-    @SuppressWarnings("unused")
-    public @NotNull @Unmodifiable Set<GameMode> getServiceGameModes() {
-        return this.modes;
     }
 
     public boolean isServiceGameMode(@NotNull final GameMode mode) {
@@ -328,11 +345,6 @@ public final class Settings {
         return Collections.unmodifiableSet(materials);
     }
 
-    @SuppressWarnings("unused")
-    public @NotNull @Unmodifiable Set<Material> getServiceItems() {
-        return this.items;
-    }
-
     public boolean isServiceItem(@NotNull final Material item) {
         if (!item.isItem()) {
             throw new IllegalArgumentException();
@@ -345,29 +357,11 @@ public final class Settings {
         return Collections.unmodifiableSet(new HashSet<>(this.storage.getStringList("service.worlds")));
     }
 
-    @SuppressWarnings("unused")
-    public @NotNull @Unmodifiable Set<String> getServiceWorlds() {
-        return this.worlds;
-    }
-
     public boolean isServiceWorld(@NotNull final World world) {
         if (this.worlds.isEmpty()) {
             return true;
         }
 
         return this.worlds.contains(world.getName());
-    }
-
-    protected boolean _getUnlimitedBucket() {
-        // Check if hidden configuration option is set.
-        if (this.storage.contains("unlimited.bucket")) {
-            return this.storage.getBoolean("unlimited.bucket", false);
-        }
-
-        return false;
-    }
-
-    public boolean isUnlimitedBucket() {
-        return this.bucket;
     }
 }
