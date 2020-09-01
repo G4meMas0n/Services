@@ -35,13 +35,14 @@ public final class ConditionListener extends BasicListener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerChangedWorldEvent(@NotNull final PlayerChangedWorldEvent event) {
+        // Check if player is currently in condition.
         if (this.getInstance().getServiceManager().isInCondition(event.getPlayer().getUniqueId())) {
             final World world = event.getPlayer().getWorld();
 
             this.getInstance().getLogger().debug(String.format("Service player '%s' changed to world '%s' with environment '%s'.",
                     event.getPlayer(), world.getName(), world.getEnvironment().name()));
 
-            // If true, check if players world is still a service world.
+            // If true, check if the players new world is still a service world.
             if (this.getInstance().getSettings().isServiceWorld(world)) {
                 // Filter world if per world permission is enabled.
                 if (this.getInstance().getSettings().isPermissionPerWorld()) {
@@ -57,7 +58,7 @@ public final class ConditionListener extends BasicListener {
 
                 final Environment environment = world.getEnvironment();
 
-                // If true, check if players environment is still a service environment.
+                // If true, check if the players new world environment is still a service environment.
                 if (this.getInstance().getSettings().isServiceEnvironment(environment)) {
                     // Filter environment is per environment permission is enabled.
                     if (this.getInstance().getSettings().isPermissionPerEnvironment()) {
@@ -97,11 +98,12 @@ public final class ConditionListener extends BasicListener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerGameModeChangeEvent(@NotNull final PlayerGameModeChangeEvent event) {
+        // Check if player is currently in condition.
         if (this.getInstance().getServiceManager().isInCondition(event.getPlayer().getUniqueId())) {
             this.getInstance().getLogger().debug(String.format("Service player '%s' changed to game-mode '%s'.",
                     event.getPlayer().getName(), event.getNewGameMode().name()));
 
-            // If true, check if players new game-mode is also a service game-mode.
+            // If true, check if the players new game-mode is also a service game-mode.
             if (this.getInstance().getSettings().isServiceGameMode(event.getNewGameMode())) {
                 return; // Player is still in condition.
             }

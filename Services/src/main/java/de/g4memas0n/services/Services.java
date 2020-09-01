@@ -43,7 +43,7 @@ public final class Services extends JavaPlugin {
         this.listeners = new HashSet<>(4, 1);
         this.command = new ServicesCommand();
 
-        this.logger = new BasicLogger(super.getLogger(), "Plugin", "Services");
+        this.logger = new BasicLogger(super.getLogger(), "Plugin", this.getName());
     }
 
     public @NotNull ServiceManager getServiceManager() {
@@ -106,8 +106,14 @@ public final class Services extends JavaPlugin {
 
         this.getLogger().debug("Plugin command and listeners has been registered.");
 
-        // Check for all online players the condition and the service.
-        this.getServer().getOnlinePlayers().forEach(this::handleConditionCheck);
+        // Check if players are online and if then check the players condition and service.
+        if (!this.getServer().getOnlinePlayers().isEmpty()) {
+            this.getLogger().debug("Checking service conditions for all online players...");
+
+            this.getServer().getOnlinePlayers().forEach(this::handleConditionCheck);
+
+            this.getLogger().debug("Service conditions for all online players has been checked.");
+        }
 
         this.enabled = true;
     }
@@ -119,11 +125,17 @@ public final class Services extends JavaPlugin {
             return;
         }
 
-        // Remove for all online players the condition and the service.
-        for (final Player player : this.getServer().getOnlinePlayers()) {
-            if (this.handleConditionRemove(player)) {
-                player.sendMessage(this.messages.translate("serviceDisable"));
+        // Check if players are online and if then remove the players from condition and service.
+        if (!this.getServer().getOnlinePlayers().isEmpty()) {
+            this.getLogger().debug("Removing service conditions for all online players...");
+
+            for (final Player player : this.getServer().getOnlinePlayers()) {
+                if (this.handleConditionRemove(player)) {
+                    player.sendMessage(this.messages.translate("serviceDisable"));
+                }
             }
+
+            this.getLogger().debug("Service conditions for all online players has been removed.");
         }
 
         this.getLogger().debug("Unregister plugin command and listeners...");
