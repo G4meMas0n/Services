@@ -381,7 +381,7 @@ public final class Settings {
     }
 
     protected boolean _getNotifyActionBar() {
-        return this.storage.getBoolean("notify.action-bar", false);
+        return this.storage.getBoolean("notify.action-bar", true);
     }
 
     public boolean isNotifyActionBar() {

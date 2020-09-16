@@ -27,7 +27,7 @@ notify:
 
   # Sets whether service notifications should be send via the action bar: (Type: Boolean, Default: true)
   # Note: When disabled, service notifications will be send as chat message.
-  action-bar: false
+  action-bar: true
 
 # Sets various period options to regulate timings between service enabling and disabling:
 period:
