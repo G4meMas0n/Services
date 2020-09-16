@@ -10,6 +10,8 @@ import de.g4memas0n.services.storage.configuration.Settings;
 import de.g4memas0n.services.util.Permission;
 import de.g4memas0n.services.util.logging.BasicLogger;
 import de.g4memas0n.services.util.messaging.Messages;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -200,7 +202,7 @@ public final class Services extends JavaPlugin {
     public void handleConditionCheck(@NotNull final Player target) {
         if (!target.hasPermission(Permission.SERVICE.getNode())) {
             if (this.handleConditionRemove(target)) {
-                this.sendMessage(target, this.messages.translate("serviceDenied"));
+                target.sendMessage(this.messages.translate("serviceDenied"));
             }
 
             return;
@@ -215,7 +217,7 @@ public final class Services extends JavaPlugin {
                     if (!target.hasPermission(Permission.WORLD.getChildren(target.getWorld().getName()))) {
                         // Check if player gets removed from condition and from warmup or service.
                         if (this.handleConditionRemove(target)) {
-                            this.sendMessage(target, this.messages.format("worldDenied", target.getWorld().getName()));
+                            target.sendMessage(this.messages.format("worldDenied", target.getWorld().getName()));
                         }
 
                         return;
@@ -229,7 +231,7 @@ public final class Services extends JavaPlugin {
                         if (!target.hasPermission(Permission.ENVIRONMENT.getChildren(target.getWorld().getEnvironment().name().toLowerCase()))) {
                             // Check if player gets removed from condition and from warmup or service.
                             if (this.handleConditionRemove(target)) {
-                                this.sendMessage(target, this.messages.format("environmentDenied", target.getWorld().getEnvironment().name().charAt(0)
+                                target.sendMessage(this.messages.format("environmentDenied", target.getWorld().getEnvironment().name().charAt(0)
                                         + target.getWorld().getEnvironment().name().substring(1).toLowerCase()));
                             }
 
@@ -249,7 +251,7 @@ public final class Services extends JavaPlugin {
 
                 // Check if player gets removed from condition and from warmup or service.
                 if (this.handleConditionRemove(target)) {
-                    this.sendMessage(target, this.messages.format("noServiceEnvironment", target.getWorld().getEnvironment().name().charAt(0)
+                    target.sendMessage(this.messages.format("noServiceEnvironment", target.getWorld().getEnvironment().name().charAt(0)
                             + target.getWorld().getEnvironment().name().substring(1).toLowerCase()));
                 }
 
@@ -258,7 +260,7 @@ public final class Services extends JavaPlugin {
 
             // Check if player gets removed from condition and from warmup or service.
             if (this.handleConditionRemove(target)) {
-                this.sendMessage(target, this.messages.format("noServiceWorld", target.getWorld().getName()));
+                target.sendMessage(this.messages.format("noServiceWorld", target.getWorld().getName()));
             }
 
             return;
@@ -266,7 +268,7 @@ public final class Services extends JavaPlugin {
 
         // Check if player gets removed from condition and from warmup or service.
         if (this.handleConditionRemove(target)) {
-            this.sendMessage(target, this.messages.format("noServiceGameMode", target.getGameMode().name().charAt(0)
+            target.sendMessage(this.messages.format("noServiceGameMode", target.getGameMode().name().charAt(0)
                     + target.getGameMode().name().substring(1).toLowerCase()));
         }
     }
@@ -287,6 +289,7 @@ public final class Services extends JavaPlugin {
             if (this.manager.removeFromWarmup(target)) {
                 this.logger.debug(String.format("Service player '%s' is no longer in warmup timer.", target.getName()));
 
+                this.notify(target, this.messages.translate("warmupAbort"));
                 return true;
             }
 
@@ -297,6 +300,7 @@ public final class Services extends JavaPlugin {
                     this.logger.debug(String.format("Service player '%s' is no longer in service mode.", target.getName()));
                 }
 
+                this.notify(target, this.messages.translate("serviceDisable"));
                 return true;
             }
         }
@@ -325,7 +329,7 @@ public final class Services extends JavaPlugin {
                     if (this.manager.removeFromWarmup(target)) {
                         this.logger.debug(String.format("Service player '%s' is no longer in warmup timer.", target.getName()));
 
-                        this.sendMessage(target, this.messages.translate("warmupAbort"));
+                        this.notify(target, this.messages.translate("warmupAbort"));
                     }
 
                     // Check if player is currently in service.
@@ -336,14 +340,14 @@ public final class Services extends JavaPlugin {
                             if (this.manager.addToGrace(target, this.settings.getGracePeriod())) {
                                 this.logger.debug(String.format("Service player '%s' is now in grace timer.", target.getName()));
 
-                                this.sendMessage(target, this.messages.format("graceStart", this.settings.getGracePeriod()));
+                                this.notify(target, this.messages.format("graceStart", this.settings.getGracePeriod()));
                             }
                         } else {
                             // If false, check if player gets removed from service.
                             if (this.manager.removeFromService(target)) {
                                 this.logger.debug(String.format("Service player '%s' is no longer in service mode.", target.getName()));
 
-                                this.sendMessage(target, this.messages.translate("serviceDisable"));
+                                this.notify(target, this.messages.translate("serviceDisable"));
                             }
                         }
                     }
@@ -356,7 +360,7 @@ public final class Services extends JavaPlugin {
             if (this.manager.removeFromGrace(target)) {
                 this.logger.debug(String.format("Service player '%s' is no longer in grace timer.", target.getName()));
 
-                this.sendMessage(target, this.messages.translate("graceAbort"));
+                this.notify(target, this.messages.translate("graceAbort"));
             }
 
             // Check if a warmup period exist.
@@ -365,14 +369,14 @@ public final class Services extends JavaPlugin {
                 if (this.manager.addToWarmup(target, this.settings.getWarmupPeriod())) {
                     this.logger.debug(String.format("Service player '%s' is now in warmup timer.", target.getName()));
 
-                    this.sendMessage(target, this.messages.format("warmupStart", this.settings.getWarmupPeriod()));
+                    this.notify(target, this.messages.format("warmupStart", this.settings.getWarmupPeriod()));
                 }
             } else {
                 // Check if player gets added to service.
                 if (this.manager.addToService(target)) {
                     this.logger.debug(String.format("Service player '%s' is now in service mode.", target.getName()));
 
-                    this.sendMessage(target, this.messages.translate("serviceEnable"));
+                    this.notify(target, this.messages.translate("serviceEnable"));
                 }
             }
 
@@ -383,7 +387,7 @@ public final class Services extends JavaPlugin {
         if (this.manager.removeFromWarmup(target)) {
             this.logger.debug(String.format("Service player '%s' is no longer in warmup timer.", target.getName()));
 
-            this.sendMessage(target, this.messages.translate("warmupAbort"));
+            this.notify(target, this.messages.translate("warmupAbort"));
         }
 
         // Check if player is currently in service.
@@ -394,29 +398,38 @@ public final class Services extends JavaPlugin {
                 if (this.manager.addToGrace(target, this.settings.getGracePeriod())) {
                     this.logger.debug(String.format("Service player '%s' is now in grace timer.", target.getName()));
 
-                    this.sendMessage(target, this.messages.format("graceStart", this.settings.getGracePeriod()));
+                    this.notify(target, this.messages.format("graceStart", this.settings.getGracePeriod()));
                 }
             } else {
                 // If false, check if player gets removed from service.
                 if (this.manager.removeFromService(target)) {
                     this.logger.debug(String.format("Service player '%s' is no longer in service mode.", target.getName()));
 
-                    this.sendMessage(target, this.messages.translate("serviceDisable"));
+                    this.notify(target, this.messages.translate("serviceDisable"));
                 }
             }
         }
     }
 
     /**
-     * Checks if the given player is online and the given message is not empty before sending the message to the player.
+     * Checks if the given player is online and the given message is not empty before notify the player.
+     *
+     * <i><b>Note:</b> The Notification will be send as title or chat message depending of the titles active option.</i>
      *
      * @param player the player to send the message to.
      * @param message the message that should be sent to the player.
      */
-    public void sendMessage(@NotNull final Player player,
-                            @NotNull final String message) {
-        if (player.isOnline() && !message.isEmpty()) {
-            player.sendMessage(message);
+    public void notify(@NotNull final Player player,
+                       @NotNull final String message) {
+        if (!player.isOnline() || message.isEmpty()) {
+            return;
         }
+
+        if (this.settings.isNotifyActionBar()) {
+            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(message));
+            return;
+        }
+
+        player.sendMessage(message);
     }
 }

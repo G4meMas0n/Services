@@ -61,7 +61,7 @@ public final class ServiceManager {
 
                     if (this.services.add(player.getUniqueId())) {
                         this.instance.getLogger().debug(String.format("Service player '%s' is longer in warmup timer and now in service mode.", player.getName()));
-                        this.instance.sendMessage(player, this.instance.getMessages().translate("serviceEnable"));
+                        this.instance.notify(player, this.instance.getMessages().translate("serviceEnable"));
                     }
                 }
             }, period * 20));
@@ -112,7 +112,7 @@ public final class ServiceManager {
 
                     if (this.services.remove(player.getUniqueId())) {
                         this.instance.getLogger().debug(String.format("Service player '%s' is no longer in service mode and grace timer.", player.getName()));
-                        this.instance.sendMessage(player, this.instance.getMessages().translate("serviceDisable"));
+                        this.instance.notify(player, this.instance.getMessages().translate("serviceDisable"));
                     }
                 }
             }, period * 20));

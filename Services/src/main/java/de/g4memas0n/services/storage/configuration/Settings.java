@@ -52,6 +52,9 @@ public final class Settings {
     private int warmup;
     private int grace;
 
+    // Notify-Settings:
+    private boolean action;
+
     public Settings(@NotNull final Services instance) {
         this.instance = instance;
         this.storage = new YamlStorageFile(new File(instance.getDataFolder(), FILE_CONFIG));
@@ -120,6 +123,8 @@ public final class Settings {
 
         this.warmup = this._getWarmupPeriod();
         this.grace = this._getGracePeriod();
+
+        this.action = this._getNotifyActionBar();
     }
 
     @SuppressWarnings("unused")
@@ -373,5 +378,13 @@ public final class Settings {
         }
 
         return this.worlds.contains(world.getName());
+    }
+
+    protected boolean _getNotifyActionBar() {
+        return this.storage.getBoolean("notify.action-bar", false);
+    }
+
+    public boolean isNotifyActionBar() {
+        return this.action;
     }
 }
