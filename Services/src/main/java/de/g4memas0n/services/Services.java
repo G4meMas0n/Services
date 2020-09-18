@@ -1,6 +1,5 @@
 package de.g4memas0n.services;
 
-import de.g4memas0n.services.command.BasicPluginCommand;
 import de.g4memas0n.services.command.ServicesCommand;
 import de.g4memas0n.services.listener.BasicListener;
 import de.g4memas0n.services.listener.ConditionListener;
@@ -31,7 +30,7 @@ public final class Services extends JavaPlugin {
 
     private final Set<BasicListener> listeners;
 
-    private final BasicPluginCommand command;
+    private final ServicesCommand command;
     private final BasicLogger logger;
 
     private ServiceManager manager;
