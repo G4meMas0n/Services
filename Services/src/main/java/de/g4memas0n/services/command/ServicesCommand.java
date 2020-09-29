@@ -54,21 +54,7 @@ public final class ServicesCommand extends BasicCommand implements TabExecutor {
     }
 
     public final @Nullable BasicCommand getCommand(@NotNull final String name) {
-        final BasicCommand delegate = this.commands.get(name.toLowerCase());
-
-        if (delegate != null) {
-            return delegate;
-        }
-
-        for (final BasicCommand command : this.commands.values()) {
-            for (final String alias : command.getAliases()) {
-                if (alias.equalsIgnoreCase(name)) {
-                    return command;
-                }
-            }
-        }
-
-        return null;
+        return this.commands.get(name.toLowerCase());
     }
 
     public final void addCommand(@NotNull final BasicCommand command) {
@@ -77,17 +63,6 @@ public final class ServicesCommand extends BasicCommand implements TabExecutor {
         }
 
         this.commands.put(command.getName(), command);
-    }
-
-    @SuppressWarnings("unused")
-    public final void removeCommand(@NotNull final BasicCommand command) {
-        if (!this.commands.containsKey(command.getName())) {
-            return;
-        }
-
-        this.commands.remove(command.getName(), command);
-
-        command.unregister();
     }
 
     @Override
@@ -174,12 +149,6 @@ public final class ServicesCommand extends BasicCommand implements TabExecutor {
 
                 if (StringUtil.startsWithIgnoreCase(delegate.getName(), arguments[DELEGATE])) {
                     completion.add(delegate.getName());
-                }
-
-                for (final String alias : delegate.getAliases()) {
-                    if (StringUtil.startsWithIgnoreCase(alias, arguments[DELEGATE])) {
-                        completion.add(alias);
-                    }
                 }
             }
 

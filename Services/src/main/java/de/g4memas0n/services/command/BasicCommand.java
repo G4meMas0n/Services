@@ -4,7 +4,6 @@ import de.g4memas0n.services.Services;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import java.util.Collections;
 import java.util.List;
 
 import static de.g4memas0n.services.util.messaging.Messages.tl;
@@ -22,8 +21,6 @@ public abstract class BasicCommand {
     private final int maxArgs;
 
     private Services instance;
-
-    private List<String> aliases;
     private String permission;
 
     protected BasicCommand(@NotNull final String name,
@@ -41,6 +38,7 @@ public abstract class BasicCommand {
         }
 
         this.instance = instance;
+        this.instance.getLogger().debug(String.format("Registered command: %s", this.toString()));
         return true;
     }
 
@@ -49,6 +47,7 @@ public abstract class BasicCommand {
             return false;
         }
 
+        this.instance.getLogger().debug(String.format("Unregistered command: %s", this.toString()));
         this.instance = null;
         return true;
     }
@@ -66,10 +65,12 @@ public abstract class BasicCommand {
         return this.name;
     }
 
+    @SuppressWarnings("unused")
     public final int getMinArgs() {
         return this.minArgs;
     }
 
+    @SuppressWarnings("unused")
     public final int getMaxArgs() {
         return this.maxArgs;
     }
@@ -102,22 +103,6 @@ public abstract class BasicCommand {
     public abstract @NotNull List<String> tabComplete(@NotNull final CommandSender sender,
                                                       @NotNull final String[] arguments);
 
-    public @NotNull List<String> getAliases() {
-        if (this.aliases == null) {
-            return Collections.emptyList();
-        }
-
-        return this.aliases;
-    }
-
-    public void setAliases(@NotNull final List<String> aliases) {
-        if (aliases.equals(this.aliases)) {
-            return;
-        }
-
-        this.aliases = Collections.unmodifiableList(aliases);
-    }
-
     public @NotNull String getPermission() {
         return this.permission;
     }
@@ -149,14 +134,9 @@ public abstract class BasicCommand {
         builder.append(";max-args=");
         builder.append(this.maxArgs);
 
-        if (!this.getAliases().isEmpty()) {
-            builder.append(";aliases=");
-            builder.append(String.join(",", this.getAliases()));
-        }
-
-        if (!this.getPermission().isEmpty()) {
+        if (!this.permission.isEmpty()) {
             builder.append(";permission=");
-            builder.append(this.getPermission());
+            builder.append(this.permission);
         }
 
         return builder.append("}").toString();
