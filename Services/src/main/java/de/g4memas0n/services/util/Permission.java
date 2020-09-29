@@ -21,7 +21,7 @@ public enum Permission {
      * - {@code services.environment.the_end} (Allows to use services in the THE_END environment)
      * - {@code services.environment.*} (Allows to use services in all service environments.)
      */
-    ENVIRONMENT("environment", true),
+    ENVIRONMENT("environment"),
 
     /**
      * Permission for filter service items.
@@ -32,27 +32,27 @@ public enum Permission {
      * - {@code services.item.<item-key>} (Allows to use the specified service item key)
      * - {@code services.item.*} (Allows to use all service items)
      */
-    ITEM("item", true),
+    ITEM("item"),
 
     /**
      * Permission for the reload command.
      */
-    RELOAD("reload", false),
+    RELOAD("reload"),
 
     /**
      * Permission for using services.
      */
-    SERVICE("service", false),
+    SERVICE("service"),
 
     /**
      * Permission for the main services command.
      */
-    USE("use", false),
+    USE("use"),
 
     /**
      * Permission for the version command.
      */
-    VERSION("version", false),
+    VERSION("version"),
 
     /**
      * Permission for filter service worlds.
@@ -63,23 +63,15 @@ public enum Permission {
      * - {@code services.world.<world>} (Allows to use services in the specified world)
      * - {@code services.item.*} (Allows to use services in all service worlds)
      */
-    WORLD("world", true);
+    WORLD("world");
 
     private static final String DELIMITER = ".";
     private static final String PREFIX = "services";
 
     private final String node;
-    private final boolean children;
 
-    Permission(@NotNull final String node, final boolean children) {
+    Permission(@NotNull final String node) {
         this.node = PREFIX + DELIMITER + node;
-        this.children = children;
-    }
-
-    @SuppressWarnings("unused")
-    Permission(@NotNull final Permission parent, @NotNull final String node, final boolean children) {
-        this.node = parent.getNode() + DELIMITER + node;
-        this.children = children;
     }
 
     /**
@@ -100,10 +92,6 @@ public enum Permission {
      * @return the children permission node.
      */
     public @NotNull String getChildren(@NotNull final String children) {
-        if (!this.children) {
-            return this.node;
-        }
-
         return this.node + DELIMITER + children.toLowerCase();
     }
 }

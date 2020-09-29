@@ -1,7 +1,6 @@
 package de.g4memas0n.services.util.messaging;
 
 import de.g4memas0n.services.util.logging.BasicLogger;
-import org.bukkit.ChatColor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import java.io.File;
@@ -15,7 +14,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
-import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
@@ -58,11 +56,11 @@ public final class Messages {
         instance = null;
     }
 
-    public synchronized @NotNull Locale getLocale() {
+    public @NotNull Locale getLocale() {
         return this.customBundle != null ? this.customBundle.getLocale() : this.localBundle.getLocale();
     }
 
-    public synchronized void setLocale(@NotNull final Locale locale) {
+    public void setLocale(@NotNull final Locale locale) {
         ResourceBundle.clearCache();
 
         try {
@@ -96,7 +94,7 @@ public final class Messages {
         this.logger.info(String.format("Locale has been changed. Using locale %s", this.getLocale()));
     }
 
-    public synchronized @NotNull String translate(@NotNull final String key) {
+    public @NotNull String translate(@NotNull final String key) {
         try {
             if (this.customBundle != null) {
                 try {
@@ -116,8 +114,8 @@ public final class Messages {
         }
     }
 
-    public synchronized @NotNull String format(@NotNull final String key,
-                                               @NotNull final Object... arguments) {
+    public @NotNull String format(@NotNull final String key,
+                                  @NotNull final Object... arguments) {
         if (arguments.length == 0) {
             return this.translate(key);
         }
@@ -130,25 +128,6 @@ public final class Messages {
             this.logger.warning("Invalid translation key '%s': " + ex.getMessage());
 
             return MessageFormat.format(format.replaceAll("\\{(\\D*?)}", "\\[$1\\]"), arguments);
-        }
-    }
-
-    public synchronized @NotNull String formatJoining(@NotNull final String key,
-                                                      @NotNull final Collection<String> collection) {
-        if (collection.isEmpty()) {
-            return this.translate(key);
-        }
-
-        final String format = this.translate(key);
-        final String delimiter = this.translate("delimiter") + ChatColor.getLastColors(format);
-        final String joined = String.join(delimiter, collection);
-
-        try {
-            return MessageFormat.format(format, joined);
-        } catch (IllegalArgumentException ex) {
-            this.logger.warning("Invalid translation key '%s': " + ex.getMessage());
-
-            return MessageFormat.format(format.replaceAll("\\{(\\D*?)}", "\\[$1\\]"), joined);
         }
     }
 
@@ -168,16 +147,6 @@ public final class Messages {
         }
 
         return instance.translate("prefixError") + " " + instance.format(key, arguments);
-    }
-
-    @SuppressWarnings("unused")
-    public static @NotNull String tlJoin(@NotNull final String key,
-                                         @NotNull final Collection<String> collection) {
-        if (instance == null) {
-            return "\u00a74Error: \u00a7cMessages not loaded.";
-        }
-
-        return instance.formatJoining(key, collection);
     }
 
     /**
