@@ -19,7 +19,7 @@ features:
   unlimited-durability: false
 
 # Sets the locale of the plugin: (Type: String, Default: "en")
-# Note: Locale names are of the form: "<language>[_<country>[_<variant>]]"
+# Note: Locale names are of the form: "<language>[_<country>]"
 locale: "en"
 
 # Sets various options for service notifications:

@@ -5,7 +5,7 @@ import de.g4memas0n.services.listener.BasicListener;
 import de.g4memas0n.services.listener.ConditionListener;
 import de.g4memas0n.services.listener.FeatureListener;
 import de.g4memas0n.services.listener.ServiceListener;
-import de.g4memas0n.services.storage.configuration.Settings;
+import de.g4memas0n.services.configuration.Settings;
 import de.g4memas0n.services.util.Permission;
 import de.g4memas0n.services.util.logging.BasicLogger;
 import de.g4memas0n.services.util.messaging.Messages;
@@ -282,7 +282,7 @@ public final class Services extends JavaPlugin {
     public boolean handleConditionRemove(@NotNull final Player target) {
         // Check if player gets removed from condition.
         if (this.manager.removeFromCondition(target)) {
-            this.logger.debug(String.format("Service player '%s' no longer in condition for service.", target.getName()));
+            this.logger.debug(String.format("Service player '%s' is no longer in condition for service.", target.getName()));
 
             // If true, check if player gets removed from warmup or services.
             if (this.manager.removeFromWarmup(target)) {
@@ -420,15 +420,13 @@ public final class Services extends JavaPlugin {
      */
     public void notify(@NotNull final Player player,
                        @NotNull final String message) {
-        if (!player.isOnline() || message.isEmpty()) {
-            return;
-        }
+        if (player.isOnline() && !message.isEmpty()) {
+            if (this.settings.isNotifyActionBar()) {
+                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(message));
+                return;
+            }
 
-        if (this.settings.isNotifyActionBar()) {
-            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(message));
-            return;
+            player.sendMessage(message);
         }
-
-        player.sendMessage(message);
     }
 }
