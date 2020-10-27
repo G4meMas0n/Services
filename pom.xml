@@ -5,13 +5,15 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>de.g4memas0n</groupId>
+    <artifactId>services-parent</artifactId>
+    <version>parent</version>
+    <packaging>pom</packaging>
+
     <name>Services Project</name>
+
     <modules>
         <module>Services</module>
     </modules>
-    <artifactId>services-parent</artifactId>
-    <packaging>pom</packaging>
-    <version>parent</version>
 
     <repositories>
         <repository>
@@ -36,7 +38,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.13</version>
+            <version>4.13.1</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
