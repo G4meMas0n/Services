@@ -20,7 +20,6 @@ public final class ServiceManager {
     private final Map<UUID, BukkitTask> warmups;
     private final Map<UUID, BukkitTask> graces;
     private final Set<UUID> services;
-
     private final Set<UUID> conditions;
 
     private final Services instance;
@@ -29,7 +28,6 @@ public final class ServiceManager {
         this.warmups = new HashMap<>();
         this.graces = new HashMap<>();
         this.services = new HashSet<>();
-
         this.conditions = new HashSet<>();
 
         this.instance = instance;
@@ -37,10 +35,24 @@ public final class ServiceManager {
 
     // Condition collection methods:
     public boolean addToCondition(@NotNull final Player player) {
-        return this.conditions.add(player.getUniqueId());
+        if (this.conditions.add(player.getUniqueId())) {
+            if (this.instance.getSettings().isDebug()) {
+                this.instance.getLogger().info(String.format("Player '%s' is now in condition for service.", player.getName()));
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     public boolean removeFromCondition(@NotNull final Player player) {
+        if (this.conditions.remove(player.getUniqueId())) {
+            if (this.instance.getSettings().isDebug()) {
+                this.instance.getLogger().info(String.format("Player '%s' is no longer in condition for service.", player.getName()));
+            }
+        }
+
         return this.conditions.remove(player.getUniqueId());
     }
 
@@ -59,12 +71,23 @@ public final class ServiceManager {
                 if (this.warmups.containsKey(player.getUniqueId())) {
                     this.warmups.remove(player.getUniqueId());
 
+                    if (this.instance.getSettings().isDebug()) {
+                        this.instance.getLogger().info(String.format("Player '%s' is no longer in warmup: ENABLED", player.getName()));
+                    }
+
                     if (this.services.add(player.getUniqueId())) {
-                        this.instance.getLogger().debug(String.format("Service player '%s' is longer in warmup timer and now in service mode.", player.getName()));
+                        if (this.instance.getSettings().isDebug()) {
+                            this.instance.getLogger().info(String.format("Player '%s' is now in service mode.", player.getName()));
+                        }
+
                         this.instance.notify(player, this.instance.getMessages().translate("serviceEnable"));
                     }
                 }
             }, period * 20));
+
+            if (this.instance.getSettings().isDebug()) {
+                this.instance.getLogger().info(String.format("Player '%s' is now in warmup.", player.getName()));
+            }
 
             return true;
         }
@@ -75,6 +98,10 @@ public final class ServiceManager {
     public boolean removeFromWarmup(@NotNull final Player player) {
         if (this.warmups.containsKey(player.getUniqueId())) {
             this.warmups.remove(player.getUniqueId()).cancel();
+
+            if (this.instance.getSettings().isDebug()) {
+                this.instance.getLogger().info(String.format("Player '%s' is no longer in warmup: ABORTED", player.getName()));
+            }
 
             return true;
         }
@@ -88,11 +115,27 @@ public final class ServiceManager {
 
     // Service collection methods:
     public boolean addToService(@NotNull final Player player) {
-        return this.services.add(player.getUniqueId());
+        if (this.services.add(player.getUniqueId())) {
+            if (this.instance.getSettings().isDebug()) {
+                this.instance.getLogger().info(String.format("Player '%s' is now in service mode.", player.getName()));
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     public boolean removeFromService(@NotNull final Player player) {
-        return this.services.remove(player.getUniqueId());
+        if (this.services.remove(player.getUniqueId())) {
+            if (this.instance.getSettings().isDebug()) {
+                this.instance.getLogger().info(String.format("Player '%s' is no longer in service mode.", player.getName()));
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     public boolean isInService(@NotNull final UUID uniqueId) {
@@ -110,12 +153,23 @@ public final class ServiceManager {
                 if (this.graces.containsKey(player.getUniqueId())) {
                     this.graces.remove(player.getUniqueId());
 
+                    if (this.instance.getSettings().isDebug()) {
+                        this.instance.getLogger().info(String.format("Player '%s' is no longer in grace: DISABLED", player.getName()));
+                    }
+
                     if (this.services.remove(player.getUniqueId())) {
-                        this.instance.getLogger().debug(String.format("Service player '%s' is no longer in service mode and grace timer.", player.getName()));
+                        if (this.instance.getSettings().isDebug()) {
+                            this.instance.getLogger().info(String.format("Player '%s' is no longer in service mode.", player.getName()));
+                        }
+
                         this.instance.notify(player, this.instance.getMessages().translate("serviceDisable"));
                     }
                 }
             }, period * 20));
+
+            if (this.instance.getSettings().isDebug()) {
+                this.instance.getLogger().info(String.format("Player '%s' is now in grace.", player.getName()));
+            }
 
             return true;
         }
@@ -126,6 +180,10 @@ public final class ServiceManager {
     public boolean removeFromGrace(@NotNull final Player player) {
         if (this.graces.containsKey(player.getUniqueId())) {
             this.graces.remove(player.getUniqueId()).cancel();
+
+            if (this.instance.getSettings().isDebug()) {
+                this.instance.getLogger().info(String.format("Player '%s' is no longer in grace: ABORTED", player.getName()));
+            }
 
             return true;
         }

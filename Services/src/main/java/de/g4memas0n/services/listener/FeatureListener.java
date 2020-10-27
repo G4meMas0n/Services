@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class FeatureListener extends BasicListener {
 
-    // Event Listener for the hidden unlimited bucket configuration feature.
+    // Event Listener for the unlimited buckets configuration feature.
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPlayerBucketEmpty(@NotNull final PlayerBucketEmptyEvent event) {
         // Check if unlimited service buckets is enabled.
@@ -33,6 +33,11 @@ public final class FeatureListener extends BasicListener {
                             event.setItemStack(new ItemStack(event.getBucket()));
                         }
 
+                        if (this.getInstance().getSettings().isDebug()) {
+                            this.getInstance().getLogger().info(String.format("Player '%s' used unlimited buckets on his bucket: %s",
+                                    event.getPlayer().getName(), event.getBucket().name()));
+                        }
+
                         // Set resulting item on next tick, because this event ignores the resulting item-stack.
                         this.getInstance().runTask(() -> event.getPlayer().getInventory().setItemInMainHand(event.getItemStack()));
                     }
@@ -41,7 +46,7 @@ public final class FeatureListener extends BasicListener {
         }
     }
 
-    // Event Listener for the hidden unlimited durability configuration feature.
+    // Event Listener for the unlimited durability configuration feature.
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPlayerItemDamage(@NotNull final PlayerItemDamageEvent event) {
         // Check if unlimited service durability is enabled.
@@ -52,6 +57,11 @@ public final class FeatureListener extends BasicListener {
                 if (this.getInstance().getServiceManager().isInService(event.getPlayer().getUniqueId())) {
                     // If true, cancel event as the tool should not be damaged.
                     event.setCancelled(true);
+
+                    if (this.getInstance().getSettings().isDebug()) {
+                        this.getInstance().getLogger().info(String.format("Player '%s' used unlimited durability on his tool: %s",
+                                event.getPlayer().getName(), event.getItem().getType().name()));
+                    }
                 }
             }
         }

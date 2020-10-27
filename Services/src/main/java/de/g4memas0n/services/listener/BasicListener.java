@@ -29,7 +29,10 @@ public abstract class BasicListener implements Listener {
 
         this.instance = instance;
         this.instance.getServer().getPluginManager().registerEvents(this, instance);
-        this.instance.getLogger().debug(String.format("Registered listener: %s", this.toString()));
+
+        if (this.instance.getSettings().isDebug()) {
+            this.instance.getLogger().info(String.format("Registered listener: %s", this.toString()));
+        }
     }
 
     public final void unregister() {
@@ -39,7 +42,10 @@ public abstract class BasicListener implements Listener {
 
         HandlerList.unregisterAll(this);
 
-        this.instance.getLogger().debug(String.format("Unregistered listener: %s", this.toString()));
+        if (this.instance.getSettings().isDebug()) {
+            this.instance.getLogger().info(String.format("Unregistered listener: %s", this.toString()));
+        }
+
         this.instance = null;
     }
 

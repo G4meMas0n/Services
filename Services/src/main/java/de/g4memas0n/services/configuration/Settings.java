@@ -55,6 +55,7 @@ public final class Settings {
 
     // Notify-Settings:
     private boolean action;
+    private boolean debug;
 
     public Settings(@NotNull final Services instance) {
         this.instance = instance;
@@ -66,7 +67,9 @@ public final class Settings {
         try {
             this.storage.load(this.config);
 
-            this.instance.getLogger().debug("Loaded configuration file: " + this.config.getName());
+            if (this.debug || this._getDebug()) {
+                this.instance.getLogger().info("Loaded configuration file: " + this.config.getName());
+            }
         } catch (FileNotFoundException ex) {
             this.instance.getLogger().warning(String.format("Unable to find configuration file '%s'. "
                     + "Saving default configuration...", this.config.getName()));
@@ -82,8 +85,8 @@ public final class Settings {
 
             final File broken = new File(this.instance.getDataFolder(), FILE_CONFIG_BROKEN);
 
-            if (broken.exists() && broken.delete()) {
-                this.instance.getLogger().debug("Deleted old broken configuration file: " + broken.getName());
+            if (broken.exists() && broken.delete() && (this.debug || this._getDebug())) {
+                this.instance.getLogger().info("Deleted old broken configuration file: " + broken.getName());
             }
 
             if (this.config.renameTo(broken)) {
@@ -122,6 +125,7 @@ public final class Settings {
         this.grace = this._getGracePeriod();
 
         this.action = this._getNotifyActionBar();
+        this.debug = this._getDebug();
     }
 
     @SuppressWarnings("unused")
@@ -145,7 +149,7 @@ public final class Settings {
     }
 
     public boolean isDebug() {
-        return this._getDebug();
+        return this.debug;
     }
 
     protected @NotNull Locale _getLocale() {
