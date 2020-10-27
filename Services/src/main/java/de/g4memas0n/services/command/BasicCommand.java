@@ -6,8 +6,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
-import static de.g4memas0n.services.util.messaging.Messages.tl;
-
 /**
  * Abstract Command Representation that represents all non bukkit/spigot commands.
  *
@@ -38,7 +36,10 @@ public abstract class BasicCommand {
         }
 
         this.instance = instance;
-        this.instance.getLogger().debug(String.format("Registered command: %s", this.toString()));
+
+        if (this.instance.getSettings().isDebug()) {
+            this.instance.getLogger().info(String.format("Registered command: %s", this.toString()));
+        }
         return true;
     }
 
@@ -47,7 +48,10 @@ public abstract class BasicCommand {
             return false;
         }
 
-        this.instance.getLogger().debug(String.format("Unregistered command: %s", this.toString()));
+        if (this.instance.getSettings().isDebug()) {
+            this.instance.getLogger().info(String.format("Unregistered command: %s", this.toString()));
+        }
+
         this.instance = null;
         return true;
     }
@@ -116,11 +120,11 @@ public abstract class BasicCommand {
     }
 
     public final @NotNull String getDescription() {
-        return tl(this.name.concat("CommandDescription"));
+        return this.instance.getMessages().translate(this.name.concat("CommandDescription"));
     }
 
     public final @NotNull String getUsage() {
-        return tl(this.name.concat("CommandUsage"));
+        return this.instance.getMessages().translate(this.name.concat("CommandUsage"));
     }
 
     @Override

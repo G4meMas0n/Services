@@ -1,6 +1,5 @@
-package de.g4memas0n.services.util.messaging;
+package de.g4memas0n.services.util;
 
-import de.g4memas0n.services.util.logging.BasicLogger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import java.io.File;
@@ -19,6 +18,7 @@ import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
+import java.util.logging.Logger;
 
 /**
  * Message class, that is used to receive all localized messages of this plugin.
@@ -32,14 +32,14 @@ public final class Messages {
 
     private static Messages instance;
 
-    private final BasicLogger logger;
+    private final Logger logger;
     private final File directory;
 
     private final ResourceBundle defaultBundle;
     private ResourceBundle localBundle;
     private ResourceBundle customBundle;
 
-    public Messages(@NotNull final File directory, @NotNull final BasicLogger logger) {
+    public Messages(@NotNull final File directory, @NotNull final Logger logger) {
         this.directory = directory;
         this.logger = logger;
 
@@ -67,10 +67,10 @@ public final class Messages {
             this.localBundle = ResourceBundle.getBundle(BUNDLE_BASE, locale, new CustomPropertiesControl());
 
             if (this.localBundle.getLocale().equals(locale)) {
-                this.logger.debug("Loaded resource bundle for language: " + locale);
+                this.logger.info("Loaded resource bundle for language: " + locale);
             } else {
                 this.logger.warning("Unable to find resource bundle for language: " + locale);
-                this.logger.debug("Loaded fallback resource bundle for language: " + this.localBundle.getLocale());
+                this.logger.info("Loaded fallback resource bundle for language: " + this.localBundle.getLocale());
             }
         } catch (MissingResourceException ex) {
             this.localBundle = this.defaultBundle;
@@ -83,7 +83,7 @@ public final class Messages {
                     new CustomNoFallbackControl());
 
             if (this.customBundle.getLocale().equals(locale)) {
-                this.logger.debug("Detected and loaded custom resource bundle for language: " + locale);
+                this.logger.info("Detected and loaded custom resource bundle for language: " + locale);
             } else {
                 this.customBundle = null;
             }
@@ -100,14 +100,14 @@ public final class Messages {
                 try {
                     return this.customBundle.getString(key);
                 } catch (MissingResourceException ex) {
-                    this.logger.debug(String.format("Missing translation key '%s' in custom translation file for language: %s",
+                    this.logger.warning(String.format("Missing translation key '%s' in custom translation file for language: %s",
                             ex.getKey(), this.customBundle.getBaseBundleName()));
                 }
             }
 
             return this.localBundle.getString(key);
         } catch (MissingResourceException ex) {
-            this.logger.debug(String.format("Missing translation key '%s' in translation file for language: %s",
+            this.logger.warning(String.format("Missing translation key '%s' in translation file for language: %s",
                     ex.getKey(), this.getLocale()));
 
             return this.defaultBundle.getString(key);
