@@ -10,6 +10,7 @@ import de.g4memas0n.services.util.Permission;
 import de.g4memas0n.services.util.Messages;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.Material;
 import org.bukkit.World.Environment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -191,6 +192,10 @@ public final class Services extends JavaPlugin {
      */
     public void handleConditionCheck(@NotNull final Player target) {
         if (!target.hasPermission(Permission.SERVICE.getNode())) {
+            if (this.settings.isDebug()) {
+                this.getLogger().info(String.format("Player '%s' has no permission for service mode.", target.getName()));
+            }
+
             if (this.handleConditionRemove(target)) {
                 target.sendMessage(this.messages.translate("serviceDenied"));
             }
@@ -205,6 +210,11 @@ public final class Services extends JavaPlugin {
                 // Filter world if per world permission is enabled.
                 if (this.settings.isPermissionPerWorld()) {
                     if (!target.hasPermission(Permission.WORLD.getChildren(target.getWorld().getName()))) {
+                        if (this.settings.isDebug()) {
+                            this.getLogger().info(String.format("Player '%s' has no permission for service world '%s'.",
+                                    target.getName(), target.getWorld().getName()));
+                        }
+
                         // Check if player gets removed from condition and from warmup or service.
                         if (this.handleConditionRemove(target)) {
                             target.sendMessage(this.messages.format("worldDenied", target.getWorld().getName()));
@@ -222,6 +232,11 @@ public final class Services extends JavaPlugin {
                     if (this.settings.isPermissionPerEnvironment()) {
                         // Check if player has no permission for this service environment.
                         if (!target.hasPermission(Permission.ENVIRONMENT.getChildren(environment.name()))) {
+                            if (this.manager.isInCondition(target.getUniqueId()) && this.settings.isDebug()) {
+                                this.getLogger().info(String.format("Player '%s' has no permission for service environment '%s'.",
+                                        target.getName(), environment.name()));
+                            }
+
                             // Check if player gets removed from condition and from warmup or service.
                             if (this.handleConditionRemove(target)) {
                                 final String name = environment.name().charAt(0) + environment.name().substring(1).toLowerCase();
@@ -233,12 +248,22 @@ public final class Services extends JavaPlugin {
                         }
                     }
 
+                    if (this.settings.isDebug()) {
+                        this.getLogger().info(String.format("Player '%s' is now in service world '%s' with environment '%s'.",
+                                target.getName(), target.getWorld().getName(), environment.name()));
+                    }
+
                     // If true, check if player gets added to condition.
                     if (this.manager.addToCondition(target)) {
                         this.handleServiceCheck(target, target.getInventory().getItemInMainHand());
                     }
 
                     return;
+                }
+
+                if (this.settings.isDebug() && this.manager.isInCondition(target.getUniqueId())) {
+                    this.getLogger().info(String.format("Player '%s' is now in non-service environment '%s'.",
+                            target.getName(), target.getWorld().getName()));
                 }
 
                 // Check if player gets removed from condition and from warmup or service.
@@ -251,6 +276,11 @@ public final class Services extends JavaPlugin {
                 return;
             }
 
+            if (this.settings.isDebug() && this.manager.isInCondition(target.getUniqueId())) {
+                this.getLogger().info(String.format("Player '%s' is now in non-service world '%s'.",
+                        target.getName(), target.getWorld().getName()));
+            }
+
             // Check if player gets removed from condition and from warmup or service.
             if (this.handleConditionRemove(target)) {
                 target.sendMessage(this.messages.format("noServiceWorld", target.getWorld().getName()));
@@ -259,7 +289,10 @@ public final class Services extends JavaPlugin {
             return;
         }
 
-
+        if (this.settings.isDebug() && this.manager.isInCondition(target.getUniqueId())) {
+            this.getLogger().info(String.format("Player '%s' is now in non-service game-mode '%s'.",
+                    target.getName(), target.getGameMode().name()));
+        }
 
         // Check if player gets removed from condition and from warmup or service.
         if (this.handleConditionRemove(target)) {
@@ -314,10 +347,19 @@ public final class Services extends JavaPlugin {
             if (this.settings.isPermissionPerItem()) {
                 // If true, check if player has permission for this service item.
                 if (!target.hasPermission(Permission.ITEM.getChildren(item.getType().getKey().getKey()))) {
-                    this.handleServiceRemove(target);
+                    if (this.settings.isDebug()) {
+                        this.getLogger().info(String.format("Player '%s' has no permission for service item '%s'.",
+                                target.getName(), item.getType().getKey().getKey()));
+                    }
 
+                    this.handleServiceRemove(target);
                     return;
                 }
+            }
+
+            if (this.settings.isDebug()) {
+                this.getLogger().info(String.format("Player '%s' is now using service item '%s'.",
+                        target.getName(), item.getType().getKey().getKey()));
             }
 
             // Check if player gets removed from grace.
@@ -339,6 +381,11 @@ public final class Services extends JavaPlugin {
             }
 
             return;
+        }
+
+        if (this.settings.isDebug() && this.manager.isInService(target.getUniqueId())) {
+            this.getLogger().info(String.format("Player '%s' is now using non-service item '%s'.", target.getName(),
+                    item != null ? item.getType().getKey().getKey() : Material.AIR.getKey().getKey()));
         }
 
         this.handleServiceRemove(target);

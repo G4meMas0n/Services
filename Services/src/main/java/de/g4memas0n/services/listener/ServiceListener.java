@@ -95,7 +95,6 @@ public final class ServiceListener extends BasicListener {
                 }
 
                 this.schedules.put(event.getPlayer().getUniqueId(), this.getInstance().runTask(() -> handleServiceCheck(event.getPlayer())));
-
                 return;
             }
 
@@ -141,7 +140,6 @@ public final class ServiceListener extends BasicListener {
                 }
 
                 this.schedules.put(event.getPlayer().getUniqueId(), this.getInstance().runTask(() -> handleServiceCheck(event.getPlayer())));
-
                 return;
             }
 

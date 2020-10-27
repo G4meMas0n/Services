@@ -47,7 +47,7 @@ public final class ConditionListener extends BasicListener {
                     // Check if player has no permission for the new service world.
                     if (!event.getPlayer().hasPermission(Permission.WORLD.getChildren(world.getName()))) {
                         if (this.getInstance().getSettings().isDebug()) {
-                            this.getInstance().getLogger().info(String.format("Player '%s' changed to the service world '%s' without permission.",
+                            this.getInstance().getLogger().info(String.format("Player '%s' has no permission for service world '%s'.",
                                     event.getPlayer().getName(), world.getName()));
                         }
 
@@ -69,7 +69,7 @@ public final class ConditionListener extends BasicListener {
                         // Check if player has no permission for the new service environment.
                         if (!event.getPlayer().hasPermission(Permission.ENVIRONMENT.getChildren(environment.name()))) {
                             if (this.getInstance().getSettings().isDebug()) {
-                                this.getInstance().getLogger().info(String.format("Player '%s' changed to service environment '%s' without permission.",
+                                this.getInstance().getLogger().info(String.format("Player '%s' has no permission for service environment '%s'.",
                                         event.getPlayer().getName(), environment.name()));
                             }
 
@@ -84,16 +84,11 @@ public final class ConditionListener extends BasicListener {
                         }
                     }
 
-                    if (this.getInstance().getSettings().isDebug()) {
-                        this.getInstance().getLogger().info(String.format("Player '%s' changed to service world '%s' with environment '%s'.",
-                                event.getPlayer().getName(), world.getName(), environment.name()));
-                    }
-
                     return; // Player is still in condition.
                 }
 
                 if (this.getInstance().getSettings().isDebug()) {
-                    this.getInstance().getLogger().info(String.format("Player '%s' changed to non-service environment: %s",
+                    this.getInstance().getLogger().info(String.format("Player '%s' is now in non-service environment: %s",
                             event.getPlayer().getName(), environment.name()));
                 }
 
@@ -108,7 +103,7 @@ public final class ConditionListener extends BasicListener {
             }
 
             if (this.getInstance().getSettings().isDebug()) {
-                this.getInstance().getLogger().info(String.format("Player '%s' changed to non-service world: %s",
+                this.getInstance().getLogger().info(String.format("Player '%s' is now in non-service world: %s",
                         event.getPlayer().getName(), world.getName()));
             }
 
@@ -131,16 +126,11 @@ public final class ConditionListener extends BasicListener {
 
             // If true, check if the players new game-mode is also a service game-mode.
             if (this.getInstance().getSettings().isServiceGameMode(mode)) {
-                if (this.getInstance().getSettings().isDebug()) {
-                    this.getInstance().getLogger().info(String.format("Player '%s' changed to service game-mode: %s",
-                            event.getPlayer().getName(), mode.name()));
-                }
-
                 return; // Player is still in condition.
             }
 
             if (this.getInstance().getSettings().isDebug()) {
-                this.getInstance().getLogger().info(String.format("Player '%s' changed to non-service game-mode: %s",
+                this.getInstance().getLogger().info(String.format("Player '%s' is now in non-service game-mode: %s",
                         event.getPlayer().getName(), mode.name()));
             }
 
