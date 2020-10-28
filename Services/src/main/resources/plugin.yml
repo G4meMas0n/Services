@@ -13,9 +13,22 @@ commands:
 
 permissions:
   services.environment.*:
-    description: Allows to use services in all environments.
+    description: Allows to use services in all service environments.
     default: false
     children:
       services.environment.nether: true
       services.environment.normal: true
       services.environment.the_end: true
+  services.item.*:
+    description: Allows to use all service items.
+    default: false
+    children:
+      services.item.bedrock: true
+      services.item.wooden_axe: true
+  services.world.*:
+    description: Allows to use services in all service worlds.
+    default: false
+    children:
+      services.world.world: true
+      services.world.world_nether: true
+      services.world.world_the_end: true

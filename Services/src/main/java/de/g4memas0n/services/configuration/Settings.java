@@ -1,6 +1,7 @@
 package de.g4memas0n.services.configuration;
 
 import de.g4memas0n.services.Services;
+import de.g4memas0n.services.util.Permission;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -325,7 +326,8 @@ public final class Settings {
 
                 this.instance.getLogger().warning(String.format("Detected invalid item in configuration file '%s': "
                         + "Material '%s' is not an allowed item.", this.config.getName(), name));
-            } catch (IllegalArgumentException ex) {
+            } catch (IllegalArgumentException ignored) {
+                Permission.ITEM.setChildren(material.getKey().getKey());
                 materials.add(material);
             }
         }
@@ -360,7 +362,12 @@ public final class Settings {
                 continue;
             }
 
+            Permission.WORLD.setChildren(world.getName());
             worlds.add(world.getName());
+        }
+
+        if (worlds.isEmpty()) {
+            this.instance.getServer().getWorlds().forEach(world -> Permission.WORLD.setChildren(world.getName()));
         }
 
         return Collections.unmodifiableSet(worlds);
