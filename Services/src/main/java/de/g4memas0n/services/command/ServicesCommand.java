@@ -44,7 +44,7 @@ public final class ServicesCommand extends BasicCommand implements TabExecutor {
         this.setPermission(Permission.USE.getNode());
     }
 
-    public final @NotNull PluginCommand getCommand() {
+    public @NotNull PluginCommand getCommand() {
         if (this.command == null) {
             throw new IllegalStateException(String.format("Unregistered command '%s' tried to get the plugin command",
                     this.getName()));
@@ -53,11 +53,11 @@ public final class ServicesCommand extends BasicCommand implements TabExecutor {
         return this.command;
     }
 
-    public final @Nullable BasicCommand getCommand(@NotNull final String name) {
+    public @Nullable BasicCommand getCommand(@NotNull final String name) {
         return this.commands.get(name.toLowerCase());
     }
 
-    public final void addCommand(@NotNull final BasicCommand command) {
+    public void addCommand(@NotNull final BasicCommand command) {
         if (this.commands.containsKey(command.getName())) {
             return;
         }
@@ -173,10 +173,10 @@ public final class ServicesCommand extends BasicCommand implements TabExecutor {
     }
 
     @Override
-    public final boolean onCommand(@NotNull final CommandSender sender,
-                                   @NotNull final Command command,
-                                   @NotNull final String alias,
-                                   @NotNull final String[] arguments) {
+    public boolean onCommand(@NotNull final CommandSender sender,
+                             @NotNull final Command command,
+                             @NotNull final String alias,
+                             @NotNull final String[] arguments) {
         if (this.command == null) {
             this.getInstance().getLogger().severe(String.format("Unregistered plugin command '%s' was executed.", this.getName()));
             return true;
@@ -203,10 +203,10 @@ public final class ServicesCommand extends BasicCommand implements TabExecutor {
     }
 
     @Override
-    public final @NotNull List<String> onTabComplete(@NotNull final CommandSender sender,
-                                                     @NotNull final Command command,
-                                                     @NotNull final String alias,
-                                                     @NotNull final String[] arguments) {
+    public @NotNull List<String> onTabComplete(@NotNull final CommandSender sender,
+                                               @NotNull final Command command,
+                                               @NotNull final String alias,
+                                               @NotNull final String[] arguments) {
         if (this.command == null) {
             this.getInstance().getLogger().severe(String.format("Unregistered plugin command '%s' was tab completed", this.getName()));
 

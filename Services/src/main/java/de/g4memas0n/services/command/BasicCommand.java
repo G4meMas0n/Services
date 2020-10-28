@@ -40,6 +40,7 @@ public abstract class BasicCommand {
         if (this.instance.getSettings().isDebug()) {
             this.instance.getLogger().info(String.format("Registered command: %s", this.toString()));
         }
+
         return true;
     }
 

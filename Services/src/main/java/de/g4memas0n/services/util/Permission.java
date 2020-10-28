@@ -1,7 +1,5 @@
 package de.g4memas0n.services.util;
 
-import org.bukkit.Material;
-import org.bukkit.World.Environment;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -18,9 +16,9 @@ public enum Permission {
      * <p><b>Note:</b> This permission is only functional when the permission per environment option is enabled.</p>
      *
      * Available environment permissions:
-     * - {@code services.environment.nether} (Allows to use services in the {@link Environment#NORMAL} environment)
-     * - {@code services.environment.normal} (Allows to use services in the {@link Environment#NETHER} environment)
-     * - {@code services.environment.the_end} (Allows to use services in the {@link Environment#THE_END} environment)
+     * - {@code services.environment.nether} (Allows to use services in the {@link org.bukkit.World.Environment#NORMAL} environment)
+     * - {@code services.environment.normal} (Allows to use services in the {@link org.bukkit.World.Environment#NETHER} environment)
+     * - {@code services.environment.the_end} (Allows to use services in the {@link org.bukkit.World.Environment#THE_END} environment)
      * - {@code services.environment.*} (Allows to use services in all service environments.)
      */
     ENVIRONMENT("environment"),
@@ -31,8 +29,8 @@ public enum Permission {
      * <p><b>Note:</b> This permission is only functional when the permission per item option is enabled.</p>
      *
      * Available item permissions:
-     * - {@code services.item.bedrock} (Allows to use {@link Material#BEDROCK} as service item)
-     * - {@code services.item.wooden_axe} (Allows to use {@link Material#WOODEN_AXE} as service item)
+     * - {@code services.item.bedrock} (Allows to use {@link org.bukkit.Material#BEDROCK} as service item)
+     * - {@code services.item.wooden_axe} (Allows to use {@link org.bukkit.Material#WOODEN_AXE} as service item)
      * - {@code services.item.<item-key>} (Allows to use the specified service item)
      * - {@code services.item.*} (Allows to use all service items)
      */
@@ -110,17 +108,6 @@ public enum Permission {
      * @param children the sub-node of the children permission.
      */
     public void setChildren(@NotNull final String children) {
-        new org.bukkit.permissions.Permission(this.getChildren(children)).addParent(this.getWildcard(), true);
-    }
-
-    /**
-     * Returns the wildcard permission of this node.
-     *
-     * <p>Joins the node of this permission with the wildcard symbol {@code *}.</p>
-     *
-     * @return the wildcards permission node.
-     */
-    public @NotNull String getWildcard() {
-        return this.node + DELIMITER + "*";
+        new org.bukkit.permissions.Permission(this.getChildren(children)).addParent(this.getChildren("*"), true);
     }
 }

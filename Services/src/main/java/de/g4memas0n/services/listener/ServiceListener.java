@@ -270,17 +270,15 @@ public final class ServiceListener extends BasicListener {
         }
     }
 
-    protected void handleServiceCheck(@NotNull final Player target) {
+    public void handleServiceCheck(@NotNull final Player target) {
         if (this.schedules.containsKey(target.getUniqueId())) {
             if (this.schedules.remove(target.getUniqueId()).isCancelled()) {
                 return;
             }
         }
 
-        if (!target.isOnline()) {
-            return;
+        if (target.isOnline()) {
+            this.getInstance().handleServiceCheck(target, target.getInventory().getItemInMainHand());
         }
-
-        this.getInstance().handleServiceCheck(target, target.getInventory().getItemInMainHand());
     }
 }
