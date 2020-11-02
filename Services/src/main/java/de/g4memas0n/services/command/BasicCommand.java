@@ -38,7 +38,7 @@ public abstract class BasicCommand {
         this.instance = instance;
 
         if (this.instance.getSettings().isDebug()) {
-            this.instance.getLogger().info(String.format("Registered command: %s", this.toString()));
+            this.instance.getLogger().info("Registered command: " + this.toString());
         }
 
         return true;
@@ -50,7 +50,7 @@ public abstract class BasicCommand {
         }
 
         if (this.instance.getSettings().isDebug()) {
-            this.instance.getLogger().info(String.format("Unregistered command: %s", this.toString()));
+            this.instance.getLogger().info("Unregistered command: " + this.toString());
         }
 
         this.instance = null;
@@ -59,8 +59,7 @@ public abstract class BasicCommand {
 
     public final @NotNull Services getInstance() {
         if (this.instance == null) {
-            throw new IllegalStateException(String.format("Unregistered command '%s' tried to get the plugin instance",
-                    this.getName()));
+            throw new IllegalStateException("Unregistered command '" + this.name + "' tried to get the plugin instance");
         }
 
         return this.instance;

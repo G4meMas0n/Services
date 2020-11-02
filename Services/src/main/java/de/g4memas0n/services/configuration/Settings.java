@@ -29,12 +29,10 @@ import java.util.regex.Pattern;
  */
 public final class Settings {
 
-    private static final String FILE_CONFIG = "config.yml";
-    private static final String FILE_CONFIG_BROKEN = "config.broken.yml";
+    private static final String CONFIG = "config.yml";
 
     private final Services instance;
     private final YamlConfiguration storage;
-    private final File config;
 
     // Service-Condition-Settings:
     private Set<Environment> environments;
@@ -61,54 +59,50 @@ public final class Settings {
     public Settings(@NotNull final Services instance) {
         this.instance = instance;
         this.storage = new YamlConfiguration();
-        this.config = new File(instance.getDataFolder(), FILE_CONFIG);
     }
 
     public void load() {
+        final File config = new File(this.instance.getDataFolder(), CONFIG);
+
         try {
-            this.storage.load(this.config);
+            this.storage.load(config);
 
-            if (this.debug || this._getDebug()) {
-                this.instance.getLogger().info("Loaded configuration file: " + this.config.getName());
-            }
+            this.instance.getLogger().info("Loaded configuration file: " + config.getName());
         } catch (FileNotFoundException ex) {
-            this.instance.getLogger().warning(String.format("Unable to find configuration file '%s'. "
-                    + "Saving default configuration...", this.config.getName()));
-
-            this.instance.saveResource(FILE_CONFIG, true);
-            this.instance.getLogger().info(String.format("Saved default configuration from template: %s", FILE_CONFIG));
+            this.instance.getLogger().warning("Unable to find configuration file: " + config.getName() + " (Saving default configuration...)");
+            this.instance.saveResource(config.getName(), true);
+            this.instance.getLogger().info("Saved default configuration from template: " + config.getName());
 
             this.load();
             return;
         } catch (InvalidConfigurationException ex) {
-            this.instance.getLogger().severe(String.format("Unable to load configuration file '%s', because it is broken. "
-                    + "Renaming it and saving default configuration...", this.config.getName()));
+            this.instance.getLogger().warning("Unable to load broken configuration file: " + config.getName() + " (Renaming it and saving default configuration...)");
 
-            final File broken = new File(this.instance.getDataFolder(), FILE_CONFIG_BROKEN);
+            final File broken = new File(config.getParent(), config.getName().replaceAll("(?i)(yml)$", "broken.$1"));
 
-            if (broken.exists() && broken.delete() && (this.debug || this._getDebug())) {
+            if (broken.exists() && broken.delete()) {
                 this.instance.getLogger().info("Deleted old broken configuration file: " + broken.getName());
             }
 
-            if (this.config.renameTo(broken)) {
-                this.instance.getLogger().info(String.format("Renamed broken configuration file '%s' to: %s",
-                        this.config.getName(), broken.getName()));
+            if (config.renameTo(broken)) {
+                this.instance.getLogger().info("Renamed broken configuration file to: " + broken.getName());
             }
 
-            this.instance.saveResource(FILE_CONFIG, true);
-            this.instance.getLogger().info(String.format("Saved default configuration from template: %s", FILE_CONFIG));
+            this.instance.saveResource(config.getName(), true);
+            this.instance.getLogger().info("Saved default configuration from template: " + config.getName());
 
             this.load();
             return;
         } catch (IOException ex) {
-            this.instance.getLogger().warning(String.format("Unable to load configuration file '%s'. "
-                    + "Loading default configuration...", this.config.getName()));
+            this.instance.getLogger().warning("Unable to load configuration file: " + config.getName() + " (Loading default configuration...)");
 
             /*
              * Removing each key manual to clear existing configuration, as loading a blank config does not work here
              * for any reason.
              */
             this.storage.getKeys(false).forEach(key -> this.storage.set(key, null));
+
+            this.instance.getLogger().info("Loaded default configuration from template: " + config.getName());
         }
 
         this.environments = this._getServiceEnvironments();
@@ -132,16 +126,16 @@ public final class Settings {
     @SuppressWarnings("unused")
     public void save() {
         /*
-        Disabled, because it is not intended to save the config file, as this breaks the comments.
-        try {
-            this.storage.save(this.config);
-
-            this.instance.getLogger().debug("Saved configuration file: " + this.config.getName());
-        } catch (IOException ex) {
-            this.instance.getLogger().warning(String.format("Unable to save configuration file '%s': %s",
-                    this.config.getName(), ex.getMessage()));
-        }
+         * Disabled, because it is not intended to save the config file, as this breaks the comments.
          */
+
+        //final File config = new File(this.instance.getDataFolder(), CONFIG);
+        //
+        //try {
+        //    this.storage.save(config);
+        //} catch (IOException ex) {
+        //    this.instance.getLogger().warning("Unable to save configuration file: " + config.getName() + " (" + ex.getMessage() + ")");
+        //}
     }
 
     // Plugin-Settings Methods:
@@ -157,20 +151,19 @@ public final class Settings {
         final String locale = this.storage.getString("locale");
 
         if (locale != null && !locale.isEmpty()) {
-            final Matcher match = Pattern.compile("^(?<language>[a-zA-Z]{2,8})('_'|'-'(?<country>[a-zA-Z]{2}|[0-9]{3}))?$").matcher(locale);
+            final Matcher match = Pattern.compile("^([a-zA-Z]{2,8})([_-]([a-zA-Z]{2}|[0-9]{3}))?$").matcher(locale);
 
             if (match.matches()) {
-                final String country = match.group("country");
+                final String country = match.group(3);
 
                 if (country == null) {
-                    return new Locale(match.group("language"));
+                    return new Locale(match.group(1));
                 }
 
-                return new Locale(match.group("language"), country);
+                return new Locale(match.group(1), country);
             }
 
-            this.instance.getLogger().warning(String.format("Detected invalid locale in configuration file '%s': "
-                    + "Locale does not match regex.", this.config.getName()));
+            this.instance.getLogger().warning("Detected invalid locale: Locale '" + locale + "' does not match regex.");
         }
 
         return Locale.ENGLISH;
@@ -202,8 +195,7 @@ public final class Settings {
         final int period = this.storage.getInt("period.warmup", 3);
 
         if (period < 0 || period > 10) {
-            this.instance.getLogger().warning(String.format("Detected invalid warmup period in configuration file '%s': "
-                    + "Period is out of range.", this.config.getName()));
+            this.instance.getLogger().warning("Detected invalid warmup period: Period is out of range.");
 
             return 3;
         }
@@ -223,8 +215,7 @@ public final class Settings {
         final int period = this.storage.getInt("period.grace", 1);
 
         if (period < 0 || period > 10) {
-            this.instance.getLogger().warning(String.format("Detected invalid grace period in configuration file '%s': "
-                    + "Period is out of range.", this.config.getName()));
+            this.instance.getLogger().warning("Detected invalid grace period: Period is out of range.");
 
             return 1;
         }
@@ -273,8 +264,7 @@ public final class Settings {
             try {
                 environments.add(Environment.valueOf(name.toUpperCase()));
             } catch (IllegalArgumentException ex) {
-                this.instance.getLogger().warning(String.format("Detected invalid environment in configuration file '%s': "
-                        + "Environment '%s' does not exist.", this.config.getName(), name));
+                this.instance.getLogger().warning("Detected invalid service environment: Environment '" + name + "' does not exist.");
             }
         }
 
@@ -303,20 +293,17 @@ public final class Settings {
             final Material material = Material.matchMaterial(name, false);
 
             if (material == null) {
-                this.instance.getLogger().warning(String.format("Detected invalid item in configuration file '%s': "
-                        + "Material '%s' does not exist.", this.config.getName(), name));
+                this.instance.getLogger().warning("Detected invalid service item: Material '" + name + "' does not exist.");
                 continue;
             }
 
             if (!material.isItem()) {
-                this.instance.getLogger().warning(String.format("Detected invalid item in configuration file '%s': "
-                        + "Material '%s' is not an obtainable item.", this.config.getName(), name));
+                this.instance.getLogger().warning("Detected invalid service item: Material '" + name + "' is not an obtainable item.");
                 continue;
             }
 
             if (material.isEdible()) {
-                this.instance.getLogger().warning(String.format("Detected invalid item in configuration file '%s': "
-                        + "Material '%s' is not an allowed item.", this.config.getName(), name));
+                this.instance.getLogger().warning("Detected invalid service item: Material '" + name + "' is not an allowed item.");
                 continue;
             }
 
@@ -324,8 +311,7 @@ public final class Settings {
             try {
                 EntityType.valueOf(material.getKey().getKey().toUpperCase());
 
-                this.instance.getLogger().warning(String.format("Detected invalid item in configuration file '%s': "
-                        + "Material '%s' is not an allowed item.", this.config.getName(), name));
+                this.instance.getLogger().warning("Detected invalid service item: Material '" + name + "' is not an allowed item.");
             } catch (IllegalArgumentException ignored) {
                 Permission.ITEM.setChildren(material.getKey().getKey());
                 materials.add(material);
@@ -333,8 +319,7 @@ public final class Settings {
         }
 
         if (materials.isEmpty()) {
-            this.instance.getLogger().warning(String.format("Detected missing or only invalid items in configuration file '%s': "
-                    + "Using default items...", this.config.getName()));
+            this.instance.getLogger().warning("Detected missing or only invalid service items: Using default items...");
 
             materials.addAll(Arrays.asList(Material.BEDROCK, Material.WOODEN_AXE));
         }
@@ -357,8 +342,7 @@ public final class Settings {
             final World world = this.instance.getServer().getWorld(name);
 
             if (world == null) {
-                this.instance.getLogger().warning(String.format("Detected invalid world in configuration file '%s': "
-                        + "World '%s' does not exist.", this.config.getName(), name));
+                this.instance.getLogger().warning("Detected invalid service world: World '" + name + "' does not exist.");
                 continue;
             }
 

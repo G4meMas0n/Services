@@ -35,7 +35,7 @@ public final class FeatureListener extends BasicListener {
 
                         if (this.getInstance().getSettings().isDebug()) {
                             this.getInstance().getLogger().info(String.format("Player '%s' used unlimited buckets on his bucket: %s",
-                                    event.getPlayer().getName(), event.getBucket().name()));
+                                    event.getPlayer().getName(), event.getBucket().getKey()));
                         }
 
                         // Set resulting item on next tick, because this event ignores the resulting item-stack.
@@ -60,7 +60,7 @@ public final class FeatureListener extends BasicListener {
 
                     if (this.getInstance().getSettings().isDebug()) {
                         this.getInstance().getLogger().info(String.format("Player '%s' used unlimited durability on his tool: %s",
-                                event.getPlayer().getName(), event.getItem().getType().name()));
+                                event.getPlayer().getName(), event.getItem().getType().getKey()));
                     }
                 }
             }

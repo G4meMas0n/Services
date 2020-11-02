@@ -31,7 +31,7 @@ public abstract class BasicListener implements Listener {
         this.instance.getServer().getPluginManager().registerEvents(this, instance);
 
         if (this.instance.getSettings().isDebug()) {
-            this.instance.getLogger().info(String.format("Registered listener: %s", this.toString()));
+            this.instance.getLogger().info("Registered listener: " + this.toString());
         }
     }
 
@@ -43,7 +43,7 @@ public abstract class BasicListener implements Listener {
         HandlerList.unregisterAll(this);
 
         if (this.instance.getSettings().isDebug()) {
-            this.instance.getLogger().info(String.format("Unregistered listener: %s", this.toString()));
+            this.instance.getLogger().info("Unregistered listener: " + this.toString());
         }
 
         this.instance = null;
@@ -56,8 +56,7 @@ public abstract class BasicListener implements Listener {
 
     protected final @NotNull Services getInstance() {
         if (this.instance == null) {
-            throw new IllegalStateException("Unregistered listener '" + this.getClass().getSimpleName()
-                    + "' tried to get the plugin instance");
+            throw new IllegalStateException("Unregistered listener '" + this.getClass().getSimpleName() + "' tried to get the plugin instance");
         }
 
         return this.instance;

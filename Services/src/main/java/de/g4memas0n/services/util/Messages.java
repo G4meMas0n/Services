@@ -100,15 +100,15 @@ public final class Messages {
                 try {
                     return this.customBundle.getString(key);
                 } catch (MissingResourceException ex) {
-                    this.logger.warning(String.format("Missing translation key '%s' in custom translation file for language: %s",
+                    this.logger.warning(String.format("Missing translation key '%s' in custom translation file: %s",
                             ex.getKey(), this.customBundle.getBaseBundleName()));
                 }
             }
 
             return this.localBundle.getString(key);
         } catch (MissingResourceException ex) {
-            this.logger.warning(String.format("Missing translation key '%s' in translation file for language: %s",
-                    ex.getKey(), this.getLocale()));
+            this.logger.warning(String.format("Missing translation key '%s' in translation file: %s",
+                    ex.getKey(), this.localBundle.getBaseBundleName()));
 
             return this.defaultBundle.getString(key);
         }
@@ -125,7 +125,7 @@ public final class Messages {
         try {
             return MessageFormat.format(format, arguments);
         } catch (IllegalArgumentException ex) {
-            this.logger.warning("Invalid translation key '%s': " + ex.getMessage());
+            this.logger.warning(String.format("Invalid translation key '%s': %s", key, ex.getMessage()));
 
             return MessageFormat.format(format.replaceAll("\\{(\\D*?)}", "\\[$1\\]"), arguments);
         }
@@ -134,7 +134,7 @@ public final class Messages {
     public static @NotNull String tl(@NotNull final String key,
                                      @NotNull final Object... arguments) {
         if (instance == null) {
-            return "\u00a74Error: \u00a7cMessages not loaded.";
+            throw new IllegalStateException("Messages not loaded");
         }
 
         return instance.format(key, arguments);
@@ -143,7 +143,7 @@ public final class Messages {
     public static @NotNull String tlErr(@NotNull final String key,
                                         @NotNull final Object... arguments) {
         if (instance == null) {
-            return "\u00a74Error: \u00a7cMessages not loaded.";
+            throw new IllegalStateException("Messages not loaded");
         }
 
         return instance.translate("prefixError") + " " + instance.format(key, arguments);
