@@ -19,11 +19,11 @@ public final class FeatureListener extends BasicListener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPlayerBucketEmpty(@NotNull final PlayerBucketEmptyEvent event) {
         // Check if unlimited service buckets is enabled.
-        if (this.getInstance().getSettings().isUnlimitedBuckets()) {
+        if (this.getSettings().isUnlimitedBuckets()) {
             // If true, check if filled bucket is a service item.
-            if (this.getInstance().getSettings().isServiceItem(event.getBucket())) {
+            if (this.getSettings().isServiceItem(event.getBucket())) {
                 // If true, check if player is in service. (If he is in service, he must be in condition)
-                if (this.getInstance().getServiceManager().isInService(event.getPlayer().getUniqueId())) {
+                if (this.getManager().isInService(event.getPlayer().getUniqueId())) {
                     // If true, check if the main hand contains the bucket.
                     if (event.getPlayer().getInventory().getItemInMainHand().getType().equals(event.getBucket())) {
                         // If true, set resulting item to the filled bucket.
@@ -33,9 +33,8 @@ public final class FeatureListener extends BasicListener {
                             event.setItemStack(new ItemStack(event.getBucket()));
                         }
 
-                        if (this.getInstance().getSettings().isDebug()) {
-                            this.getInstance().getLogger().info(String.format("Player '%s' used unlimited buckets on his bucket: %s",
-                                    event.getPlayer().getName(), event.getBucket().getKey()));
+                        if (this.getSettings().isDebug()) {
+                            this.getLogger().info(String.format("Player '%s' used unlimited buckets on his bucket: %s", event.getPlayer().getName(), event.getBucket().getKey()));
                         }
 
                         // Set resulting item on next tick, because this event ignores the resulting item-stack.
@@ -50,17 +49,19 @@ public final class FeatureListener extends BasicListener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPlayerItemDamage(@NotNull final PlayerItemDamageEvent event) {
         // Check if unlimited service durability is enabled.
-        if (this.getInstance().getSettings().isUnlimitedDurability()) {
+        if (this.getSettings().isUnlimitedDurability()) {
             // If true, check if damaged tool is a service item.
-            if (this.getInstance().getSettings().isServiceItem(event.getItem().getType())) {
+            if (this.getSettings().isServiceItem(event.getItem().getType())) {
                 // If true, check if player is in service. (If he is in service, he must be in condition)
-                if (this.getInstance().getServiceManager().isInService(event.getPlayer().getUniqueId())) {
-                    // If true, cancel event as the tool should not be damaged.
-                    event.setCancelled(true);
+                if (this.getManager().isInService(event.getPlayer().getUniqueId())) {
+                    // If true, check if the main hand contains the tool.
+                    if (event.getPlayer().getInventory().getItemInMainHand().equals(event.getItem())) {
+                        // If true, cancel event as the tool should not be damaged.
+                        event.setCancelled(true);
 
-                    if (this.getInstance().getSettings().isDebug()) {
-                        this.getInstance().getLogger().info(String.format("Player '%s' used unlimited durability on his tool: %s",
-                                event.getPlayer().getName(), event.getItem().getType().getKey()));
+                        if (this.getSettings().isDebug()) {
+                            this.getLogger().info(String.format("Player '%s' used unlimited durability on his tool: %s", event.getPlayer().getName(), event.getItem().getType().getKey()));
+                        }
                     }
                 }
             }

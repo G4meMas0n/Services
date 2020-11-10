@@ -6,11 +6,11 @@ import de.g4memas0n.services.listener.ConditionListener;
 import de.g4memas0n.services.listener.FeatureListener;
 import de.g4memas0n.services.listener.ServiceListener;
 import de.g4memas0n.services.configuration.Settings;
-import de.g4memas0n.services.util.Permission;
 import de.g4memas0n.services.util.Messages;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.World.Environment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -44,7 +44,7 @@ public final class Services extends JavaPlugin {
         this.command = new ServicesCommand();
     }
 
-    public @NotNull ServiceManager getServiceManager() {
+    public @NotNull ServiceManager getManager() {
         return this.manager;
     }
 
@@ -191,9 +191,9 @@ public final class Services extends JavaPlugin {
      * @param target the player that should be checked for condition.
      */
     public void handleConditionCheck(@NotNull final Player target) {
-        if (!target.hasPermission(Permission.SERVICE.getNode())) {
+        if (!target.hasPermission("services.service")) {
             if (this.settings.isDebug()) {
-                this.getLogger().info("Player '" + target.getName() + "' has no permission for service mode.");
+                this.getLogger().info("Player '" + target.getName() + "' is not permitted for service mode.");
             }
 
             if (this.handleConditionRemove(target)) {
@@ -205,34 +205,40 @@ public final class Services extends JavaPlugin {
 
         // Check if current game-mode of the player is a service game-mode.
         if (this.settings.isServiceGameMode(target.getGameMode())) {
+            final World world = target.getWorld();
+
             // If true, check if player is in a service world.
-            if (this.settings.isServiceWorld(target.getWorld())) {
+            if (this.settings.isServiceWorld(world)) {
                 // Filter world if per world permission is enabled.
                 if (this.settings.isPermissionPerWorld()) {
-                    if (!target.hasPermission(Permission.WORLD.getChildren(target.getWorld().getName()))) {
+                    final String permission = "services.world." + world.getName().toLowerCase();
+
+                    if (!target.hasPermission(permission)) {
                         if (this.settings.isDebug()) {
-                            this.getLogger().info("Player '" + target.getName() + "' has no permission for service world: " + target.getWorld().getName());
+                            this.getLogger().info("Player '" + target.getName() + "' is missing permission '" + permission + "' for service world: " + world.getName());
                         }
 
                         // Check if player gets removed from condition and from warmup or service.
                         if (this.handleConditionRemove(target)) {
-                            target.sendMessage(this.messages.format("worldDenied", target.getWorld().getName()));
+                            target.sendMessage(this.messages.format("worldDenied", world.getName()));
                         }
 
                         return;
                     }
                 }
 
-                final Environment environment = target.getWorld().getEnvironment();
+                final Environment environment = world.getEnvironment();
 
                 // If true, check if player is in a service environment.
                 if (this.settings.isServiceEnvironment(environment)) {
                     // Filter environment if per environment permission is enabled.
                     if (this.settings.isPermissionPerEnvironment()) {
+                        final String permission = "services.environment." + environment.name().toLowerCase();
+
                         // Check if player has no permission for this service environment.
-                        if (!target.hasPermission(Permission.ENVIRONMENT.getChildren(environment.name()))) {
-                            if (this.manager.isInCondition(target.getUniqueId()) && this.settings.isDebug()) {
-                                this.getLogger().info("Player '" + target.getName() + "' has no permission for service environment: " + environment.name());
+                        if (!target.hasPermission(permission)) {
+                            if (this.settings.isDebug()) {
+                                this.getLogger().info("Player '" + target.getName() + "' is missing permission '" + permission + "' for service environment: " + environment.name());
                             }
 
                             // Check if player gets removed from condition and from warmup or service.
@@ -247,8 +253,7 @@ public final class Services extends JavaPlugin {
                     }
 
                     if (this.settings.isDebug()) {
-                        this.getLogger().info(String.format("Player '%s' is now in service world: %s (environment: %s)",
-                                target.getName(), target.getWorld().getName(), environment.name()));
+                        this.getLogger().info("Player '" + target.getName() + "' is now in service world: " + target.getWorld().getName() + " (environment: " + environment.name() + ")");
                     }
 
                     // If true, check if player gets added to condition.
@@ -340,10 +345,12 @@ public final class Services extends JavaPlugin {
         if (item != null && this.settings.isServiceItem(item.getType())) {
             // Check if permission per item is enabled.
             if (this.settings.isPermissionPerItem()) {
+                final String permission = "services.item." + item.getType().getKey().getKey().toLowerCase();
+
                 // If true, check if player has permission for this service item.
-                if (!target.hasPermission(Permission.ITEM.getChildren(item.getType().getKey().getKey()))) {
+                if (!target.hasPermission(permission)) {
                     if (this.settings.isDebug()) {
-                        this.getLogger().info("Player '" + target.getName() + "' has no permission for service item: " + item.getType().getKey());
+                        this.getLogger().info("Player '" + target.getName() + "' is missing permission '" + permission + "' for service item: " + item.getType().getKey());
                     }
 
                     this.handleServiceRemove(target);
@@ -377,8 +384,7 @@ public final class Services extends JavaPlugin {
         }
 
         if (this.settings.isDebug() && this.manager.isInService(target.getUniqueId())) {
-            this.getLogger().info("Player '" + target.getName() + "' is now using non-service item: "
-                    + (item != null ? item.getType().getKey() : Material.AIR.getKey()));
+            this.getLogger().info("Player '" + target.getName() + "' is now using non-service item: " + (item != null ? item.getType().getKey() : Material.AIR.getKey()));
         }
 
         this.handleServiceRemove(target);

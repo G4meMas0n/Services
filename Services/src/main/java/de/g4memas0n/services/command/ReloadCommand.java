@@ -1,6 +1,5 @@
 package de.g4memas0n.services.command;
 
-import de.g4memas0n.services.util.Permission;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import java.util.Collections;
@@ -19,7 +18,7 @@ public final class ReloadCommand extends BasicCommand {
     public ReloadCommand() {
         super("reload", 0, 0);
 
-        this.setPermission(Permission.RELOAD.getNode());
+        this.setPermission("services.reload");
     }
 
     @Override

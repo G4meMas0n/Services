@@ -1,7 +1,6 @@
 package de.g4memas0n.services.command;
 
 import de.g4memas0n.services.Services;
-import de.g4memas0n.services.util.Permission;
 import de.g4memas0n.services.util.Messages;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.Command;
@@ -10,7 +9,6 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -31,7 +29,7 @@ public final class ServicesCommand extends BasicCommand implements TabExecutor {
     private static final int DELEGATE = 0;
     private static final int ARGUMENTS = 1;
 
-    private final Map<String, BasicCommand> commands = new HashMap<>();
+    private final Map<String, BasicCommand> commands = new HashMap<>(3, 1);
 
     private PluginCommand command;
 
@@ -41,20 +39,15 @@ public final class ServicesCommand extends BasicCommand implements TabExecutor {
         this.addCommand(new ReloadCommand());
         this.addCommand(new VersionCommand());
 
-        this.setPermission(Permission.USE.getNode());
+        this.setPermission("services.use");
     }
 
     public @NotNull PluginCommand getCommand() {
         if (this.command == null) {
-            throw new IllegalStateException(String.format("Unregistered command '%s' tried to get the plugin command",
-                    this.getName()));
+            throw new IllegalStateException("Unregistered command '" + this.getName() + "' tried to get the plugin command");
         }
 
         return this.command;
-    }
-
-    public @Nullable BasicCommand getCommand(@NotNull final String name) {
-        return this.commands.get(name.toLowerCase());
     }
 
     public void addCommand(@NotNull final BasicCommand command) {
@@ -67,15 +60,10 @@ public final class ServicesCommand extends BasicCommand implements TabExecutor {
 
     @Override
     public boolean register(@NotNull final Services instance) {
-        if (this.command != null) {
-            return false;
-        }
-
         this.command = instance.getCommand(this.getName());
 
         if (this.command == null) {
-            instance.getLogger().warning("Failed to register command " + this.getName()
-                    + "! Is it registered to bukkit/spigot?");
+            instance.getLogger().warning("Failed to register command " + this.getName() + "! Is it registered to bukkit/spigot?");
             return false;
         }
 
@@ -110,7 +98,7 @@ public final class ServicesCommand extends BasicCommand implements TabExecutor {
     public boolean execute(@NotNull final CommandSender sender,
                            @NotNull final String[] arguments) {
         if (this.argsInRange(arguments.length)) {
-            final BasicCommand delegate = this.getCommand(arguments[DELEGATE]);
+            final BasicCommand delegate = this.commands.get(arguments[DELEGATE].toLowerCase());
 
             if (delegate == null) {
                 sender.sendMessage(Messages.tlErr("commandNotFound", arguments[DELEGATE]));
@@ -158,7 +146,7 @@ public final class ServicesCommand extends BasicCommand implements TabExecutor {
         }
 
         if (arguments.length > ARGUMENTS) {
-            final BasicCommand delegate = this.getCommand(arguments[DELEGATE]);
+            final BasicCommand delegate = this.commands.get(arguments[DELEGATE].toLowerCase());
 
             if (delegate == null) {
                 return Collections.emptyList();
@@ -177,13 +165,8 @@ public final class ServicesCommand extends BasicCommand implements TabExecutor {
                              @NotNull final Command command,
                              @NotNull final String alias,
                              @NotNull final String[] arguments) {
-        if (this.command == null) {
-            this.getInstance().getLogger().severe(String.format("Unregistered plugin command '%s' was executed.", this.getName()));
-            return true;
-        }
-
         if (sender instanceof BlockCommandSender) {
-            this.getInstance().getLogger().severe(String.format("Plugin command '%s' was executed by unallowed sender.", this.getName()));
+            this.getInstance().getLogger().severe("Command '" + this.getName() + "' was executed by an illegal sender.");
             return true;
         }
 
@@ -207,14 +190,8 @@ public final class ServicesCommand extends BasicCommand implements TabExecutor {
                                                @NotNull final Command command,
                                                @NotNull final String alias,
                                                @NotNull final String[] arguments) {
-        if (this.command == null) {
-            this.getInstance().getLogger().severe(String.format("Unregistered plugin command '%s' was tab completed", this.getName()));
-
-            return Collections.emptyList();
-        }
-
         if (sender instanceof BlockCommandSender) {
-            this.getInstance().getLogger().severe(String.format("Plugin command '%s' was tab completed by unallowed sender.", this.getName()));
+            this.getInstance().getLogger().severe("Command '" + this.getName() + "' was tab-completed by an illegal sender.");
 
             return Collections.emptyList();
         }

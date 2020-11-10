@@ -1,7 +1,6 @@
 package de.g4memas0n.services.configuration;
 
 import de.g4memas0n.services.Services;
-import de.g4memas0n.services.util.Permission;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -9,15 +8,18 @@ import org.bukkit.World.Environment;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
+import org.bukkit.permissions.Permission;
 import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,7 +39,7 @@ public final class Settings {
     // Service-Condition-Settings:
     private Set<Environment> environments;
     private Set<Material> items;
-    private Set<String> worlds;
+    private Set<UUID> worlds;
 
     // Permission-Settings:
     private boolean environment;
@@ -154,16 +156,10 @@ public final class Settings {
             final Matcher match = Pattern.compile("^([a-zA-Z]{2,8})([_-]([a-zA-Z]{2}|[0-9]{3}))?$").matcher(locale);
 
             if (match.matches()) {
-                final String country = match.group(3);
-
-                if (country == null) {
-                    return new Locale(match.group(1));
-                }
-
-                return new Locale(match.group(1), country);
+                return match.group(3) == null ? new Locale(match.group(1)) : new Locale(match.group(1), match.group(3));
             }
 
-            this.instance.getLogger().warning("Detected invalid locale: Locale '" + locale + "' does not match regex.");
+            this.instance.getLogger().warning("Detected invalid locale: Locale does not match regex.");
         }
 
         return Locale.ENGLISH;
@@ -258,7 +254,7 @@ public final class Settings {
 
     // Service-Condition-Settings Methods:
     protected @NotNull Set<Environment> _getServiceEnvironments() {
-        final Set<Environment> environments = new HashSet<>();
+        final Set<Environment> environments = EnumSet.noneOf(Environment.class);
 
         for (final String name : this.storage.getStringList("service.environments")) {
             try {
@@ -287,7 +283,7 @@ public final class Settings {
     }
 
     protected @NotNull Set<Material> _getServiceItems() {
-        final Set<Material> materials = new HashSet<>();
+        final Set<Material> materials = EnumSet.noneOf(Material.class);
 
         for (final String name : this.storage.getStringList("service.items")) {
             final Material material = Material.matchMaterial(name, false);
@@ -313,7 +309,6 @@ public final class Settings {
 
                 this.instance.getLogger().warning("Detected invalid service item: Material '" + name + "' is not an allowed item.");
             } catch (IllegalArgumentException ignored) {
-                Permission.ITEM.setChildren(material.getKey().getKey());
                 materials.add(material);
             }
         }
@@ -322,6 +317,10 @@ public final class Settings {
             this.instance.getLogger().warning("Detected missing or only invalid service items: Using default items...");
 
             materials.addAll(Arrays.asList(Material.BEDROCK, Material.WOODEN_AXE));
+        }
+
+        for (final Material material : materials) {
+            new Permission("services.item" + material.getKey().getKey()).addParent("services.item.*", true);
         }
 
         return Collections.unmodifiableSet(materials);
@@ -335,8 +334,8 @@ public final class Settings {
         return this.items.contains(item);
     }
 
-    protected @NotNull Set<String> _getServiceWorlds() {
-        final Set<String> worlds = new HashSet<>();
+    protected @NotNull Set<UUID> _getServiceWorlds() {
+        final Set<UUID> worlds = new HashSet<>();
 
         for (final String name : this.storage.getStringList("service.worlds")) {
             final World world = this.instance.getServer().getWorld(name);
@@ -346,12 +345,7 @@ public final class Settings {
                 continue;
             }
 
-            Permission.WORLD.setChildren(world.getName());
-            worlds.add(world.getName());
-        }
-
-        if (worlds.isEmpty()) {
-            this.instance.getServer().getWorlds().forEach(world -> Permission.WORLD.setChildren(world.getName()));
+            worlds.add(world.getUID());
         }
 
         return Collections.unmodifiableSet(worlds);
@@ -362,7 +356,7 @@ public final class Settings {
             return true;
         }
 
-        return this.worlds.contains(world.getName());
+        return this.worlds.contains(world.getUID());
     }
 
     protected boolean _getNotifyActionBar() {

@@ -1,6 +1,5 @@
 package de.g4memas0n.services.command;
 
-import de.g4memas0n.services.util.Permission;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import java.util.Collections;
@@ -19,7 +18,7 @@ public final class VersionCommand extends BasicCommand {
     public VersionCommand() {
         super("version", 0, 0);
 
-        this.setPermission(Permission.VERSION.getNode());
+        this.setPermission("services.version");
     }
 
     @Override

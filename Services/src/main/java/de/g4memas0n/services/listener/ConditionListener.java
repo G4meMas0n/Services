@@ -1,6 +1,5 @@
 package de.g4memas0n.services.listener;
 
-import de.g4memas0n.services.util.Permission;
 import org.bukkit.GameMode;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
@@ -37,18 +36,19 @@ public final class ConditionListener extends BasicListener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerChangedWorldEvent(@NotNull final PlayerChangedWorldEvent event) {
         // Check if player is currently in condition.
-        if (this.getInstance().getServiceManager().isInCondition(event.getPlayer().getUniqueId())) {
+        if (this.getManager().isInCondition(event.getPlayer().getUniqueId())) {
             final World world = event.getPlayer().getWorld();
 
             // If true, check if the players new world is still a service world.
-            if (this.getInstance().getSettings().isServiceWorld(world)) {
+            if (this.getSettings().isServiceWorld(world)) {
                 // Filter world if per world permission is enabled.
-                if (this.getInstance().getSettings().isPermissionPerWorld()) {
+                if (this.getSettings().isPermissionPerWorld()) {
+                    final String permission = "services.world." + world.getName().toLowerCase();
+
                     // Check if player has no permission for the new service world.
-                    if (!event.getPlayer().hasPermission(Permission.WORLD.getChildren(world.getName()))) {
-                        if (this.getInstance().getSettings().isDebug()) {
-                            this.getInstance().getLogger().info(String.format("Player '%s' has no permission for service world: %s",
-                                    event.getPlayer().getName(), world.getName()));
+                    if (!event.getPlayer().hasPermission(permission)) {
+                        if (this.getSettings().isDebug()) {
+                            this.getLogger().info(String.format("Player '%s' is missing permission '%s' for service world: %s", event.getPlayer().getName(), permission, world.getName()));
                         }
 
                         // Check if player gets removed from condition and from warmup or service.
@@ -63,14 +63,15 @@ public final class ConditionListener extends BasicListener {
                 final Environment environment = world.getEnvironment();
 
                 // If true, check if the players new world environment is still a service environment.
-                if (this.getInstance().getSettings().isServiceEnvironment(environment)) {
+                if (this.getSettings().isServiceEnvironment(environment)) {
                     // Filter environment is per environment permission is enabled.
-                    if (this.getInstance().getSettings().isPermissionPerEnvironment()) {
+                    if (this.getSettings().isPermissionPerEnvironment()) {
+                        final String permission = "services.environment." + environment.name().toLowerCase();
+
                         // Check if player has no permission for the new service environment.
-                        if (!event.getPlayer().hasPermission(Permission.ENVIRONMENT.getChildren(environment.name()))) {
-                            if (this.getInstance().getSettings().isDebug()) {
-                                this.getInstance().getLogger().info(String.format("Player '%s' has no permission for service environment: %s",
-                                        event.getPlayer().getName(), environment.name()));
+                        if (!event.getPlayer().hasPermission(permission)) {
+                            if (this.getSettings().isDebug()) {
+                                this.getLogger().info(String.format("Player '%s' is missing permission '%s' for service environment: %s", event.getPlayer().getName(), permission, environment.name()));
                             }
 
                             // Check if player gets removed from condition and from warmup or service.
@@ -84,17 +85,15 @@ public final class ConditionListener extends BasicListener {
                         }
                     }
 
-                    if (this.getInstance().getSettings().isDebug()) {
-                        this.getInstance().getLogger().info(String.format("Player '%s' is now in service world: %s (environment: %s)",
-                                event.getPlayer().getName(), world.getName(), environment.name()));
+                    if (this.getSettings().isDebug()) {
+                        this.getLogger().info(String.format("Player '%s' is now in service world: %s (environment: %s)", event.getPlayer().getName(), world.getName(), environment.name()));
                     }
 
                     return; // Player is still in condition.
                 }
 
-                if (this.getInstance().getSettings().isDebug()) {
-                    this.getInstance().getLogger().info(String.format("Player '%s' is now in non-service environment: %s",
-                            event.getPlayer().getName(), environment.name()));
+                if (this.getSettings().isDebug()) {
+                    this.getLogger().info(String.format("Player '%s' is now in non-service environment: %s", event.getPlayer().getName(), environment.name()));
                 }
 
                 // Check if player gets removed from condition and from warmup or service.
@@ -107,9 +106,8 @@ public final class ConditionListener extends BasicListener {
                 return;
             }
 
-            if (this.getInstance().getSettings().isDebug()) {
-                this.getInstance().getLogger().info(String.format("Player '%s' is now in non-service world: %s",
-                        event.getPlayer().getName(), world.getName()));
+            if (this.getSettings().isDebug()) {
+                this.getLogger().info(String.format("Player '%s' is now in non-service world: %s", event.getPlayer().getName(), world.getName()));
             }
 
             // Check if player gets removed from condition and from warmup or service.
@@ -126,17 +124,20 @@ public final class ConditionListener extends BasicListener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerGameModeChangeEvent(@NotNull final PlayerGameModeChangeEvent event) {
         // Check if player is currently in condition.
-        if (this.getInstance().getServiceManager().isInCondition(event.getPlayer().getUniqueId())) {
+        if (this.getManager().isInCondition(event.getPlayer().getUniqueId())) {
             final GameMode mode = event.getNewGameMode();
 
             // If true, check if the players new game-mode is also a service game-mode.
-            if (this.getInstance().getSettings().isServiceGameMode(mode)) {
+            if (this.getSettings().isServiceGameMode(mode)) {
+                if (this.getSettings().isDebug()) {
+                    this.getLogger().info(String.format("Player '%s' is now in service game-mode: %s", event.getPlayer().getName(), mode.name()));
+                }
+
                 return; // Player is still in condition.
             }
 
-            if (this.getInstance().getSettings().isDebug()) {
-                this.getInstance().getLogger().info(String.format("Player '%s' is now in non-service game-mode: %s",
-                        event.getPlayer().getName(), mode.name()));
+            if (this.getSettings().isDebug()) {
+                this.getLogger().info(String.format("Player '%s' is now in non-service game-mode: %s", event.getPlayer().getName(), mode.name()));
             }
 
             // Check if player gets removed from condition and from warmup or service.

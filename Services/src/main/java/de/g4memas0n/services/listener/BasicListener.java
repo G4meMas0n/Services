@@ -1,6 +1,8 @@
 package de.g4memas0n.services.listener;
 
+import de.g4memas0n.services.ServiceManager;
 import de.g4memas0n.services.Services;
+import de.g4memas0n.services.configuration.Settings;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -9,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * Abstract Representation of a event listener.
@@ -49,12 +52,7 @@ public abstract class BasicListener implements Listener {
         this.instance = null;
     }
 
-    @Override
-    public final String toString() {
-        return this.getClass().getSimpleName() + "{events=" + String.join(",", this.getEvents()) + "}";
-    }
-
-    protected final @NotNull Services getInstance() {
+    public final @NotNull Services getInstance() {
         if (this.instance == null) {
             throw new IllegalStateException("Unregistered listener '" + this.getClass().getSimpleName() + "' tried to get the plugin instance");
         }
@@ -62,7 +60,24 @@ public abstract class BasicListener implements Listener {
         return this.instance;
     }
 
-    protected final @NotNull List<String> getEvents() {
+    public final @NotNull ServiceManager getManager() {
+        return this.getInstance().getManager();
+    }
+
+    public final @NotNull Settings getSettings() {
+        return this.getInstance().getSettings();
+    }
+
+    public final @NotNull Logger getLogger() {
+        return this.getInstance().getLogger();
+    }
+
+    @Override
+    public final String toString() {
+        return this.getClass().getSimpleName() + "{events=" + String.join(",", this.getEvents()) + "}";
+    }
+
+    public final @NotNull List<String> getEvents() {
         final List<String> events = new ArrayList<>();
 
         for (final Method method : this.getClass().getMethods()) {
