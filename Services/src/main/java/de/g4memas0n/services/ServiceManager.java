@@ -19,22 +19,25 @@ public final class ServiceManager {
 
     private final Map<UUID, BukkitTask> warmups;
     private final Map<UUID, BukkitTask> graces;
-    private final Set<UUID> services;
+
     private final Set<UUID> conditions;
+    private final Set<UUID> services;
 
     private final Services instance;
 
     public ServiceManager(@NotNull final Services instance) {
         this.warmups = new HashMap<>();
         this.graces = new HashMap<>();
-        this.services = new HashSet<>();
+
         this.conditions = new HashSet<>();
+        this.services = new HashSet<>();
 
         this.instance = instance;
     }
 
-    // Condition collection methods:
-    public boolean addToCondition(@NotNull final Player player) {
+    // Condition related methods:
+
+    public boolean addCondition(@NotNull final Player player) {
         if (this.conditions.add(player.getUniqueId())) {
             if (this.instance.getSettings().isDebug()) {
                 this.instance.getLogger().info(String.format("Player '%s' is now in condition for service.", player.getName()));
@@ -46,7 +49,7 @@ public final class ServiceManager {
         return false;
     }
 
-    public boolean removeFromCondition(@NotNull final Player player) {
+    public boolean removeCondition(@NotNull final Player player) {
         if (this.conditions.remove(player.getUniqueId())) {
             if (this.instance.getSettings().isDebug()) {
                 this.instance.getLogger().info(String.format("Player '%s' is no longer in condition for service.", player.getName()));
@@ -56,12 +59,14 @@ public final class ServiceManager {
         return this.conditions.remove(player.getUniqueId());
     }
 
-    public boolean isInCondition(@NotNull final UUID uniqueId) {
-        return this.conditions.contains(uniqueId);
+    public boolean isCondition(@NotNull final Player player) {
+        return this.conditions.contains(player.getUniqueId());
     }
 
-    // Warmup collections methods:
-    public boolean addToWarmup(@NotNull final Player player, final long period) {
+    // Warmup related methods:
+
+    public boolean addWarmup(@NotNull final Player player, final long period,
+                             @NotNull final String notification) {
         if (this.warmups.containsKey(player.getUniqueId()) || this.services.contains(player.getUniqueId())) {
             return false;
         }
@@ -71,16 +76,12 @@ public final class ServiceManager {
                 if (this.warmups.containsKey(player.getUniqueId())) {
                     this.warmups.remove(player.getUniqueId());
 
-                    if (this.instance.getSettings().isDebug()) {
-                        this.instance.getLogger().info(String.format("Player '%s' is no longer in warmup: ENABLED", player.getName()));
-                    }
-
                     if (this.services.add(player.getUniqueId())) {
                         if (this.instance.getSettings().isDebug()) {
                             this.instance.getLogger().info(String.format("Player '%s' is now in service mode.", player.getName()));
                         }
 
-                        this.instance.notify(player, this.instance.getMessages().translate("serviceEnable"));
+                        this.instance.notify(player, notification);
                     }
                 }
             }, period * 20));
@@ -95,12 +96,12 @@ public final class ServiceManager {
         return false;
     }
 
-    public boolean removeFromWarmup(@NotNull final Player player) {
+    public boolean removeWarmup(@NotNull final Player player) {
         if (this.warmups.containsKey(player.getUniqueId())) {
             this.warmups.remove(player.getUniqueId()).cancel();
 
             if (this.instance.getSettings().isDebug()) {
-                this.instance.getLogger().info(String.format("Player '%s' is no longer in warmup: ABORTED", player.getName()));
+                this.instance.getLogger().info(String.format("Player '%s' is no longer in warmup.", player.getName()));
             }
 
             return true;
@@ -109,12 +110,13 @@ public final class ServiceManager {
         return false;
     }
 
-    public boolean isInWarmup(@NotNull final UUID uniqueId) {
-        return this.warmups.containsKey(uniqueId);
+    public boolean isWarmup(@NotNull final Player player) {
+        return this.warmups.containsKey(player.getUniqueId());
     }
 
-    // Service collection methods:
-    public boolean addToService(@NotNull final Player player) {
+    // Service related methods:
+
+    public boolean addService(@NotNull final Player player) {
         if (this.services.add(player.getUniqueId())) {
             if (this.instance.getSettings().isDebug()) {
                 this.instance.getLogger().info(String.format("Player '%s' is now in service mode.", player.getName()));
@@ -126,7 +128,7 @@ public final class ServiceManager {
         return false;
     }
 
-    public boolean removeFromService(@NotNull final Player player) {
+    public boolean removeService(@NotNull final Player player) {
         if (this.services.remove(player.getUniqueId())) {
             if (this.instance.getSettings().isDebug()) {
                 this.instance.getLogger().info(String.format("Player '%s' is no longer in service mode.", player.getName()));
@@ -138,12 +140,13 @@ public final class ServiceManager {
         return false;
     }
 
-    public boolean isInService(@NotNull final UUID uniqueId) {
-        return this.services.contains(uniqueId);
+    public boolean isService(@NotNull final Player player) {
+        return this.services.contains(player.getUniqueId());
     }
 
-    // Grace collection methods:
-    public boolean addToGrace(@NotNull final Player player, final long period) {
+    // Grace related methods:
+    public boolean addGrace(@NotNull final Player player, final long period,
+                            @NotNull final String notification) {
         if (this.warmups.containsKey(player.getUniqueId()) || this.graces.containsKey(player.getUniqueId())) {
             return false;
         }
@@ -153,16 +156,12 @@ public final class ServiceManager {
                 if (this.graces.containsKey(player.getUniqueId())) {
                     this.graces.remove(player.getUniqueId());
 
-                    if (this.instance.getSettings().isDebug()) {
-                        this.instance.getLogger().info(String.format("Player '%s' is no longer in grace: DISABLED", player.getName()));
-                    }
-
                     if (this.services.remove(player.getUniqueId())) {
                         if (this.instance.getSettings().isDebug()) {
                             this.instance.getLogger().info(String.format("Player '%s' is no longer in service mode.", player.getName()));
                         }
 
-                        this.instance.notify(player, this.instance.getMessages().translate("serviceDisable"));
+                        this.instance.notify(player, notification);
                     }
                 }
             }, period * 20));
@@ -177,7 +176,7 @@ public final class ServiceManager {
         return false;
     }
 
-    public boolean removeFromGrace(@NotNull final Player player) {
+    public boolean removeGrace(@NotNull final Player player) {
         if (this.graces.containsKey(player.getUniqueId())) {
             this.graces.remove(player.getUniqueId()).cancel();
 
@@ -191,7 +190,7 @@ public final class ServiceManager {
         return false;
     }
 
-    public boolean isInGrace(@NotNull final UUID uniqueId) {
-        return this.graces.containsKey(uniqueId);
+    public boolean isGrace(@NotNull final Player player) {
+        return this.graces.containsKey(player.getUniqueId());
     }
 }
