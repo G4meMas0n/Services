@@ -283,6 +283,7 @@ public final class Settings {
     }
 
     protected @NotNull Set<Material> _getServiceItems() {
+        final Permission wildcard = this.instance.getDescription().getPermissions().get(1);
         final Set<Material> materials = EnumSet.noneOf(Material.class);
 
         for (final String name : this.storage.getStringList("service.items")) {
@@ -298,29 +299,19 @@ public final class Settings {
                 continue;
             }
 
-            if (material.isEdible()) {
+            if (material.isEdible() || EntityType.fromName(material.getKey().getKey()) != null) {
                 this.instance.getLogger().warning("Detected invalid service item: Material '" + name + "' is not an allowed item.");
                 continue;
             }
 
-            // Checks if the current material is an entity type. Throws IllegalArgumentException if not.
-            try {
-                EntityType.valueOf(material.getKey().getKey().toUpperCase());
-
-                this.instance.getLogger().warning("Detected invalid service item: Material '" + name + "' is not an allowed item.");
-            } catch (IllegalArgumentException ignored) {
-                materials.add(material);
-            }
+            wildcard.getChildren().put("services.item." + material.getKey().getKey(), true);
+            materials.add(material);
         }
 
         if (materials.isEmpty()) {
             this.instance.getLogger().warning("Detected missing or only invalid service items: Using default items...");
 
             materials.addAll(Arrays.asList(Material.BEDROCK, Material.WOODEN_AXE));
-        }
-
-        for (final Material material : materials) {
-            new Permission("services.item" + material.getKey().getKey()).addParent("services.item.*", true);
         }
 
         return Collections.unmodifiableSet(materials);
@@ -335,6 +326,7 @@ public final class Settings {
     }
 
     protected @NotNull Set<UUID> _getServiceWorlds() {
+        final Permission wildcard = this.instance.getDescription().getPermissions().get(2);
         final Set<UUID> worlds = new HashSet<>();
 
         for (final String name : this.storage.getStringList("service.worlds")) {
@@ -345,6 +337,7 @@ public final class Settings {
                 continue;
             }
 
+            wildcard.getChildren().put("services.world." + world.getName().toLowerCase(), true);
             worlds.add(world.getUID());
         }
 
