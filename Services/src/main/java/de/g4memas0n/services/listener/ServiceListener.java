@@ -138,7 +138,7 @@ public final class ServiceListener extends BasicListener {
         // Check if player is in condition.
         if (this.getManager().isCondition((Player) event.getEntity())) {
             // Return if change reason is not emptying or filling a bucket.
-            if (event.getReason() != ChangeReason.BUCKET_EMPTY && event.getReason() != ChangeReason.BUCKET_EMPTY) {
+            if (event.getReason() != ChangeReason.BUCKET_EMPTY && event.getReason() != ChangeReason.BUCKET_FILL) {
                 return;
             }
 
@@ -205,8 +205,6 @@ public final class ServiceListener extends BasicListener {
             }
         }
     }
-
-
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerItemHeld(@NotNull final PlayerItemHeldEvent event) {
