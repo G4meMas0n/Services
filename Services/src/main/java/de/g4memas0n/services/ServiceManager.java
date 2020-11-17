@@ -147,7 +147,7 @@ public final class ServiceManager {
     // Grace related methods:
     public boolean addGrace(@NotNull final Player player, final long period,
                             @NotNull final String notification) {
-        if (this.warmups.containsKey(player.getUniqueId()) || this.graces.containsKey(player.getUniqueId())) {
+        if (this.graces.containsKey(player.getUniqueId()) || !this.services.contains(player.getUniqueId())) {
             return false;
         }
 
@@ -181,7 +181,7 @@ public final class ServiceManager {
             this.graces.remove(player.getUniqueId()).cancel();
 
             if (this.instance.getSettings().isDebug()) {
-                this.instance.getLogger().info(String.format("Player '%s' is no longer in grace: ABORTED", player.getName()));
+                this.instance.getLogger().info(String.format("Player '%s' is no longer in grace.", player.getName()));
             }
 
             return true;

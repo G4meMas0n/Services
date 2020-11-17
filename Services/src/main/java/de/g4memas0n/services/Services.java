@@ -377,26 +377,35 @@ public final class Services extends JavaPlugin {
         this.runServiceRemove(player);
     }
 
-    public void runServiceAdd(@NotNull final Player player) {
+    public boolean runServiceAdd(@NotNull final Player player) {
         // Check if player gets removed from grace.
         if (this.manager.removeGrace(player)) {
             this.notify(player, tl("graceAbort"));
 
-            return;
+            return true;
         }
 
-        // Check if a warmup period exist.
-        if (this.settings.isWarmupPeriod()) {
-            // Check if player gets added to warmup.
-            if (this.manager.addWarmup(player, this.settings.getWarmupPeriod(), tl("serviceEnable"))) {
-                this.notify(player, tl("warmupStart", this.settings.getWarmupPeriod()));
-            }
-        } else {
-            // Check if player gets added to service.
-            if (this.manager.addService(player)) {
-                this.notify(player, tl("serviceEnable"));
+        // Check if player is not already in service.
+        if (!this.manager.isService(player)) {
+            // Check if a warmup period exist.
+            if (this.settings.isWarmupPeriod()) {
+                // Check if player gets added to warmup.
+                if (this.manager.addWarmup(player, this.settings.getWarmupPeriod(), tl("serviceEnable"))) {
+                    this.notify(player, tl("warmupStart", this.settings.getWarmupPeriod()));
+
+                    return true;
+                }
+            } else {
+                // Check if player gets added to service.
+                if (this.manager.addService(player)) {
+                    this.notify(player, tl("serviceEnable"));
+
+                    return true;
+                }
             }
         }
+
+        return false;
     }
 
     public boolean runServiceRemove(@NotNull final Player player) {
@@ -407,20 +416,23 @@ public final class Services extends JavaPlugin {
             return true;
         }
 
-        // Check if a grace period exist.
-        if (this.settings.isGracePeriod()) {
-            // Check if player gets added to warmup.
-            if (this.manager.addGrace(player, this.settings.getGracePeriod(), tl("serviceDisable"))) {
-                this.notify(player, tl("graceStart", this.settings.getGracePeriod()));
+        // Check if player is currently in service.
+        if (this.manager.isService(player)) {
+            // Check if a grace period exist.
+            if (this.settings.isGracePeriod()) {
+                // Check if player gets added to grace.
+                if (this.manager.addGrace(player, this.settings.getGracePeriod(), tl("serviceDisable"))) {
+                    this.notify(player, tl("graceStart", this.settings.getGracePeriod()));
 
-                return true;
-            }
-        } else {
-            // Check if player gets added to service.
-            if (this.manager.removeService(player)) {
-                this.notify(player, tl("serviceDisable"));
+                    return true;
+                }
+            } else {
+                // Check if player gets removed from service.
+                if (this.manager.removeService(player)) {
+                    this.notify(player, tl("serviceDisable"));
 
-                return true;
+                    return true;
+                }
             }
         }
 
