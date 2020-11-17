@@ -91,14 +91,14 @@ public final class ConditionListener extends BasicListener {
                     }
 
                     if (this.getSettings().isDebug()) {
-                        this.getLogger().info(String.format("Player '%s' is now in service world: %s (environment: %s)", player.getName(), world.getName(), environment.name()));
+                        this.getLogger().info(String.format("Player '%s' is in service world: %s (environment: %s)", player.getName(), world.getName(), environment.name()));
                     }
 
                     return; // Return, as player is still in condition.
                 }
 
                 if (this.getSettings().isDebug()) {
-                    this.getLogger().info(String.format("Player '%s' is now in non-service environment: %s", player.getName(), environment.name()));
+                    this.getLogger().info(String.format("Player '%s' is in non-service environment: %s", player.getName(), environment.name()));
                 }
 
                 // Check if player gets removed from condition and service.
@@ -112,7 +112,7 @@ public final class ConditionListener extends BasicListener {
             }
 
             if (this.getSettings().isDebug()) {
-                this.getLogger().info(String.format("Player '%s' is now in non-service world: %s", player.getName(), world.getName()));
+                this.getLogger().info(String.format("Player '%s' is in non-service world: %s", player.getName(), world.getName()));
             }
 
             // Check if player gets removed from condition and service.
@@ -136,14 +136,14 @@ public final class ConditionListener extends BasicListener {
             // If true, check if the players new game-mode is also a service game-mode.
             if (this.getSettings().isServiceGameMode(mode)) {
                 if (this.getSettings().isDebug()) {
-                    this.getLogger().info(String.format("Player '%s' is now in service game-mode: %s", player, mode.name()));
+                    this.getLogger().info(String.format("Player '%s' is in service game-mode: %s", player, mode.name()));
                 }
 
                 return; // Return as player is still in condition.
             }
 
             if (this.getSettings().isDebug()) {
-                this.getLogger().info(String.format("Player '%s' is now in non-service game-mode: %s", player.getName(), mode.name()));
+                this.getLogger().info(String.format("Player '%s' is in non-service game-mode: %s", player.getName(), mode.name()));
             }
 
             // Check if player gets removed from condition and service.

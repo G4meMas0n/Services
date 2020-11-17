@@ -107,7 +107,7 @@ public final class Services extends JavaPlugin {
         }
 
         if (!this.loaded) {
-            this.getLogger().warning("Plugin was not loaded. Loading it...");
+            this.getLogger().warning("Plugin was not loaded. Loading it now...");
             this.onLoad();
         }
 
@@ -215,7 +215,7 @@ public final class Services extends JavaPlugin {
         // Return if player is not permitted to use service mode.
         if (!player.hasPermission("services.service")) {
             if (this.settings.isDebug()) {
-                this.getLogger().info("Player '" + player.getName() + "' is not permitted for service mode.");
+                this.getLogger().info("Player '" + player.getName() + "' is missing permission for service mode.");
             }
 
             // Send deny message if player was previously in service.
@@ -289,7 +289,7 @@ public final class Services extends JavaPlugin {
                 }
 
                 if (this.settings.isDebug() && this.manager.isCondition(player)) {
-                    this.getLogger().info("Player '" + player.getName() + "' is now in non-service environment: " + environment.name());
+                    this.getLogger().info("Player '" + player.getName() + "' is in non-service environment: " + environment.name());
                 }
 
                 // Check if player gets removed from condition and service.
@@ -303,7 +303,7 @@ public final class Services extends JavaPlugin {
             }
 
             if (this.settings.isDebug() && this.manager.isCondition(player)) {
-                this.getLogger().info("Player '" + player.getName() + "' is now in non-service world: " + world.getName());
+                this.getLogger().info("Player '" + player.getName() + "' is in non-service world: " + world.getName());
             }
 
             // Check if player gets removed from condition and service.
@@ -315,7 +315,7 @@ public final class Services extends JavaPlugin {
         }
 
         if (this.settings.isDebug() && this.manager.isCondition(player)) {
-            this.getLogger().info("Player '" + player.getName() + "' is now in non-service game-mode: " + player.getGameMode().name());
+            this.getLogger().info("Player '" + player.getName() + "' is in non-service game-mode: " + player.getGameMode().name());
         }
 
         // Check if player gets removed from condition and service.
@@ -383,7 +383,7 @@ public final class Services extends JavaPlugin {
             }
 
             if (this.settings.isDebug()) {
-                this.getLogger().info("Player '" + player.getName() + "' is now using service item: " + item.getType().getKey());
+                this.getLogger().info("Player '" + player.getName() + "' is using service item: " + item.getType().getKey());
             }
 
             this.runServiceAdd(player);
@@ -391,7 +391,7 @@ public final class Services extends JavaPlugin {
         }
 
         if (this.settings.isDebug() && this.manager.isService(player)) {
-            this.getLogger().info("Player '" + player.getName() + "' is now using non-service item: " + (item != null ? item.getType().getKey() : Material.AIR.getKey()));
+            this.getLogger().info("Player '" + player.getName() + "' is using non-service item: " + (item != null ? item.getType().getKey() : Material.AIR.getKey()));
         }
 
         this.runServiceRemove(player);
