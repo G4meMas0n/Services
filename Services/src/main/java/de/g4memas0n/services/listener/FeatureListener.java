@@ -16,20 +16,20 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class FeatureListener extends BasicListener {
 
-    // Event Listener for the unlimited buckets configuration feature.
+    /*
+     * Event Listener for the unlimited buckets feature.
+     */
+
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPlayerBucketEmpty(@NotNull final PlayerBucketEmptyEvent event) {
-        // Check if unlimited service buckets is enabled.
+        // Only perform the checks when unlimited buckets are enabled.
         if (this.getSettings().isUnlimitedBuckets()) {
-            // If true, check if filled bucket is a service item.
             if (this.getSettings().isServiceItem(event.getBucket())) {
                 final Player player = event.getPlayer();
 
-                // If true, check if player is in service. (If he is in service, he must be in condition)
+                // Only perform feature when player is in service:
                 if (this.getManager().isService(player)) {
-                    // If true, check if the main hand contains the bucket.
                     if (player.getInventory().getItemInMainHand().getType().equals(event.getBucket())) {
-                        // If true, set resulting item to the filled bucket.
                         if (event.getItemStack() != null) {
                             event.setItemStack(new ItemStack(event.getBucket(), event.getItemStack().getAmount()));
                         } else {
@@ -37,10 +37,10 @@ public final class FeatureListener extends BasicListener {
                         }
 
                         if (this.getSettings().isDebug()) {
-                            this.getLogger().info(String.format("Player '%s' uses unlimited buckets on service bucket: %s", player.getName(), event.getBucket().getKey()));
+                            this.getLogger().info("Player '" + player.getName() + "' used unlimited buckets on service item: " + event.getBucket().getKey());
                         }
 
-                        // Set resulting item on next tick, because this event ignores the resulting item-stack.
+                        // Note: this event ignores the resulting item-stack.
                         this.getInstance().runTask(() -> player.getInventory().setItemInMainHand(event.getItemStack()));
                     }
                 }
@@ -48,24 +48,24 @@ public final class FeatureListener extends BasicListener {
         }
     }
 
-    // Event Listener for the unlimited durability configuration feature.
+    /*
+     * Event Listener for the unlimited durability configuration feature.
+     */
+
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPlayerItemDamage(@NotNull final PlayerItemDamageEvent event) {
-        // Check if unlimited service durability is enabled.
+        // Only perform the checks when unlimited durability is enabled.
         if (this.getSettings().isUnlimitedDurability()) {
-            // If true, check if damaged tool is a service item.
             if (this.getSettings().isServiceItem(event.getItem().getType())) {
                 final Player player = event.getPlayer();
 
-                // If true, check if player is in service. (If he is in service, he must be in condition)
+                // Only perform feature when player is in service:
                 if (this.getManager().isService(player)) {
-                    // If true, check if the main hand contains the tool.
                     if (player.getInventory().getItemInMainHand().equals(event.getItem())) {
-                        // If true, cancel event as the tool should not be damaged.
                         event.setCancelled(true);
 
                         if (this.getSettings().isDebug()) {
-                            this.getLogger().info(String.format("Player '%s' uses unlimited durability on service tool: %s", player.getName(), event.getItem().getType().getKey()));
+                            this.getLogger().info("Player '" + player.getName() + "' used unlimited durability on service item: " + event.getItem().getType().getKey());
                         }
                     }
                 }

@@ -25,8 +25,6 @@ import de.g4memas0n.services.listener.FeatureListener;
 import de.g4memas0n.services.listener.ServiceListener;
 import de.g4memas0n.services.configuration.Settings;
 import de.g4memas0n.services.util.Messages;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
@@ -81,6 +79,18 @@ public final class Services extends JavaPlugin {
         return this.messages;
     }
 
+    public @NotNull String getPermission(@NotNull final Environment environment) {
+        return this.getName().toLowerCase() + ".world." + environment.name().toLowerCase();
+    }
+
+    public @NotNull String getPermission(@NotNull final Material material) {
+        return this.getName().toLowerCase() + ".item." + material.getKey().getKey();
+    }
+
+    public @NotNull String getPermission(@NotNull final World world) {
+        return this.getName().toLowerCase() + ".world." + world.getName().toLowerCase();
+    }
+
     @Override
     public void onLoad() {
         if (this.loaded) {
@@ -132,7 +142,7 @@ public final class Services extends JavaPlugin {
             this.getLogger().info("Plugin command and listeners has been registered.");
         }
 
-        // Check if players are online and if then check the players condition and service.
+        // Perform condition check for all online players:
         if (!this.getServer().getOnlinePlayers().isEmpty()) {
             this.getLogger().info("Check service conditions for all online players...");
             this.getServer().getOnlinePlayers().forEach(this::runConditionCheck);
@@ -179,7 +189,7 @@ public final class Services extends JavaPlugin {
         this.messages.setLocale(this.settings.getLocale());
         this.command.getCommand().setPermissionMessage(tl("noPermission"));
 
-        // Check if players are online and if then check the players condition and service.
+        // Perform condition check for all online players:
         if (!this.getServer().getOnlinePlayers().isEmpty()) {
             this.getLogger().info("Check service conditions for all online players...");
             this.getServer().getOnlinePlayers().forEach(this::runConditionCheck);
@@ -189,7 +199,9 @@ public final class Services extends JavaPlugin {
 
     @Override
     public void saveConfig() {
-        // Disabled, because it is not intended to save the config file, as this breaks the comments.
+        /*
+         * Disabled, because it is not intended to save the config file, as this breaks the comments.
+         */
     }
 
     public @NotNull BukkitTask runTask(@NotNull final Runnable task) {
@@ -201,283 +213,225 @@ public final class Services extends JavaPlugin {
     }
 
     /**
-     * Checks if the given player is in condition to use services and runs the service check if it is.
+     * Performs the condition check for the given player.
      *
-     * <p>A player is in condition if it satisfy following requirements:<br>
-     * - The player has the permission {@code services.service} to use service mode.<br>
-     * - The players current {@link org.bukkit.GameMode game-mode} equals a registered service game-mode.<br>
-     * - The players current {@link World world} equals a registered service world.<br>
-     * - The {@link Environment environment} of the players current world equals a registered service environment.</p>
+     * <p>A player must fulfill following requirements to be in condition:<br>
+     * - The player has permission {@code services.service}<br>
+     * - The player is in a registered service {@link org.bukkit.GameMode game-mode}<br>
+     * - The player is in a registered service {@link World world}<br>
+     * - The player is in a registered service {@link Environment environment}</p>
      *
-     * @param player the player that should be checked for condition.
+     * @param player the player to check for condition.
      */
     public void runConditionCheck(@NotNull final Player player) {
-        // Return if player is not permitted to use service mode.
+        this.schedules.remove(player.getUniqueId());
+
+        // Check for service permission and remove player from condition if it is not permitted.
         if (!player.hasPermission("services.service")) {
             if (this.settings.isDebug()) {
                 this.getLogger().info("Player '" + player.getName() + "' is missing permission for service mode.");
             }
 
-            // Send deny message if player was previously in service.
-            if (this.manager.removeCondition(player) && this.runServiceRemove(player)) {
+            if (this.manager.removeCondition(player) && this.manager.removeService(player)) {
                 player.sendMessage(tl("serviceDenied"));
             }
 
             return;
         }
 
-        // Check if current game-mode of the player is a service game-mode.
         if (this.settings.isServiceGameMode(player.getGameMode())) {
             final World world = player.getWorld();
 
-            // Check if player is in a service world.
             if (this.settings.isServiceWorld(world)) {
-                // If true, check if permission per world is enabled.
-                if (this.settings.isPermissionPerWorld()) {
-                    final String permission = "services.world." + world.getName().toLowerCase();
-
-                    // Return if player is not permitted for this service world.
-                    if (!player.hasPermission(permission)) {
-                        if (this.settings.isDebug()) {
-                            this.getLogger().info("Player '" + player.getName() + "' is missing permission '" + permission + "' for service world: " + world.getName());
-                        }
-
-                        // Check if player gets removed from condition and service.
-                        if (this.manager.removeCondition(player) && this.runServiceRemove(player)) {
-                            player.sendMessage(tl("worldDenied", world.getName()));
-                        }
-
-                        return;
+                // Check for world permission and remove player from condition if it is not permitted:
+                if (this.settings.isPermissionPerWorld() && !player.hasPermission(this.getPermission(world))) {
+                    if (this.settings.isDebug()) {
+                        this.getLogger().info("Player '" + player.getName() + "' is missing permission for service world: " + world.getName());
                     }
+
+                    if (this.manager.removeCondition(player) && this.manager.removeService(player)) {
+                        player.sendMessage(tl("worldDenied", world.getName()));
+                    }
+
+                    return;
                 }
 
                 final Environment environment = world.getEnvironment();
 
-                // Check if player is in a service environment.
                 if (this.settings.isServiceEnvironment(environment)) {
-                    // If true, check if permission per environment is enabled.
-                    if (this.settings.isPermissionPerEnvironment()) {
-                        final String permission = "services.environment." + environment.name().toLowerCase();
-
-                        // Return if player is not permitted for this service environment.
-                        if (!player.hasPermission(permission)) {
-                            if (this.settings.isDebug()) {
-                                this.getLogger().info("Player '" + player.getName() + "' is missing permission '" + permission + "' for service environment: " + environment.name());
-                            }
-
-                            // Check if player gets removed from condition and service.
-                            if (this.manager.removeCondition(player) && this.runServiceRemove(player)) {
-                                final String name = environment.name().charAt(0) + environment.name().substring(1).toLowerCase();
-
-                                player.sendMessage(tl("environmentDenied", name));
-                            }
-
-                            return;
+                    // Check for environment permission and remove player from condition if it is not permitted:
+                    if (this.settings.isPermissionPerEnvironment() && !player.hasPermission(this.getPermission(environment))) {
+                        if (this.settings.isDebug()) {
+                            this.getLogger().info("Player '" + player.getName() + "' is missing permission for service environment: " + environment.name());
                         }
+
+                        if (this.manager.removeCondition(player) && this.manager.removeService(player)) {
+                            final String name = environment.name().charAt(0) + environment.name().substring(1).toLowerCase();
+
+                            player.sendMessage(tl("environmentDenied", name));
+                        }
+
+                        return;
                     }
 
-                    if (this.settings.isDebug()) {
-                        this.getLogger().info("Player '" + player.getName() + "' is in service world: " + world.getName() + " (environment: " + environment.name() + ")");
-                    }
-
-                    // Check if player gets added to condition
+                    // Player is in a service game-mode, world and environment, add it to condition:
                     if (this.manager.addCondition(player)) {
+                        if (this.settings.isDebug()) {
+                            this.getLogger().info("Player '" + player.getName() + "' is now in service world: " + world.getName() + " (environment: " + environment.name() + ")");
+                        }
+
                         this.runServiceCheck(player);
                     }
 
                     return;
                 }
 
-                if (this.settings.isDebug() && this.manager.isCondition(player)) {
-                    this.getLogger().info("Player '" + player.getName() + "' is in non-service environment: " + environment.name());
-                }
+                // Player is not in a service environment, remove it from condition:
+                if (this.manager.removeCondition(player)) {
+                    if (this.settings.isDebug()) {
+                        this.getLogger().info("Player '" + player.getName() + "' is now in non-service environment: " + environment.name());
+                    }
 
-                // Check if player gets removed from condition and service.
-                if (this.manager.removeCondition(player) && this.runServiceRemove(player)) {
-                    final String name = environment.name().charAt(0) + environment.name().substring(1).toLowerCase();
+                    if (this.manager.removeService(player)) {
+                        final String name = environment.name().charAt(0) + environment.name().substring(1).toLowerCase();
 
-                    player.sendMessage(tl("noServiceEnvironment", name));
+                        player.sendMessage(tl("noServiceEnvironment", name));
+                    }
+
                 }
 
                 return;
             }
 
-            if (this.settings.isDebug() && this.manager.isCondition(player)) {
-                this.getLogger().info("Player '" + player.getName() + "' is in non-service world: " + world.getName());
-            }
+            // Player is not in a service world, remove it from condition:
+            if (this.manager.removeCondition(player)) {
+                if (this.settings.isDebug()) {
+                    this.getLogger().info("Player '" + player.getName() + "' is now in non-service world: " + world.getName());
+                }
 
-            // Check if player gets removed from condition and service.
-            if (this.manager.removeCondition(player) && this.runServiceRemove(player)) {
-                player.sendMessage(tl("noServiceWorld", world.getName()));
+                if (this.manager.removeService(player)) {
+                    player.sendMessage(tl("noServiceWorld", world.getName()));
+                }
             }
 
             return;
         }
 
-        if (this.settings.isDebug() && this.manager.isCondition(player)) {
-            this.getLogger().info("Player '" + player.getName() + "' is in non-service game-mode: " + player.getGameMode().name());
+        // Player is not in a service game-mode, remove it from condition:
+        if (this.manager.removeCondition(player)) {
+            if (this.settings.isDebug()) {
+                this.getLogger().info("Player '" + player.getName() + "' is now in non-service game-mode: " + player.getGameMode().name());
+            }
+
+            if (this.manager.removeService(player)) {
+                final String name = player.getGameMode().name().charAt(0) + player.getGameMode().name().substring(1).toLowerCase();
+
+                player.sendMessage(tl("noServiceGameMode", name));
+            }
         }
-
-        // Check if player gets removed from condition and service.
-        if (this.manager.removeCondition(player) && this.runServiceRemove(player)) {
-            final String name = player.getGameMode().name().charAt(0) + player.getGameMode().name().substring(1).toLowerCase();
-
-            player.sendMessage(tl("noServiceGameMode", name));
-        }
-    }
-
-    public void scheduleServiceCheck(@NotNull final Player player) {
-        // Check if the service check is already scheduled.
-        if (this.schedules.containsKey(player.getUniqueId())) {
-            // Cancel the previous scheduled service check.
-            this.schedules.remove(player.getUniqueId()).cancel();
-        }
-
-        this.schedules.put(player.getUniqueId(), this.runTask(() -> this.runServiceCheck(player)));
     }
 
     /**
-     * Checks if the main hand item of the given player is a service item and adds/removes the given player to/from services.
+     * Schedules the condition check for the given player.
      *
-     * @param player the player that should be checked.
+     * @param player the player to check for condition.
+     * @see Services#runConditionCheck(Player)
      */
-    public void runServiceCheck(@NotNull final Player player) {
-        // Check if the service check was scheduled previously.
+    public void scheduleConditionCheck(@NotNull final Player player) {
+        // Cancel previous scheduled task, if exist:
         if (this.schedules.containsKey(player.getUniqueId())) {
-            // Return if the scheduled check was cancelled before execution.
-            if (this.schedules.remove(player.getUniqueId()).isCancelled()) {
-                return;
-            }
+            this.schedules.remove(player.getUniqueId()).cancel();
         }
 
+        this.schedules.put(player.getUniqueId(), this.runTask(() -> this.runConditionCheck(player)));
+    }
+
+    /**
+     * Performs the service check for the given player with the item in the main hand.
+     *
+     * @param player the player to check for service.
+     * @see Services#runServiceCheck(Player, ItemStack)
+     */
+    public void runServiceCheck(@NotNull final Player player) {
         this.runServiceCheck(player, player.getInventory().getItemInMainHand());
     }
 
     /**
-     * Checks if the given item is a service item and adds/removes the given player to/from services.
+     * Performs the service check for the given player.
      *
-     * @param player the player that should be checked.
-     * @param item the main hand item stack of the player.
+     * <p>A player must fulfill following requirements to be in service:<br>
+     * - The player is in {@link Services#runConditionCheck(Player) condition} for service<br>
+     * - The player holds a registered service {@link Material item} in the main hand<br>
+     *
+     * @param player the player to check for service.
+     * @param item the held item to check for.
+     * @see Services#runConditionCheck(Player)
      */
     public void runServiceCheck(@NotNull final Player player, @Nullable final ItemStack item) {
-        // Return directly if player is not in condition.
-        if (!this.manager.isCondition(player)) {
-            return;
-        }
+        this.schedules.remove(player.getUniqueId());
 
-        // Check if new item slot contains a item and if it is a service item.
-        if (item != null && this.settings.isServiceItem(item.getType())) {
-            // If true, check if permission per item is enabled.
-            if (this.settings.isPermissionPerItem()) {
-                final String permission = "services.item." + item.getType().getKey().getKey();
-
-                // Return if player is not permitted for this service item.
-                if (!player.hasPermission(permission)) {
+        // Only perform check when player is in condition:
+        if (this.manager.isCondition(player)) {
+            if (item != null && this.settings.isServiceItem(item.getType())) {
+                // Check for permission and remove player from service if it is not permitted:
+                if (this.settings.isPermissionPerItem() && !player.hasPermission(this.getPermission(item.getType()))) {
                     if (this.settings.isDebug()) {
-                        this.getLogger().info("Player '" + player.getName() + "' is missing permission '" + permission + "' for service item: " + item.getType().getKey());
+                        this.getLogger().info("Player '" + player.getName() + "' is missing permission for service item: " + item.getType().getKey());
                     }
 
-                    this.runServiceRemove(player);
+                    if (this.settings.isGracePeriod()) {
+                        this.manager.addGrace(player, this.settings.getGracePeriod());
+                        return;
+                    }
+
+                    this.manager.removeService(player);
                     return;
                 }
+
+                if (this.settings.isDebug()) {
+                    this.getLogger().info("Player '" + player.getName() + "' is now using service item: " + item.getType().getKey());
+                }
+
+                // Player is using a service item, add it to service:
+                if (this.settings.isWarmupPeriod()) {
+                    this.manager.addWarmup(player, this.settings.getWarmupPeriod());
+                    return;
+                }
+
+                this.manager.addService(player);
+                return;
             }
 
-            if (this.settings.isDebug()) {
-                this.getLogger().info("Player '" + player.getName() + "' is using service item: " + item.getType().getKey());
-            }
+            // Player is not using any service items, remove it from service:
+            if (this.manager.isWarmup(player) || this.manager.isService(player)) {
+                if (this.settings.isDebug() && !this.manager.isGrace(player)) {
+                    final Material material = item != null ? item.getType() : Material.AIR;
 
-            this.runServiceAdd(player);
-            return;
-        }
-
-        if (this.settings.isDebug() && this.manager.isService(player)) {
-            this.getLogger().info("Player '" + player.getName() + "' is using non-service item: " + (item != null ? item.getType().getKey() : Material.AIR.getKey()));
-        }
-
-        this.runServiceRemove(player);
-    }
-
-    public boolean runServiceAdd(@NotNull final Player player) {
-        // Check if player gets removed from grace.
-        if (this.manager.removeGrace(player)) {
-            this.notify(player, tl("graceAbort"));
-
-            return true;
-        }
-
-        // Check if player is not already in service.
-        if (!this.manager.isService(player)) {
-            // Check if a warmup period exist.
-            if (this.settings.isWarmupPeriod()) {
-                // Check if player gets added to warmup.
-                if (this.manager.addWarmup(player, this.settings.getWarmupPeriod(), tl("serviceEnable"))) {
-                    this.notify(player, tl("warmupStart", this.settings.getWarmupPeriod()));
-
-                    return true;
+                    this.getLogger().info("Player '" + player.getName() + "' is now using non-service item: " + material.getKey());
                 }
-            } else {
-                // Check if player gets added to service.
-                if (this.manager.addService(player)) {
-                    this.notify(player, tl("serviceEnable"));
 
-                    return true;
+                if (this.settings.isGracePeriod()) {
+                    this.manager.addGrace(player, this.settings.getGracePeriod());
+                    return;
                 }
+
+                this.manager.removeService(player);
             }
         }
-
-        return false;
-    }
-
-    public boolean runServiceRemove(@NotNull final Player player) {
-        // Check if player gets removed from warmup.
-        if (this.manager.removeWarmup(player)) {
-            this.notify(player, tl("warmupAbort"));
-
-            return true;
-        }
-
-        // Check if player is currently in service.
-        if (this.manager.isService(player)) {
-            // Check if a grace period exist.
-            if (this.settings.isGracePeriod()) {
-                // Check if player gets added to grace.
-                if (this.manager.addGrace(player, this.settings.getGracePeriod(), tl("serviceDisable"))) {
-                    this.notify(player, tl("graceStart", this.settings.getGracePeriod()));
-
-                    return true;
-                }
-            } else {
-                // Check if player gets removed from service.
-                if (this.manager.removeService(player)) {
-                    this.notify(player, tl("serviceDisable"));
-
-                    return true;
-                }
-            }
-        }
-
-        return false;
     }
 
     /**
-     * Checks if the given player is online and the given message is not empty before notify the player.
+     * Schedules the service check for the given player with the item in the main hand.
      *
-     * <i><b>Note:</b> The Notification will be send as title or chat message depending of the titles active option.</i>
-     *
-     * @param player the player to send the message to.
-     * @param message the message that should be sent to the player.
+     * @param player the player to check for service.
+     * @see Services#runServiceCheck(Player, ItemStack)
      */
-    public void notify(@NotNull final Player player, @NotNull final String message) {
-        // Return if the player is offline or the message is empty.
-        if (!player.isOnline() || message.isEmpty()) {
-            return;
+    public void scheduleServiceCheck(@NotNull final Player player) {
+        // Cancel previous scheduled task, if exist:
+        if (this.schedules.containsKey(player.getUniqueId())) {
+            this.schedules.remove(player.getUniqueId()).cancel();
         }
 
-        if (this.settings.isNotifyActionBar()) {
-            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(message));
-            return;
-        }
-
-        player.sendMessage(message);
+        this.schedules.put(player.getUniqueId(), this.runTask(() -> this.runServiceCheck(player)));
     }
 }
