@@ -36,25 +36,20 @@ public final class Settings {
     private final Services instance;
     private final YamlConfiguration storage;
 
-    // Service-Condition-Settings:
     private Set<Environment> environments;
     private Set<Material> items;
     private Set<UUID> worlds;
 
-    // Permission-Settings:
     private boolean environment;
     private boolean item;
     private boolean world;
 
-    // Feature-Settings:
     private boolean buckets;
     private boolean durability;
 
-    // Period-Settings:
     private int warmup;
     private int grace;
 
-    // Notify-Settings:
     private boolean action;
     private boolean debug;
 
@@ -130,17 +125,8 @@ public final class Settings {
         /*
          * Disabled, because it is not intended to save the config file, as this breaks the comments.
          */
-
-        //final File config = new File(this.instance.getDataFolder(), CONFIG);
-        //
-        //try {
-        //    this.storage.save(config);
-        //} catch (IOException ex) {
-        //    this.instance.getLogger().warning("Unable to save configuration file: " + config.getName() + " (" + ex.getMessage() + ")");
-        //}
     }
 
-    // Plugin-Settings Methods:
     protected boolean _getDebug() {
         return this.storage.getBoolean("debug", false);
     }
@@ -169,7 +155,6 @@ public final class Settings {
         return this._getLocale();
     }
 
-    // Feature-Settings Methods:
     protected boolean _getUnlimitedBuckets() {
         return this.storage.getBoolean("features.unlimited-buckets", false);
     }
@@ -186,7 +171,6 @@ public final class Settings {
         return this.durability;
     }
 
-    // Period-Settings Methods:
     protected int _getWarmupPeriod() {
         final int period = this.storage.getInt("period.warmup", 3);
 
@@ -227,7 +211,6 @@ public final class Settings {
         return this.grace > 0;
     }
 
-    // Permission-Settings Methods:
     protected boolean _getPermissionPerEnvironment() {
         return this.storage.getBoolean("permission.per-environment", true);
     }
@@ -252,7 +235,6 @@ public final class Settings {
         return this.world;
     }
 
-    // Service-Condition-Settings Methods:
     protected @NotNull Set<Environment> _getServiceEnvironments() {
         final Set<Environment> environments = EnumSet.noneOf(Environment.class);
 
@@ -276,9 +258,7 @@ public final class Settings {
     }
 
     public boolean isServiceGameMode(@NotNull final GameMode mode) {
-        /*
-         * Service-Mode for other game-modes as survival make no sense.
-         */
+        // Note: service-mode for other game-modes as survival make no sense.
         return mode == GameMode.SURVIVAL;
     }
 
@@ -304,7 +284,7 @@ public final class Settings {
                 continue;
             }
 
-            wildcard.getChildren().put("services.item." + material.getKey().getKey(), true);
+            wildcard.getChildren().put(this.instance.getPermission(material), true);
             materials.add(material);
         }
 
@@ -337,7 +317,7 @@ public final class Settings {
                 continue;
             }
 
-            wildcard.getChildren().put("services.world." + world.getName().toLowerCase(), true);
+            wildcard.getChildren().put(this.instance.getPermission(world), true);
             worlds.add(world.getUID());
         }
 
