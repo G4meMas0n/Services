@@ -50,6 +50,7 @@ public final class Settings {
     private boolean action;
     private boolean debug;
 
+    private int maximum;
     private int warmup;
     private int grace;
 
@@ -115,6 +116,7 @@ public final class Settings {
         this.action = this._getNotifyActionBar();
         this.debug = this._getDebug();
 
+        this.maximum = this._getDamageMaximum();
         this.warmup = this._getWarmupPeriod();
         this.grace = this._getGracePeriod();
     }
@@ -142,6 +144,22 @@ public final class Settings {
 
     public boolean isDamageBlacklist(@NotNull final DamageCause cause) {
         return this.blacklist.contains(cause);
+    }
+
+    protected int _getDamageMaximum() {
+        final int damage = this.storage.getInt("damage.maximum", 0);
+
+        if (damage < 0) {
+            this.instance.getLogger().warning("Detected invalid damage maximum: Maximum is negative.");
+
+            return 0;
+        }
+
+        return damage;
+    }
+
+    public boolean isDamageMaximum(final double damage) {
+        return this.maximum > 0 && this.maximum < damage;
     }
 
     protected boolean _getDebug() {

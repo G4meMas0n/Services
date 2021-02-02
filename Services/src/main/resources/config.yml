@@ -13,6 +13,11 @@ damage:
     - "SUICIDE"
     - "VOID"
 
+  # Sets the maximum damage which will blocked within service: (Type: Integer, Default: 0)
+  # Note: To disable the damage maximum set the value to: 'maximum: 0'
+  # Note: The value must be positive. If it is not positive, the default value will be used.
+  maximum: 0
+
 # Sets whether the plugin should log debug information's to the console: (Type: Boolean, Default: false)
 debug: false
 
