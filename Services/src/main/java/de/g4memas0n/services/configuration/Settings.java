@@ -8,6 +8,7 @@ import org.bukkit.World.Environment;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.permissions.Permission;
 import org.jetbrains.annotations.NotNull;
 import java.io.File;
@@ -36,6 +37,7 @@ public final class Settings {
     private final Services instance;
     private final YamlConfiguration storage;
 
+    private Set<DamageCause> blacklist;
     private Set<Environment> environments;
     private Set<Material> items;
     private Set<UUID> worlds;
@@ -43,15 +45,13 @@ public final class Settings {
     private boolean environment;
     private boolean item;
     private boolean world;
-
     private boolean buckets;
     private boolean durability;
+    private boolean action;
+    private boolean debug;
 
     private int warmup;
     private int grace;
-
-    private boolean action;
-    private boolean debug;
 
     public Settings(@NotNull final Services instance) {
         this.instance = instance;
@@ -102,6 +102,7 @@ public final class Settings {
             this.instance.getLogger().info("Loaded default configuration from template: " + config.getName());
         }
 
+        this.blacklist = this._getDamageBlacklist();
         this.environments = this._getServiceEnvironments();
         this.items = this._getServiceItems();
         this.worlds = this._getServiceWorlds();
@@ -109,15 +110,13 @@ public final class Settings {
         this.environment = this._getPermissionPerEnvironment();
         this.item = this._getPermissionPerItem();
         this.world = this._getPermissionPerWorld();
-
         this.buckets = this._getUnlimitedBuckets();
         this.durability = this._getUnlimitedDurability();
+        this.action = this._getNotifyActionBar();
+        this.debug = this._getDebug();
 
         this.warmup = this._getWarmupPeriod();
         this.grace = this._getGracePeriod();
-
-        this.action = this._getNotifyActionBar();
-        this.debug = this._getDebug();
     }
 
     @SuppressWarnings("unused")
@@ -125,6 +124,24 @@ public final class Settings {
         /*
          * Disabled, because it is not intended to save the config file, as this breaks the comments.
          */
+    }
+
+    protected @NotNull Set<DamageCause> _getDamageBlacklist() {
+        final Set<DamageCause> blacklist = EnumSet.noneOf(DamageCause.class);
+
+        for (final String name : this.storage.getStringList("damage.blacklist")) {
+            try {
+                blacklist.add(DamageCause.valueOf(name.toUpperCase()));
+            } catch (IllegalArgumentException ex) {
+                this.instance.getLogger().warning("Detected invalid damage cause: Cause '" + name + "' does not exist.");
+            }
+        }
+
+        return Collections.unmodifiableSet(blacklist);
+    }
+
+    public boolean isDamageBlacklist(@NotNull final DamageCause cause) {
+        return this.blacklist.contains(cause);
     }
 
     protected boolean _getDebug() {

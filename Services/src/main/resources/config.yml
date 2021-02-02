@@ -2,6 +2,17 @@
 #      Services - Plugin Configuration File      #
 ##################################################
 
+# Sets various damage options for players currently in service:
+damage:
+
+  # Sets the damage causes which will not blocked within service: (Type: String Array, Default: ["CUSTOM", "SUICIDE", "VOID"])
+  # Note: To block all damage causes set the value to: 'blacklist: []'
+  # Note: Each entry must be equals to the name of an existing damage cause.
+  blacklist:
+    - "CUSTOM"
+    - "SUICIDE"
+    - "VOID"
+
 # Sets whether the plugin should log debug information's to the console: (Type: Boolean, Default: false)
 debug: false
 
