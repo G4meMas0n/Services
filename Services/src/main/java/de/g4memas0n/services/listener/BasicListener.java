@@ -2,7 +2,7 @@ package de.g4memas0n.services.listener;
 
 import de.g4memas0n.services.ServiceManager;
 import de.g4memas0n.services.Services;
-import de.g4memas0n.services.configuration.Settings;
+import de.g4memas0n.services.config.Settings;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;

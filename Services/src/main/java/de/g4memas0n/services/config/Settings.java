@@ -1,4 +1,4 @@
-package de.g4memas0n.services.configuration;
+package de.g4memas0n.services.config;
 
 import de.g4memas0n.services.Services;
 import org.bukkit.GameMode;
@@ -32,15 +32,14 @@ import java.util.regex.Pattern;
  */
 public final class Settings {
 
-    private static final String CONFIG = "config.yml";
-
     private final Services instance;
     private final YamlConfiguration storage;
 
-    private Set<DamageCause> blacklist;
     private Set<Environment> environments;
     private Set<Material> items;
     private Set<UUID> worlds;
+    private Set<DamageCause> blacklist;
+    private Set<Material> disabled;
 
     private boolean environment;
     private boolean item;
@@ -60,7 +59,7 @@ public final class Settings {
     }
 
     public void load() {
-        final File config = new File(this.instance.getDataFolder(), CONFIG);
+        final File config = new File(this.instance.getDataFolder(), "config.yml");
 
         try {
             this.storage.load(config);
@@ -103,10 +102,11 @@ public final class Settings {
             this.instance.getLogger().info("Loaded default configuration from template: " + config.getName());
         }
 
-        this.blacklist = this._getDamageBlacklist();
         this.environments = this._getServiceEnvironments();
         this.items = this._getServiceItems();
         this.worlds = this._getServiceWorlds();
+        this.blacklist = this._getDamageBlacklist();
+        this.disabled = this._getDisabledDrops();
 
         this.environment = this._getPermissionPerEnvironment();
         this.item = this._getPermissionPerItem();
@@ -190,8 +190,38 @@ public final class Settings {
         return this._getLocale();
     }
 
+    protected @NotNull Set<Material> _getDisabledDrops() {
+        final Set<Material> materials = EnumSet.noneOf(Material.class);
+
+        for (final String name : this.storage.getStringList("feature.disabled-drops")) {
+            final Material material = Material.matchMaterial(name, false);
+
+            if (material == null) {
+                this.instance.getLogger().warning("Detected invalid disabled-drop item: Material '" + name + "' does not exist.");
+                continue;
+            }
+
+            if (!this.items.contains(material)) {
+                this.instance.getLogger().warning("Detected invalid disabled-drop item: Material '" + name + "' is not a service item.");
+                continue;
+            }
+
+            materials.add(material);
+        }
+
+        return Collections.unmodifiableSet(materials);
+    }
+
+    public boolean isDisabledDrops() {
+        return !this.disabled.isEmpty();
+    }
+
+    public boolean isDisabledDrop(@NotNull final Material material) {
+        return this.disabled.contains(material);
+    }
+
     protected boolean _getUnlimitedBuckets() {
-        return this.storage.getBoolean("features.unlimited-buckets", false);
+        return this.storage.getBoolean("feature.unlimited-buckets", false);
     }
 
     public boolean isUnlimitedBuckets() {
@@ -199,11 +229,19 @@ public final class Settings {
     }
 
     protected boolean _getUnlimitedDurability() {
-        return this.storage.getBoolean("features.unlimited-durability", false);
+        return this.storage.getBoolean("feature.unlimited-durability", false);
     }
 
     public boolean isUnlimitedDurability() {
         return this.durability;
+    }
+
+    protected boolean _getNotifyActionBar() {
+        return this.storage.getBoolean("notify.action-bar", true);
+    }
+
+    public boolean isNotifyActionBar() {
+        return this.action;
     }
 
     protected int _getWarmupPeriod() {
@@ -365,13 +403,5 @@ public final class Settings {
         }
 
         return this.worlds.contains(world.getUID());
-    }
-
-    protected boolean _getNotifyActionBar() {
-        return this.storage.getBoolean("notify.action-bar", true);
-    }
-
-    public boolean isNotifyActionBar() {
-        return this.action;
     }
 }
