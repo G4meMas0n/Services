@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import static de.g4memas0n.services.util.Messages.tl;
- 
+
 /**
  * The main services command that delegates to all sub-commands.
  *
@@ -25,9 +25,6 @@ import static de.g4memas0n.services.util.Messages.tl;
  * @since Release 1.0.0
  */
 public final class ServicesCommand extends BasicCommand implements TabExecutor {
-
-    private static final int DELEGATE = 0;
-    private static final int ARGUMENTS = 1;
 
     private final Map<String, BasicCommand> commands = new HashMap<>(3, 1);
 
@@ -44,7 +41,7 @@ public final class ServicesCommand extends BasicCommand implements TabExecutor {
 
     public @NotNull PluginCommand getCommand() {
         if (this.command == null) {
-            throw new IllegalStateException("Unregistered command '" + this.getName() + "' tried to get the plugin command");
+            throw new IllegalStateException("Unregistered command '" + this.name + "' tried to get the plugin command");
         }
 
         return this.command;
@@ -60,10 +57,10 @@ public final class ServicesCommand extends BasicCommand implements TabExecutor {
 
     @Override
     public boolean register(@NotNull final Services instance) {
-        this.command = instance.getCommand(this.getName());
+        this.command = instance.getCommand(this.name);
 
         if (this.command == null) {
-            instance.getLogger().warning("Failed to register command " + this.getName() + "! Is it registered to bukkit/spigot?");
+            instance.getLogger().warning("Failed to register command " + this.name + "! Is it registered to bukkit/spigot?");
             return false;
         }
 
@@ -98,16 +95,16 @@ public final class ServicesCommand extends BasicCommand implements TabExecutor {
     public boolean execute(@NotNull final CommandSender sender,
                            @NotNull final String[] arguments) {
         if (this.argsInRange(arguments.length)) {
-            final BasicCommand delegate = this.commands.get(arguments[DELEGATE].toLowerCase());
+            final BasicCommand delegate = this.commands.get(arguments[0].toLowerCase());
 
             if (delegate == null) {
-                sender.sendMessage(Messages.tlErr("commandNotFound", arguments[DELEGATE]));
+                sender.sendMessage(Messages.tlErr("commandNotFound", arguments[0]));
                 return true;
             }
 
             if (sender.hasPermission(delegate.getPermission())) {
-                if (delegate.execute(sender, arguments.length <= ARGUMENTS ? new String[0]
-                        : Arrays.copyOfRange(arguments, ARGUMENTS, arguments.length))) {
+                if (delegate.execute(sender, arguments.length <= this.minArgs ? new String[0]
+                        : Arrays.copyOfRange(arguments, this.minArgs, arguments.length))) {
                     return true;
                 }
 
@@ -117,7 +114,7 @@ public final class ServicesCommand extends BasicCommand implements TabExecutor {
                 return true;
             }
 
-            sender.sendMessage(Messages.tl("noPermission"));
+            sender.sendMessage(tl("noPermission"));
             return true;
         }
 
@@ -127,16 +124,14 @@ public final class ServicesCommand extends BasicCommand implements TabExecutor {
     @Override
     public @NotNull List<String> tabComplete(@NotNull final CommandSender sender,
                                              @NotNull final String[] arguments) {
-        if (arguments.length == DELEGATE + 1) {
+        if (arguments.length == this.minArgs) {
             final List<String> completion = new ArrayList<>();
 
             for (final BasicCommand delegate : this.commands.values()) {
-                if (!sender.hasPermission(delegate.getPermission())) {
-                    continue;
-                }
-
-                if (StringUtil.startsWithIgnoreCase(delegate.getName(), arguments[DELEGATE])) {
-                    completion.add(delegate.getName());
+                if (sender.hasPermission(delegate.getPermission())) {
+                    if (StringUtil.startsWithIgnoreCase(delegate.getName(), arguments[0])) {
+                        completion.add(delegate.getName());
+                    }
                 }
             }
 
@@ -145,15 +140,13 @@ public final class ServicesCommand extends BasicCommand implements TabExecutor {
             return completion;
         }
 
-        if (arguments.length > ARGUMENTS) {
-            final BasicCommand delegate = this.commands.get(arguments[DELEGATE].toLowerCase());
+        if (arguments.length > this.minArgs) {
+            final BasicCommand delegate = this.commands.get(arguments[0].toLowerCase());
 
-            if (delegate == null) {
-                return Collections.emptyList();
-            }
-
-            if (sender.hasPermission(delegate.getPermission())) {
-                return delegate.tabComplete(sender, Arrays.copyOfRange(arguments, ARGUMENTS, arguments.length));
+            if (delegate != null) {
+                if (sender.hasPermission(delegate.getPermission())) {
+                    return delegate.tabComplete(sender, Arrays.copyOfRange(arguments, this.minArgs, arguments.length));
+                }
             }
         }
 
@@ -161,12 +154,10 @@ public final class ServicesCommand extends BasicCommand implements TabExecutor {
     }
 
     @Override
-    public boolean onCommand(@NotNull final CommandSender sender,
-                             @NotNull final Command command,
-                             @NotNull final String alias,
-                             @NotNull final String[] arguments) {
+    public boolean onCommand(@NotNull final CommandSender sender, @NotNull final Command command,
+                             @NotNull final String alias, @NotNull final String[] arguments) {
         if (sender instanceof BlockCommandSender) {
-            this.getInstance().getLogger().severe("Command '" + this.getName() + "' was executed by an illegal sender.");
+            this.getInstance().getLogger().severe("Command '" + this.name + "' was executed by an illegal sender.");
             return true;
         }
 
@@ -186,12 +177,10 @@ public final class ServicesCommand extends BasicCommand implements TabExecutor {
     }
 
     @Override
-    public @NotNull List<String> onTabComplete(@NotNull final CommandSender sender,
-                                               @NotNull final Command command,
-                                               @NotNull final String alias,
-                                               @NotNull final String[] arguments) {
+    public @NotNull List<String> onTabComplete(@NotNull final CommandSender sender, @NotNull final Command command,
+                                               @NotNull final String alias, @NotNull final String[] arguments) {
         if (sender instanceof BlockCommandSender) {
-            this.getInstance().getLogger().severe("Command '" + this.getName() + "' was tab-completed by an illegal sender.");
+            this.getInstance().getLogger().severe("Command '" + this.name + "' was tab-completed by an illegal sender.");
 
             return Collections.emptyList();
         }

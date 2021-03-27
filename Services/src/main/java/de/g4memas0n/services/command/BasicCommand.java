@@ -1,6 +1,7 @@
 package de.g4memas0n.services.command;
 
 import de.g4memas0n.services.Services;
+import de.g4memas0n.services.util.Messages;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -14,16 +15,14 @@ import java.util.List;
  */
 public abstract class BasicCommand {
 
-    private final String name;
-    private final int minArgs;
-    private final int maxArgs;
+    protected final String name;
+    protected final int minArgs;
+    protected final int maxArgs;
 
     private Services instance;
     private String permission;
 
-    protected BasicCommand(@NotNull final String name,
-                           final int minArgs,
-                           final int maxArgs) {
+    protected BasicCommand(@NotNull final String name, final int minArgs, final int maxArgs) {
         this.name = name;
         this.minArgs = minArgs;
         this.maxArgs = maxArgs;
@@ -31,30 +30,30 @@ public abstract class BasicCommand {
     }
 
     public boolean register(@NotNull final Services instance) {
-        if (this.instance != null) {
-            return false;
+        if (this.instance == null) {
+            this.instance = instance;
+
+            if (this.instance.getSettings().isDebug()) {
+                this.instance.getLogger().info("Registered command: " + this.toString());
+            }
+
+            return true;
         }
 
-        this.instance = instance;
-
-        if (this.instance.getSettings().isDebug()) {
-            this.instance.getLogger().info("Registered command: " + this.toString());
-        }
-
-        return true;
+        return false;
     }
 
     public boolean unregister() {
-        if (this.instance == null) {
-            return false;
+        if (this.instance != null) {
+            if (this.instance.getSettings().isDebug()) {
+                this.instance.getLogger().info("Unregistered command: " + this.toString());
+            }
+
+            this.instance = null;
+            return true;
         }
 
-        if (this.instance.getSettings().isDebug()) {
-            this.instance.getLogger().info("Unregistered command: " + this.toString());
-        }
-
-        this.instance = null;
-        return true;
+        return false;
     }
 
     public final @NotNull Services getInstance() {
@@ -85,6 +84,22 @@ public abstract class BasicCommand {
                 : arguments >= this.minArgs;
     }
 
+    public final @NotNull String getDescription() {
+        return Messages.tl(this.name.concat("CommandDescription"));
+    }
+
+    public final @NotNull String getUsage() {
+        return Messages.tl(this.name.concat("CommandUsage"));
+    }
+
+    public final @NotNull String getPermission() {
+        return this.permission;
+    }
+
+    public final void setPermission(@NotNull final String permission) {
+        this.permission = permission;
+    }
+
     /**
      * Executes the command for the given sender, returning its success.
      *
@@ -107,61 +122,30 @@ public abstract class BasicCommand {
     public abstract @NotNull List<String> tabComplete(@NotNull final CommandSender sender,
                                                       @NotNull final String[] arguments);
 
-    public @NotNull String getPermission() {
-        return this.permission;
-    }
-
-    public void setPermission(@NotNull final String permission) {
-        if (permission.equals(this.permission)) {
-            return;
-        }
-
-        this.permission = permission;
-    }
-
-    public final @NotNull String getDescription() {
-        return this.instance.getMessages().translate(this.name.concat("CommandDescription"));
-    }
-
-    public final @NotNull String getUsage() {
-        return this.instance.getMessages().translate(this.name.concat("CommandUsage"));
-    }
-
     @Override
     public final @NotNull String toString() {
-        final StringBuilder builder = new StringBuilder(this.getClass().getSimpleName());
-
-        builder.append("{name=");
-        builder.append(this.name);
-        builder.append(";min-args=");
-        builder.append(this.minArgs);
-        builder.append(";max-args=");
-        builder.append(this.maxArgs);
-
-        if (!this.permission.isEmpty()) {
-            builder.append(";permission=");
-            builder.append(this.permission);
-        }
-
-        return builder.append("}").toString();
+        return this.getClass().getSimpleName()
+                + "{name=" + this.name
+                + ";min-args=" + this.minArgs
+                + ";max-args=" + this.maxArgs
+                + ";permission=" + (this.permission != null ? this.permission : "")
+                + "}";
     }
 
     @Override
     public final boolean equals(@Nullable final Object object) {
-        if (object == null) {
-            return false;
-        }
+        if (object != null) {
+            if (object == this) {
+                return true;
+            }
 
-        if (object == this) {
-            return true;
-        }
+            if (object instanceof BasicCommand) {
+                final BasicCommand other = (BasicCommand) object;
 
-        if (object instanceof BasicCommand) {
-            final BasicCommand other = (BasicCommand) object;
-
-            return this.name.equals(other.name)
-                    && this.minArgs == other.minArgs
-                    && this.maxArgs == other.maxArgs;
+                return this.name.equals(other.name)
+                        && this.minArgs == other.minArgs
+                        && this.maxArgs == other.maxArgs;
+            }
         }
 
         return false;

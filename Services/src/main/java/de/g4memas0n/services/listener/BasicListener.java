@@ -26,30 +26,26 @@ public abstract class BasicListener implements Listener {
     protected BasicListener() { }
 
     public final void register(@NotNull final Services instance) {
-        if (this.instance != null) {
-            return;
-        }
+        if (this.instance == null) {
+            this.instance = instance;
+            this.instance.getServer().getPluginManager().registerEvents(this, instance);
 
-        this.instance = instance;
-        this.instance.getServer().getPluginManager().registerEvents(this, instance);
-
-        if (this.instance.getSettings().isDebug()) {
-            this.instance.getLogger().info("Registered listener: " + this.toString());
+            if (this.instance.getSettings().isDebug()) {
+                this.instance.getLogger().info("Registered listener: " + this.toString());
+            }
         }
     }
 
     public final void unregister() {
-        if (this.instance == null) {
-            return;
+        if (this.instance != null) {
+            HandlerList.unregisterAll(this);
+
+            if (this.instance.getSettings().isDebug()) {
+                this.instance.getLogger().info("Unregistered listener: " + this.toString());
+            }
+
+            this.instance = null;
         }
-
-        HandlerList.unregisterAll(this);
-
-        if (this.instance.getSettings().isDebug()) {
-            this.instance.getLogger().info("Unregistered listener: " + this.toString());
-        }
-
-        this.instance = null;
     }
 
     public final @NotNull Services getInstance() {

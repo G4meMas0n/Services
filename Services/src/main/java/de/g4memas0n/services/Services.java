@@ -1,6 +1,6 @@
 /*
  * Services - A Spigot plugin that provides moderators god mode to fulfill service tasks.
- * Copyright (C) 2020 G4meMas0n
+ * Copyright (C) 2021 G4meMas0n
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ import de.g4memas0n.services.listener.BasicListener;
 import de.g4memas0n.services.listener.ConditionListener;
 import de.g4memas0n.services.listener.FeatureListener;
 import de.g4memas0n.services.listener.ServiceListener;
-import de.g4memas0n.services.configuration.Settings;
+import de.g4memas0n.services.config.Settings;
 import de.g4memas0n.services.util.Messages;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -80,7 +80,7 @@ public final class Services extends JavaPlugin {
     }
 
     public @NotNull String getPermission(@NotNull final Environment environment) {
-        return "services.world." + environment.name().toLowerCase();
+        return "services.environment." + environment.name().toLowerCase();
     }
 
     public @NotNull String getPermission(@NotNull final Material material) {
