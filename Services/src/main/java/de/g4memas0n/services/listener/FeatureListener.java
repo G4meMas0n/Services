@@ -95,7 +95,7 @@ public final class FeatureListener extends BasicListener {
                     final Material material = iterator.next().getType();
 
                     if (this.getSettings().isDisabledDrop(material)) {
-                        if (player.hasPermission(this.getInstance().getPermission(material))) {
+                        if (player.hasPermission("services.item." + material.getKey().getKey())) {
                             iterator.remove();
                         }
                     }
@@ -115,7 +115,7 @@ public final class FeatureListener extends BasicListener {
                 final Material material = event.getItemDrop().getItemStack().getType();
 
                 if (this.getSettings().isDisabledDrop(material)) {
-                    if (player.hasPermission(this.getInstance().getPermission(material))) {
+                    if (player.hasPermission("services.item." + material.getKey().getKey())) {
                         event.setCancelled(true);
                     }
                 }

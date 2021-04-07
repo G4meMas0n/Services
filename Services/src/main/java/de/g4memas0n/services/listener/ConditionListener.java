@@ -45,7 +45,7 @@ public final class ConditionListener extends BasicListener {
 
             if (this.getSettings().isServiceWorld(world)) {
                 // Check for world permission and remove player from condition if it is not permitted:
-                if (this.getSettings().isPermissionPerWorld() && !player.hasPermission(this.getInstance().getPermission(world))) {
+                if (this.getSettings().isPermissionPerWorld() && !player.hasPermission("services.world." + world.getName().toLowerCase())) {
                     if (this.getSettings().isDebug()) {
                         this.getLogger().info("Player '" + player.getName() + "' is missing permission for service world: " + world.getName());
                     }
@@ -61,7 +61,7 @@ public final class ConditionListener extends BasicListener {
 
                 if (this.getSettings().isServiceEnvironment(environment)) {
                     // Check for environment permission and remove player from condition if it is not permitted:
-                    if (this.getSettings().isPermissionPerEnvironment() && !player.hasPermission(this.getInstance().getPermission(environment))) {
+                    if (this.getSettings().isPermissionPerEnvironment() && !player.hasPermission("services.environment." + environment.name().toLowerCase())) {
                         if (this.getSettings().isDebug()) {
                             this.getLogger().info("Player '" + player.getName() + "' is missing permission for service environment: " + environment.name());
                         }

@@ -160,7 +160,9 @@ public final class ServiceListener extends BasicListener {
         // Only cancel event when player is in service:
         if (this.getManager().isService((Player) event.getEntity())) {
             if (this.getSettings().isDamageBlacklist(event.getCause()) || this.getSettings().isDamageMaximum(event.getDamage())) {
-                return;
+                if (!event.getEntity().hasPermission("services.bypass.restriction")) {
+                    return;
+                }
             }
 
             event.setCancelled(true);

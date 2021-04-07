@@ -336,7 +336,7 @@ public final class Settings {
     }
 
     protected @NotNull Set<Material> _getServiceItems() {
-        final Permission wildcard = this.instance.getDescription().getPermissions().get(1);
+        final Permission wildcard = this.instance.getDescription().getPermissions().get(2);
         final Set<Material> materials = EnumSet.noneOf(Material.class);
 
         for (final String name : this.storage.getStringList("service.items")) {
@@ -357,7 +357,7 @@ public final class Settings {
                 continue;
             }
 
-            wildcard.getChildren().put(this.instance.getPermission(material), true);
+            wildcard.getChildren().put("services.item." + material.getKey().getKey(), true);
             materials.add(material);
         }
 
@@ -379,7 +379,7 @@ public final class Settings {
     }
 
     protected @NotNull Set<UUID> _getServiceWorlds() {
-        final Permission wildcard = this.instance.getDescription().getPermissions().get(2);
+        final Permission wildcard = this.instance.getDescription().getPermissions().get(3);
         final Set<UUID> worlds = new HashSet<>();
 
         for (final String name : this.storage.getStringList("service.worlds")) {
@@ -390,7 +390,7 @@ public final class Settings {
                 continue;
             }
 
-            wildcard.getChildren().put(this.instance.getPermission(world), true);
+            wildcard.getChildren().put("services.world." + world.getName().toLowerCase(), true);
             worlds.add(world.getUID());
         }
 

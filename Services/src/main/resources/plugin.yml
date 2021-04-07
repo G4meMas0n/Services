@@ -12,6 +12,14 @@ commands:
     usage: /<command> (reload|version)
 
 permissions:
+  services.bypass.*:
+    description: Allows to bypass service restrictions and settings.
+    default: false
+    children:
+      services.bypass.grace: true
+      services.bypass.restriction: true
+      services.bypass.warmup: true
+
   services.environment.*:
     description: Allows to use services in all service environments.
     default: false

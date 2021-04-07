@@ -79,18 +79,6 @@ public final class Services extends JavaPlugin {
         return this.messages;
     }
 
-    public @NotNull String getPermission(@NotNull final Environment environment) {
-        return "services.environment." + environment.name().toLowerCase();
-    }
-
-    public @NotNull String getPermission(@NotNull final Material material) {
-        return "services.item." + material.getKey().getKey();
-    }
-
-    public @NotNull String getPermission(@NotNull final World world) {
-        return "services.world." + world.getName().toLowerCase();
-    }
-
     @Override
     public void onLoad() {
         if (this.loaded) {
@@ -244,7 +232,7 @@ public final class Services extends JavaPlugin {
 
             if (this.settings.isServiceWorld(world)) {
                 // Check for world permission and remove player from condition if it is not permitted:
-                if (this.settings.isPermissionPerWorld() && !player.hasPermission(this.getPermission(world))) {
+                if (this.settings.isPermissionPerWorld() && !player.hasPermission("services.world." + world.getName().toLowerCase())) {
                     if (this.settings.isDebug()) {
                         this.getLogger().info("Player '" + player.getName() + "' is missing permission for service world: " + world.getName());
                     }
@@ -260,7 +248,7 @@ public final class Services extends JavaPlugin {
 
                 if (this.settings.isServiceEnvironment(environment)) {
                     // Check for environment permission and remove player from condition if it is not permitted:
-                    if (this.settings.isPermissionPerEnvironment() && !player.hasPermission(this.getPermission(environment))) {
+                    if (this.settings.isPermissionPerEnvironment() && !player.hasPermission("services.environment." + environment.name().toLowerCase())) {
                         if (this.settings.isDebug()) {
                             this.getLogger().info("Player '" + player.getName() + "' is missing permission for service environment: " + environment.name());
                         }
@@ -374,12 +362,12 @@ public final class Services extends JavaPlugin {
         if (this.manager.isCondition(player)) {
             if (item != null && this.settings.isServiceItem(item.getType())) {
                 // Check for permission and remove player from service if it is not permitted:
-                if (this.settings.isPermissionPerItem() && !player.hasPermission(this.getPermission(item.getType()))) {
+                if (this.settings.isPermissionPerItem() && !player.hasPermission("services.item." + item.getType().getKey().getKey())) {
                     if (this.settings.isDebug()) {
                         this.getLogger().info("Player '" + player.getName() + "' is missing permission for service item: " + item.getType().getKey());
                     }
 
-                    if (this.settings.isGracePeriod() && !player.hasPermission("services.grace.bypass")) {
+                    if (this.settings.isGracePeriod() && !player.hasPermission("services.bypass.grace")) {
                         this.manager.addGrace(player, this.settings.getGracePeriod());
                         return;
                     }
@@ -393,7 +381,7 @@ public final class Services extends JavaPlugin {
                 }
 
                 // Player is using a service item, add it to service:
-                if (this.settings.isWarmupPeriod() && !player.hasPermission("services.warmup.bypass")) {
+                if (this.settings.isWarmupPeriod() && !player.hasPermission("services.bypass.warmup")) {
                     this.manager.addWarmup(player, this.settings.getWarmupPeriod());
                     return;
                 }
@@ -410,7 +398,7 @@ public final class Services extends JavaPlugin {
                     this.getLogger().info("Player '" + player.getName() + "' is now using non-service item: " + material.getKey());
                 }
 
-                if (this.settings.isGracePeriod()  && !player.hasPermission("services.grace.bypass")) {
+                if (this.settings.isGracePeriod()  && !player.hasPermission("services.bypass.grace")) {
                     this.manager.addGrace(player, this.settings.getGracePeriod());
                     return;
                 }
