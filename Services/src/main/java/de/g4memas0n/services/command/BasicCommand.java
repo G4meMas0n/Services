@@ -19,7 +19,12 @@ public abstract class BasicCommand {
     protected final int minArgs;
     protected final int maxArgs;
 
-    private Services instance;
+    /**
+     * This reference will never be null for all implementing commands, as they will only be called when they are
+     * registered by {@link #register(Services)}.
+     */
+    protected Services instance;
+
     private String permission;
 
     protected BasicCommand(@NotNull final String name, final int minArgs, final int maxArgs) {
@@ -34,7 +39,7 @@ public abstract class BasicCommand {
             this.instance = instance;
 
             if (this.instance.getSettings().isDebug()) {
-                this.instance.getLogger().info("Registered command: " + this.toString());
+                this.instance.getLogger().info("Registered command: " + this);
             }
 
             return true;
@@ -46,7 +51,7 @@ public abstract class BasicCommand {
     public boolean unregister() {
         if (this.instance != null) {
             if (this.instance.getSettings().isDebug()) {
-                this.instance.getLogger().info("Unregistered command: " + this.toString());
+                this.instance.getLogger().info("Unregistered command: " + this);
             }
 
             this.instance = null;
@@ -92,11 +97,11 @@ public abstract class BasicCommand {
         return Messages.tl(this.name.concat("CommandUsage"));
     }
 
-    public final @NotNull String getPermission() {
+    public @NotNull String getPermission() {
         return this.permission;
     }
 
-    public final void setPermission(@NotNull final String permission) {
+    public void setPermission(@NotNull final String permission) {
         this.permission = permission;
     }
 

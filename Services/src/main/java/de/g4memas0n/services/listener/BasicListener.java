@@ -3,14 +3,9 @@ package de.g4memas0n.services.listener;
 import de.g4memas0n.services.ServiceManager;
 import de.g4memas0n.services.Services;
 import de.g4memas0n.services.config.Settings;
-import org.bukkit.event.Event;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.jetbrains.annotations.NotNull;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -21,7 +16,11 @@ import java.util.logging.Logger;
  */
 public abstract class BasicListener implements Listener {
 
-    private Services instance;
+    /**
+     * This reference will never be null for all implementing listeners, as they will only be called when they are
+     * registered by {@link #register(Services)}.
+     */
+    protected Services instance;
 
     protected BasicListener() { }
 
@@ -31,7 +30,7 @@ public abstract class BasicListener implements Listener {
             this.instance.getServer().getPluginManager().registerEvents(this, instance);
 
             if (this.instance.getSettings().isDebug()) {
-                this.instance.getLogger().info("Registered listener: " + this.toString());
+                this.instance.getLogger().info("Registered listener: " + this);
             }
         }
     }
@@ -41,7 +40,7 @@ public abstract class BasicListener implements Listener {
             HandlerList.unregisterAll(this);
 
             if (this.instance.getSettings().isDebug()) {
-                this.instance.getLogger().info("Unregistered listener: " + this.toString());
+                this.instance.getLogger().info("Unregistered listener: " + this);
             }
 
             this.instance = null;
@@ -50,46 +49,26 @@ public abstract class BasicListener implements Listener {
 
     public final @NotNull Services getInstance() {
         if (this.instance == null) {
-            throw new IllegalStateException("Unregistered listener '" + this.getClass().getSimpleName() + "' tried to get the plugin instance");
+            throw new IllegalStateException("Unregistered listener '" + this + "' tried to get the plugin instance");
         }
 
         return this.instance;
     }
 
     public final @NotNull ServiceManager getManager() {
-        return this.getInstance().getManager();
+        return this.instance.getManager();
     }
 
     public final @NotNull Settings getSettings() {
-        return this.getInstance().getSettings();
+        return this.instance.getSettings();
     }
 
     public final @NotNull Logger getLogger() {
-        return this.getInstance().getLogger();
+        return this.instance.getLogger();
     }
 
     @Override
     public final String toString() {
-        return this.getClass().getSimpleName() + "{events=" + String.join(",", this.getEvents()) + "}";
-    }
-
-    public final @NotNull List<String> getEvents() {
-        final List<String> events = new ArrayList<>();
-
-        for (final Method method : this.getClass().getMethods()) {
-            if (method.getAnnotation(EventHandler.class) != null) {
-                if (method.getParameterCount() != 1) {
-                    continue;
-                }
-
-                final Class<?> clazz = method.getParameterTypes()[0];
-
-                if (Event.class.isAssignableFrom(clazz) && !events.contains(clazz.getSimpleName())) {
-                    events.add(clazz.getSimpleName());
-                }
-            }
-        }
-
-        return events;
+        return this.getClass().getSimpleName();
     }
 }

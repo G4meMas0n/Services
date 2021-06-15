@@ -47,7 +47,7 @@ public final class FeatureListener extends BasicListener {
                         }
 
                         // Note: this event ignores the resulting item-stack.
-                        this.getInstance().runTask(() -> player.getInventory().setItemInMainHand(event.getItemStack()));
+                        this.instance.runTask(() -> player.getInventory().setItemInMainHand(event.getItemStack()));
                     }
                 }
             }

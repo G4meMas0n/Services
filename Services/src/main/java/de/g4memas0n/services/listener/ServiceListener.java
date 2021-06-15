@@ -11,6 +11,7 @@ import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
+import org.bukkit.event.player.PlayerBucketEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerItemBreakEvent;
@@ -35,7 +36,7 @@ public final class ServiceListener extends BasicListener {
         // Note: this event fires before the items gets changed.
         // Only schedule check when player is in condition:
         if (this.getManager().isCondition(event.getPlayer())) {
-            this.getInstance().scheduleServiceCheck(event.getPlayer());
+            this.instance.scheduleServiceCheck(event.getPlayer());
         }
     }
 
@@ -54,7 +55,7 @@ public final class ServiceListener extends BasicListener {
                 }
 
                 // Player has placed a service item, schedule a check:
-                this.getInstance().scheduleServiceCheck(event.getPlayer());
+                this.instance.scheduleServiceCheck(event.getPlayer());
             }
         }
     }
@@ -62,37 +63,16 @@ public final class ServiceListener extends BasicListener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerBucketEmpty(@NotNull final PlayerBucketEmptyEvent event) {
         // Note: this event fires before the bucket gets emptied.
-        // Only perform check when player is in condition:
-        if (this.getManager().isCondition(event.getPlayer())) {
-            if (this.getSettings().isServiceItem(event.getBucket())) {
-                if (this.getManager().isGrace(event.getPlayer())) {
-                    return;
-                }
-
-                // Player has emptied a service bucket, schedule a check:
-                this.getInstance().scheduleServiceCheck(event.getPlayer());
-                return;
-            }
-
-            if (event.getItemStack() == null) {
-                return;
-            }
-
-            // Check for resulting bucket after the event:
-            if (this.getSettings().isServiceItem(event.getItemStack().getType())) {
-                if (this.getManager().isWarmup(event.getPlayer()) || this.getManager().isService(event.getPlayer())) {
-                    return;
-                }
-
-                // Resulting bucket is a service bucket, schedule a check:
-                this.getInstance().scheduleServiceCheck(event.getPlayer());
-            }
-        }
+        this.onPlayerBucketChange(event);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerBucketFill(@NotNull final PlayerBucketFillEvent event) {
         // Note: this event fires before the bucket gets filled.
+        this.onPlayerBucketChange(event);
+    }
+
+    public void onPlayerBucketChange(@NotNull final PlayerBucketEvent event) {
         // Only perform check when player is in condition:
         if (this.getManager().isCondition(event.getPlayer())) {
             if (this.getSettings().isServiceItem(event.getBucket())) {
@@ -101,7 +81,7 @@ public final class ServiceListener extends BasicListener {
                 }
 
                 // Player has filled a service bucket, schedule a check:
-                this.getInstance().scheduleServiceCheck(event.getPlayer());
+                this.instance.scheduleServiceCheck(event.getPlayer());
                 return;
             }
 
@@ -116,7 +96,7 @@ public final class ServiceListener extends BasicListener {
                 }
 
                 // Resulting bucket is a service bucket, schedule a check:
-                this.getInstance().scheduleServiceCheck(event.getPlayer());
+                this.instance.scheduleServiceCheck(event.getPlayer());
             }
         }
     }
@@ -134,8 +114,8 @@ public final class ServiceListener extends BasicListener {
                 return;
             }
 
-            // Player has emptied/filled a cauldron, schedule a check:
-            this.getInstance().scheduleServiceCheck((Player) event.getEntity());
+            // Player has emptied/filled a cauldron with an item, schedule a check:
+            this.instance.scheduleServiceCheck((Player) event.getEntity());
         }
     }
 
@@ -147,7 +127,7 @@ public final class ServiceListener extends BasicListener {
 
         // Only perform check when player is in condition:
         if (this.getManager().isCondition((Player) event.getPlayer())) {
-            this.getInstance().runServiceCheck((Player) event.getPlayer());
+            this.instance.runServiceCheck((Player) event.getPlayer());
         }
     }
 
@@ -180,7 +160,7 @@ public final class ServiceListener extends BasicListener {
                 }
 
                 // Player has break a service item, schedule a check:
-                this.getInstance().scheduleServiceCheck(event.getPlayer());
+                this.instance.scheduleServiceCheck(event.getPlayer());
             }
         }
     }
@@ -196,7 +176,7 @@ public final class ServiceListener extends BasicListener {
                 }
 
                 // Player has dropped a service item, schedule a check:
-                this.getInstance().scheduleServiceCheck(event.getPlayer());
+                this.instance.scheduleServiceCheck(event.getPlayer());
             }
         }
     }
@@ -208,7 +188,7 @@ public final class ServiceListener extends BasicListener {
             final ItemStack item = event.getPlayer().getInventory().getItem(event.getNewSlot());
 
             // Player has changed the held item, perform a check:
-            this.getInstance().runServiceCheck(event.getPlayer(), item);
+            this.instance.runServiceCheck(event.getPlayer(), item);
         }
     }
 
@@ -227,7 +207,7 @@ public final class ServiceListener extends BasicListener {
                 }
 
                 // Player has picked up a service item, schedule a check:
-                this.getInstance().scheduleServiceCheck((Player) event.getEntity());
+                this.instance.scheduleServiceCheck((Player) event.getEntity());
             }
         }
     }
@@ -237,7 +217,7 @@ public final class ServiceListener extends BasicListener {
         // Only perform check when player is in condition:
         if (this.getManager().isCondition(event.getPlayer())) {
             // Player has swapped the held item, perform a check:
-            this.getInstance().runServiceCheck(event.getPlayer(), event.getMainHandItem());
+            this.instance.runServiceCheck(event.getPlayer(), event.getMainHandItem());
         }
     }
 }

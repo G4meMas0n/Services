@@ -26,7 +26,7 @@ public final class ConditionListener extends BasicListener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerJoin(@NotNull final PlayerJoinEvent event) {
-        this.getInstance().runConditionCheck(event.getPlayer());
+        this.instance.runConditionCheck(event.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -113,7 +113,7 @@ public final class ConditionListener extends BasicListener {
         }
 
         // Run complete condition check:
-        this.getInstance().runConditionCheck(event.getPlayer());
+        this.instance.runConditionCheck(event.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -148,6 +148,6 @@ public final class ConditionListener extends BasicListener {
         }
 
         // Schedule complete condition check to next server tick:
-        this.getInstance().scheduleConditionCheck(event.getPlayer());
+        this.instance.scheduleConditionCheck(event.getPlayer());
     }
 }

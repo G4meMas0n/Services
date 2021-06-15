@@ -35,8 +35,15 @@ public final class ServicesCommand extends BasicCommand implements TabExecutor {
 
         this.addCommand(new ReloadCommand());
         this.addCommand(new VersionCommand());
-
         this.setPermission("services.use");
+    }
+
+    public @NotNull String getPermission() {
+        if (this.command.getPermission() != null) {
+            return this.command.getPermission();
+        }
+
+        return super.getPermission();
     }
 
     public @NotNull PluginCommand getCommand() {
@@ -83,8 +90,10 @@ public final class ServicesCommand extends BasicCommand implements TabExecutor {
         }
 
         if (super.unregister()) {
-            this.command = null;
             this.commands.values().forEach(BasicCommand::unregister);
+            this.command.setTabCompleter(null);
+            this.command.setExecutor(null);
+            this.command = null;
             return true;
         }
 
@@ -157,7 +166,7 @@ public final class ServicesCommand extends BasicCommand implements TabExecutor {
     public boolean onCommand(@NotNull final CommandSender sender, @NotNull final Command command,
                              @NotNull final String alias, @NotNull final String[] arguments) {
         if (sender instanceof BlockCommandSender) {
-            this.getInstance().getLogger().severe("Command '" + this.name + "' was executed by an illegal sender.");
+            this.instance.getLogger().severe("Command '" + this.name + "' was executed by an illegal sender.");
             return true;
         }
 
@@ -180,7 +189,7 @@ public final class ServicesCommand extends BasicCommand implements TabExecutor {
     public @NotNull List<String> onTabComplete(@NotNull final CommandSender sender, @NotNull final Command command,
                                                @NotNull final String alias, @NotNull final String[] arguments) {
         if (sender instanceof BlockCommandSender) {
-            this.getInstance().getLogger().severe("Command '" + this.name + "' was tab-completed by an illegal sender.");
+            this.instance.getLogger().severe("Command '" + this.name + "' was tab-completed by an illegal sender.");
 
             return Collections.emptyList();
         }
