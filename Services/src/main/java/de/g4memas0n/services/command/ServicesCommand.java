@@ -74,7 +74,7 @@ public final class ServicesCommand extends BasicCommand implements TabExecutor {
         if (super.register(instance)) {
             this.command.setExecutor(this);
             this.command.setTabCompleter(this);
-            this.command.setPermissionMessage(tl("noPermission"));
+            this.command.setPermissionMessage(tl("command.denied"));
             this.commands.values().forEach(command -> command.register(instance));
             return true;
         }
@@ -107,7 +107,7 @@ public final class ServicesCommand extends BasicCommand implements TabExecutor {
             final BasicCommand delegate = this.commands.get(arguments[0].toLowerCase());
 
             if (delegate == null) {
-                sender.sendMessage(Messages.tlErr("commandNotFound", arguments[0]));
+                sender.sendMessage(Messages.tlErr("command.unknown", arguments[0]));
                 return true;
             }
 
@@ -123,7 +123,7 @@ public final class ServicesCommand extends BasicCommand implements TabExecutor {
                 return true;
             }
 
-            sender.sendMessage(tl("noPermission"));
+            sender.sendMessage(tl("command.denied"));
             return true;
         }
 
@@ -181,7 +181,7 @@ public final class ServicesCommand extends BasicCommand implements TabExecutor {
             return true;
         }
 
-        sender.sendMessage(tl("noPermission"));
+        sender.sendMessage(tl("command.denied"));
         return true;
     }
 

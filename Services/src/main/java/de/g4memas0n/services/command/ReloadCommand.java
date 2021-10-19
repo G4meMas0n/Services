@@ -27,7 +27,7 @@ public final class ReloadCommand extends BasicCommand {
         if (this.argsInRange(arguments.length)) {
             this.instance.reloadConfig();
 
-            sender.sendMessage(tl("reloadPlugin", this.instance.getName()));
+            sender.sendMessage(tl("command.reload.plugin", this.instance.getName()));
             return true;
         }
 

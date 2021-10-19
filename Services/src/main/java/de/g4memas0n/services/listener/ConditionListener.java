@@ -51,7 +51,7 @@ public final class ConditionListener extends BasicListener {
                     }
 
                     if (this.getManager().removeCondition(player) && this.getManager().removeService(player)) {
-                        player.sendMessage(tl("worldDenied", world.getName()));
+                        player.sendMessage(tl("service.denied.world", world.getName()));
                     }
 
                     return;
@@ -69,7 +69,7 @@ public final class ConditionListener extends BasicListener {
                         if (this.getManager().removeCondition(player) && this.getManager().removeService(player)) {
                             final String name = environment.name().charAt(0) + environment.name().substring(1).toLowerCase();
 
-                            player.sendMessage(tl("environmentDenied", name));
+                            player.sendMessage(tl("service.denied.environment", name));
                         }
 
                         return;
@@ -91,7 +91,7 @@ public final class ConditionListener extends BasicListener {
                     if (this.getManager().removeService(player)) {
                         final String name = environment.name().charAt(0) + environment.name().substring(1).toLowerCase();
 
-                        player.sendMessage(tl("noServiceEnvironment", name));
+                        player.sendMessage(tl("service.disabled.environment", name));
                     }
                 }
 
@@ -105,7 +105,7 @@ public final class ConditionListener extends BasicListener {
                 }
 
                 if (this.getManager().removeService(player)) {
-                    player.sendMessage(tl("noServiceWorld", world.getName()));
+                    player.sendMessage(tl("service.disabled.world", world.getName()));
                 }
             }
 
@@ -140,7 +140,7 @@ public final class ConditionListener extends BasicListener {
                 if (this.getManager().removeService(player)) {
                     final String name = mode.name().charAt(0) + mode.name().substring(1).toLowerCase();
 
-                    player.sendMessage(tl("noServiceGameMode", name));
+                    player.sendMessage(tl("service.disabled.game-mode", name));
                 }
             }
 

@@ -41,6 +41,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static de.g4memas0n.services.util.Messages.tl;
+import static de.g4memas0n.services.util.Messages.tlEnum;
 
 /**
  * The Services main class.
@@ -88,12 +89,9 @@ public final class Services extends JavaPlugin {
 
         this.settings = new Settings(this);
         this.settings.load();
-
         this.messages = new Messages(this.getDataFolder(), this.getLogger());
         this.messages.setLocale(this.settings.getLocale());
-
         this.manager = new ServiceManager(this);
-
         this.loaded = true;
     }
 
@@ -161,12 +159,10 @@ public final class Services extends JavaPlugin {
         }
 
         this.messages.disable();
-
         this.schedules = null;
         this.settings = null;
         this.messages = null;
         this.manager = null;
-
         this.enabled = false;
         this.loaded = false;
     }
@@ -175,7 +171,7 @@ public final class Services extends JavaPlugin {
     public void reloadConfig() {
         this.settings.load();
         this.messages.setLocale(this.settings.getLocale());
-        this.command.getCommand().setPermissionMessage(tl("noPermission"));
+        this.command.getCommand().setPermissionMessage(tl("command.denied"));
 
         // Perform condition check for all online players:
         if (!this.getServer().getOnlinePlayers().isEmpty()) {
@@ -221,7 +217,7 @@ public final class Services extends JavaPlugin {
             }
 
             if (this.manager.removeCondition(player) && this.manager.removeService(player)) {
-                player.sendMessage(tl("serviceDenied"));
+                player.sendMessage(tl("service.denied"));
             }
 
             return;
@@ -238,7 +234,7 @@ public final class Services extends JavaPlugin {
                     }
 
                     if (this.manager.removeCondition(player) && this.manager.removeService(player)) {
-                        player.sendMessage(tl("worldDenied", world.getName()));
+                        player.sendMessage(tl("service.denied.world", world.getName()));
                     }
 
                     return;
@@ -254,9 +250,7 @@ public final class Services extends JavaPlugin {
                         }
 
                         if (this.manager.removeCondition(player) && this.manager.removeService(player)) {
-                            final String name = environment.name().charAt(0) + environment.name().substring(1).toLowerCase();
-
-                            player.sendMessage(tl("environmentDenied", name));
+                            player.sendMessage(tlEnum("service.denied.environment", environment));
                         }
 
                         return;
@@ -281,11 +275,8 @@ public final class Services extends JavaPlugin {
                     }
 
                     if (this.manager.removeService(player)) {
-                        final String name = environment.name().charAt(0) + environment.name().substring(1).toLowerCase();
-
-                        player.sendMessage(tl("noServiceEnvironment", name));
+                        player.sendMessage(tlEnum("service.disabled.environment", environment));
                     }
-
                 }
 
                 return;
@@ -298,7 +289,7 @@ public final class Services extends JavaPlugin {
                 }
 
                 if (this.manager.removeService(player)) {
-                    player.sendMessage(tl("noServiceWorld", world.getName()));
+                    player.sendMessage(tl("service.disabled.world", world.getName()));
                 }
             }
 
@@ -312,9 +303,7 @@ public final class Services extends JavaPlugin {
             }
 
             if (this.manager.removeService(player)) {
-                final String name = player.getGameMode().name().charAt(0) + player.getGameMode().name().substring(1).toLowerCase();
-
-                player.sendMessage(tl("noServiceGameMode", name));
+                player.sendMessage(tlEnum("service.disabled.game-mode", player.getGameMode()));
             }
         }
     }
@@ -326,7 +315,7 @@ public final class Services extends JavaPlugin {
      * @see Services#runConditionCheck(Player)
      */
     public void scheduleConditionCheck(@NotNull final Player player) {
-        // Cancel previous scheduled task, if exist:
+        // Cancel previous scheduled task, if existed:
         if (this.schedules.containsKey(player.getUniqueId())) {
             this.schedules.remove(player.getUniqueId()).cancel();
         }
@@ -415,7 +404,7 @@ public final class Services extends JavaPlugin {
      * @see Services#runServiceCheck(Player, ItemStack)
      */
     public void scheduleServiceCheck(@NotNull final Player player) {
-        // Cancel previous scheduled task, if exist:
+        // Cancel previous scheduled task, if existed:
         if (this.schedules.containsKey(player.getUniqueId())) {
             this.schedules.remove(player.getUniqueId()).cancel();
         }

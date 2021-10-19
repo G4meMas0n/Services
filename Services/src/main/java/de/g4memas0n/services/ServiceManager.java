@@ -85,7 +85,7 @@ public final class ServiceManager {
                 this.instance.getLogger().info(String.format("Player '%s' is now in warmup.", player.getName()));
             }
 
-            this.notify(player, tl("warmupStart", period));
+            this.notify(player, tl("service.warmup.start", period));
             return true;
         }
 
@@ -100,7 +100,7 @@ public final class ServiceManager {
                 this.instance.getLogger().info(String.format("Player '%s' is no longer in warmup.", player.getName()));
             }
 
-            this.notify(player, tl("warmupAbort"));
+            this.notify(player, tl("service.warmup.abort"));
             return true;
         }
 
@@ -123,7 +123,7 @@ public final class ServiceManager {
                 this.instance.getLogger().info(String.format("Player '%s' is now in service mode.", player.getName()));
             }
 
-            this.notify(player, tl("serviceEnable"));
+            this.notify(player, tl("service.enable"));
             return true;
         }
 
@@ -138,7 +138,7 @@ public final class ServiceManager {
                 this.instance.getLogger().info(String.format("Player '%s' is no longer in service mode.", player.getName()));
             }
 
-            this.notify(player, tl("serviceDisable"));
+            this.notify(player, tl("service.disable"));
             return true;
         }
 
@@ -165,7 +165,7 @@ public final class ServiceManager {
                 this.instance.getLogger().info(String.format("Player '%s' is now in grace.", player.getName()));
             }
 
-            this.notify(player, tl("graceStart", period));
+            this.notify(player, tl("service.grace.start", period));
             return true;
         }
 
@@ -180,7 +180,7 @@ public final class ServiceManager {
                 this.instance.getLogger().info(String.format("Player '%s' is no longer in grace.", player.getName()));
             }
 
-            this.notify(player, tl("graceAbort"));
+            this.notify(player, tl("service.grace.abort"));
             return true;
         }
 

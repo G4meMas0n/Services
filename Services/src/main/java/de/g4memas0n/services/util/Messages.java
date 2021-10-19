@@ -140,13 +140,14 @@ public final class Messages {
         return instance.format(key, arguments);
     }
 
+    public static @NotNull String tlEnum(@NotNull final String key,
+                                         @NotNull final Enum<?> element) {
+        return tl(key, element.name().substring(0, 1).concat(element.name().substring(1).toLowerCase()));
+    }
+
     public static @NotNull String tlErr(@NotNull final String key,
                                         @NotNull final Object... arguments) {
-        if (instance == null) {
-            throw new IllegalStateException("Messages not loaded");
-        }
-
-        return instance.translate("prefixError") + " " + instance.format(key, arguments);
+        return tl("general.prefix.error") + tl(key, arguments);
     }
 
     /**

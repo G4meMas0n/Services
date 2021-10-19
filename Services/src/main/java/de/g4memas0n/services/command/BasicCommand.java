@@ -90,11 +90,11 @@ public abstract class BasicCommand {
     }
 
     public final @NotNull String getDescription() {
-        return Messages.tl(this.name.concat("CommandDescription"));
+        return Messages.tl("command." + this.name + ".description");
     }
 
     public final @NotNull String getUsage() {
-        return Messages.tl(this.name.concat("CommandUsage"));
+        return Messages.tl("command." + this.name + ".usage");
     }
 
     public @NotNull String getPermission() {

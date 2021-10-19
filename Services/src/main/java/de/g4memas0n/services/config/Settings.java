@@ -128,7 +128,7 @@ public final class Settings {
          */
     }
 
-    protected @NotNull Set<DamageCause> _getDamageBlacklist() {
+    private @NotNull Set<DamageCause> _getDamageBlacklist() {
         final Set<DamageCause> blacklist = EnumSet.noneOf(DamageCause.class);
 
         for (final String name : this.storage.getStringList("damage.blacklist")) {
@@ -146,7 +146,7 @@ public final class Settings {
         return this.blacklist.contains(cause);
     }
 
-    protected int _getDamageMaximum() {
+    private int _getDamageMaximum() {
         final int damage = this.storage.getInt("damage.maximum", 0);
 
         if (damage < 0) {
@@ -162,7 +162,7 @@ public final class Settings {
         return this.maximum > 0 && this.maximum < damage;
     }
 
-    protected boolean _getDebug() {
+    private boolean _getDebug() {
         return this.storage.getBoolean("debug", false);
     }
 
@@ -170,7 +170,7 @@ public final class Settings {
         return this.debug;
     }
 
-    protected @NotNull Locale _getLocale() {
+    private @NotNull Locale _getLocale() {
         final String locale = this.storage.getString("locale");
 
         if (locale != null && !locale.isEmpty()) {
@@ -190,7 +190,7 @@ public final class Settings {
         return this._getLocale();
     }
 
-    protected @NotNull Set<Material> _getDisabledDrops() {
+    private @NotNull Set<Material> _getDisabledDrops() {
         final Set<Material> materials = EnumSet.noneOf(Material.class);
 
         for (final String name : this.storage.getStringList("feature.disabled-drops")) {
@@ -220,7 +220,7 @@ public final class Settings {
         return this.disabled.contains(material);
     }
 
-    protected boolean _getUnlimitedBuckets() {
+    private boolean _getUnlimitedBuckets() {
         return this.storage.getBoolean("feature.unlimited-buckets", false);
     }
 
@@ -228,7 +228,7 @@ public final class Settings {
         return this.buckets;
     }
 
-    protected boolean _getUnlimitedDurability() {
+    private boolean _getUnlimitedDurability() {
         return this.storage.getBoolean("feature.unlimited-durability", false);
     }
 
@@ -236,7 +236,7 @@ public final class Settings {
         return this.durability;
     }
 
-    protected boolean _getNotifyActionBar() {
+    private boolean _getNotifyActionBar() {
         return this.storage.getBoolean("notify.action-bar", true);
     }
 
@@ -244,7 +244,7 @@ public final class Settings {
         return this.action;
     }
 
-    protected int _getWarmupPeriod() {
+    private int _getWarmupPeriod() {
         final int period = this.storage.getInt("period.warmup", 3);
 
         if (period < 0 || period > 10) {
@@ -264,7 +264,7 @@ public final class Settings {
         return this.warmup > 0;
     }
 
-    protected int _getGracePeriod() {
+    private int _getGracePeriod() {
         final int period = this.storage.getInt("period.grace", 1);
 
         if (period < 0 || period > 10) {
@@ -284,7 +284,7 @@ public final class Settings {
         return this.grace > 0;
     }
 
-    protected boolean _getPermissionPerEnvironment() {
+    private boolean _getPermissionPerEnvironment() {
         return this.storage.getBoolean("permission.per-environment", true);
     }
 
@@ -292,7 +292,7 @@ public final class Settings {
         return this.environment;
     }
 
-    protected boolean _getPermissionPerItem() {
+    private boolean _getPermissionPerItem() {
         return this.storage.getBoolean("permission.per-item", false);
     }
 
@@ -300,7 +300,7 @@ public final class Settings {
         return this.item;
     }
 
-    protected boolean _getPermissionPerWorld() {
+    private boolean _getPermissionPerWorld() {
         return this.storage.getBoolean("permission.per-world", false);
     }
 
@@ -308,7 +308,7 @@ public final class Settings {
         return this.world;
     }
 
-    protected @NotNull Set<Environment> _getServiceEnvironments() {
+    private @NotNull Set<Environment> _getServiceEnvironments() {
         final Set<Environment> environments = EnumSet.noneOf(Environment.class);
 
         for (final String name : this.storage.getStringList("service.environments")) {
@@ -335,7 +335,7 @@ public final class Settings {
         return mode == GameMode.SURVIVAL;
     }
 
-    protected @NotNull Set<Material> _getServiceItems() {
+    private @NotNull Set<Material> _getServiceItems() {
         final Permission wildcard = this.instance.getDescription().getPermissions().get(2);
         final Set<Material> materials = EnumSet.noneOf(Material.class);
 
@@ -378,7 +378,7 @@ public final class Settings {
         return this.items.contains(item);
     }
 
-    protected @NotNull Set<UUID> _getServiceWorlds() {
+    private @NotNull Set<UUID> _getServiceWorlds() {
         final Permission wildcard = this.instance.getDescription().getPermissions().get(3);
         final Set<UUID> worlds = new HashSet<>();
 

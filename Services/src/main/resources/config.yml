@@ -26,16 +26,16 @@ feature:
 
   # Sets the service-items that can not be dropped by service players: (Type: String Array, Default: [])
   # Note: To disable this disable-drop feature set the value to: 'disabled-drops: []'
-  # Note: Each entry must be equal to the name-spaced key of an registered service material.
+  # Note: Each entry must be equal to the name-spaced key of a registered service material.
   disabled-drops: []
 
   # Sets whether players in service has unlimited buckets: (Type: Boolean, Default: false)
-  # Note: If enabled, players in service can place unlimited fluids of their buckets, as they gets not emptied.
+  # Note: If enabled, players in service can place unlimited fluids of their buckets, as they get not emptied.
   # Note: Only functional if the used filled bucket is registered as service item.
   unlimited-buckets: false
 
   # Sets whether players in service has unlimited durability: (Type: Boolean, Default: false)
-  # Note: If enabled, players in service can use their tools unlimited, as they gets not damaged.
+  # Note: If enabled, players in service can use their tools unlimited, as they get not damaged.
   # Note: Only functional if the used tool is registered as service item.
   unlimited-durability: false
 
@@ -46,8 +46,8 @@ locale: "en"
 # Sets various options for service notifications:
 notify:
 
-  # Sets whether service notifications should be send via the action bar: (Type: Boolean, Default: true)
-  # Note: When disabled, service notifications will be send as chat message.
+  # Sets whether service notifications should be sent via the action bar: (Type: Boolean, Default: true)
+  # Note: When disabled, service notifications will be sent as chat message.
   action-bar: true
 
 # Sets various period options to regulate timings between service enabling and disabling:
@@ -90,7 +90,7 @@ service:
 
   # Sets the items that activates services. (Type: String Array, Default: ["minecraft:bedrock", "minecraft:wooden_axe"])
   # Note: Each entry must be equal to the name-spaced key of an existing and allowed Material.
-  # Note: Edible, throwable or non item Materials are not allowed as service item.
+  # Note: Edible, throwable or non-item Materials are not allowed as service item.
   items:
     - "minecraft:bedrock"
     - "minecraft:wooden_axe"
