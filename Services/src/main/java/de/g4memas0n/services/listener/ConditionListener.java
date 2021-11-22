@@ -13,6 +13,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.jetbrains.annotations.NotNull;
 
 import static de.g4memas0n.services.util.Messages.tl;
+import static de.g4memas0n.services.util.Messages.tlEnum;
 
 /**
  * The Condition Listener, listening for events to check for service conditions.
@@ -67,9 +68,7 @@ public final class ConditionListener extends BasicListener {
                         }
 
                         if (this.getManager().removeCondition(player) && this.getManager().removeService(player)) {
-                            final String name = environment.name().charAt(0) + environment.name().substring(1).toLowerCase();
-
-                            player.sendMessage(tl("service.denied.environment", name));
+                            player.sendMessage(tlEnum("service.denied.environment", environment));
                         }
 
                         return;
@@ -89,9 +88,7 @@ public final class ConditionListener extends BasicListener {
                     }
 
                     if (this.getManager().removeService(player)) {
-                        final String name = environment.name().charAt(0) + environment.name().substring(1).toLowerCase();
-
-                        player.sendMessage(tl("service.disabled.environment", name));
+                        player.sendMessage(tlEnum("service.disabled.environment", environment));
                     }
                 }
 
@@ -138,9 +135,7 @@ public final class ConditionListener extends BasicListener {
                 }
 
                 if (this.getManager().removeService(player)) {
-                    final String name = mode.name().charAt(0) + mode.name().substring(1).toLowerCase();
-
-                    player.sendMessage(tl("service.disabled.game-mode", name));
+                    player.sendMessage(tlEnum("service.disabled.game-mode", mode));
                 }
             }
 

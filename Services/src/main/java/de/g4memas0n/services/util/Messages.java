@@ -151,7 +151,7 @@ public final class Messages {
     }
 
     /**
-     * Custom ClassLoader for getting resource bundles located in the plugins data folder.
+     * Custom ClassLoader for getting resource bundles located in the plugin data folder.
      */
     private static class CustomFileClassLoader extends ClassLoader {
 

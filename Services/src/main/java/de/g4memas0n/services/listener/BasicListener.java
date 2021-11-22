@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.logging.Logger;
 
 /**
- * Abstract Representation of a event listener.
+ * Abstract Representation of an event listener.
  *
  * @author G4meMas0n
  * @since Release 1.0.0
@@ -68,7 +68,7 @@ public abstract class BasicListener implements Listener {
     }
 
     @Override
-    public final String toString() {
+    public final @NotNull String toString() {
         return this.getClass().getSimpleName();
     }
 }
