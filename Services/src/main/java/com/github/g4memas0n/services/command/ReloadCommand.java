@@ -1,11 +1,11 @@
-package de.g4memas0n.services.command;
+package com.github.g4memas0n.services.command;
 
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import java.util.Collections;
 import java.util.List;
 
-import static de.g4memas0n.services.util.Messages.tl;
+import static com.github.g4memas0n.services.util.Messages.tl;
 
 /**
  * The reload command that allows to reload this plugin.

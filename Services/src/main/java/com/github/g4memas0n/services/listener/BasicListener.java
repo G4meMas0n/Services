@@ -1,8 +1,8 @@
-package de.g4memas0n.services.listener;
+package com.github.g4memas0n.services.listener;
 
-import de.g4memas0n.services.ServiceManager;
-import de.g4memas0n.services.Services;
-import de.g4memas0n.services.config.Settings;
+import com.github.g4memas0n.services.ServiceManager;
+import com.github.g4memas0n.services.Services;
+import com.github.g4memas0n.services.config.Settings;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.jetbrains.annotations.NotNull;

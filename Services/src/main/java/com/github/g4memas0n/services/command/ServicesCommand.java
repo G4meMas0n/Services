@@ -1,7 +1,7 @@
-package de.g4memas0n.services.command;
+package com.github.g4memas0n.services.command;
 
-import de.g4memas0n.services.Services;
-import de.g4memas0n.services.util.Messages;
+import com.github.g4memas0n.services.Services;
+import com.github.g4memas0n.services.util.Messages;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static de.g4memas0n.services.util.Messages.tl;
+import static com.github.g4memas0n.services.util.Messages.tl;
 
 /**
  * The main services command that delegates to all sub-commands.

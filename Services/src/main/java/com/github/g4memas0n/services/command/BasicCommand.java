@@ -1,7 +1,7 @@
-package de.g4memas0n.services.command;
+package com.github.g4memas0n.services.command;
 
-import de.g4memas0n.services.Services;
-import de.g4memas0n.services.util.Messages;
+import com.github.g4memas0n.services.Services;
+import com.github.g4memas0n.services.util.Messages;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

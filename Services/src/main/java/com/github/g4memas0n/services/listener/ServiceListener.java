@@ -1,4 +1,4 @@
-package de.g4memas0n.services.listener;
+package com.github.g4memas0n.services.listener;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

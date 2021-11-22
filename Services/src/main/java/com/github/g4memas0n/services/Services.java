@@ -16,15 +16,15 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package de.g4memas0n.services;
+package com.github.g4memas0n.services;
 
-import de.g4memas0n.services.command.ServicesCommand;
-import de.g4memas0n.services.listener.BasicListener;
-import de.g4memas0n.services.listener.ConditionListener;
-import de.g4memas0n.services.listener.FeatureListener;
-import de.g4memas0n.services.listener.ServiceListener;
-import de.g4memas0n.services.config.Settings;
-import de.g4memas0n.services.util.Messages;
+import com.github.g4memas0n.services.command.ServicesCommand;
+import com.github.g4memas0n.services.listener.BasicListener;
+import com.github.g4memas0n.services.listener.ConditionListener;
+import com.github.g4memas0n.services.listener.FeatureListener;
+import com.github.g4memas0n.services.listener.ServiceListener;
+import com.github.g4memas0n.services.config.Settings;
+import com.github.g4memas0n.services.util.Messages;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
@@ -40,8 +40,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import static de.g4memas0n.services.util.Messages.tl;
-import static de.g4memas0n.services.util.Messages.tlEnum;
+import static com.github.g4memas0n.services.util.Messages.tl;
+import static com.github.g4memas0n.services.util.Messages.tlEnum;
 
 /**
  * The Services main class.

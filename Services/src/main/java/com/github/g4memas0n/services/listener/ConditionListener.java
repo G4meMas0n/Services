@@ -1,5 +1,6 @@
-package de.g4memas0n.services.listener;
+package com.github.g4memas0n.services.listener;
 
+import com.github.g4memas0n.services.util.Messages;
 import org.bukkit.GameMode;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
@@ -11,9 +12,6 @@ import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.jetbrains.annotations.NotNull;
-
-import static de.g4memas0n.services.util.Messages.tl;
-import static de.g4memas0n.services.util.Messages.tlEnum;
 
 /**
  * The Condition Listener, listening for events to check for service conditions.
@@ -52,7 +50,7 @@ public final class ConditionListener extends BasicListener {
                     }
 
                     if (this.getManager().removeCondition(player) && this.getManager().removeService(player)) {
-                        player.sendMessage(tl("service.denied.world", world.getName()));
+                        player.sendMessage(Messages.tl("service.denied.world", world.getName()));
                     }
 
                     return;
@@ -68,7 +66,7 @@ public final class ConditionListener extends BasicListener {
                         }
 
                         if (this.getManager().removeCondition(player) && this.getManager().removeService(player)) {
-                            player.sendMessage(tlEnum("service.denied.environment", environment));
+                            player.sendMessage(Messages.tlEnum("service.denied.environment", environment));
                         }
 
                         return;
@@ -88,7 +86,7 @@ public final class ConditionListener extends BasicListener {
                     }
 
                     if (this.getManager().removeService(player)) {
-                        player.sendMessage(tlEnum("service.disabled.environment", environment));
+                        player.sendMessage(Messages.tlEnum("service.disabled.environment", environment));
                     }
                 }
 
@@ -102,7 +100,7 @@ public final class ConditionListener extends BasicListener {
                 }
 
                 if (this.getManager().removeService(player)) {
-                    player.sendMessage(tl("service.disabled.world", world.getName()));
+                    player.sendMessage(Messages.tl("service.disabled.world", world.getName()));
                 }
             }
 
@@ -135,7 +133,7 @@ public final class ConditionListener extends BasicListener {
                 }
 
                 if (this.getManager().removeService(player)) {
-                    player.sendMessage(tlEnum("service.disabled.game-mode", mode));
+                    player.sendMessage(Messages.tlEnum("service.disabled.game-mode", mode));
                 }
             }
 

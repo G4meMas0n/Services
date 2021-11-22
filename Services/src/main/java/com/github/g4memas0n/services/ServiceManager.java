@@ -1,4 +1,4 @@
-package de.g4memas0n.services;
+package com.github.g4memas0n.services;
 
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import static de.g4memas0n.services.util.Messages.tl;
+import static com.github.g4memas0n.services.util.Messages.tl;
 
 /**
  * Service Manager, that manages all players in warmup, service, grace and also in condition.

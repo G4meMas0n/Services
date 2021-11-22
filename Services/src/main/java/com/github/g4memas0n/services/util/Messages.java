@@ -1,4 +1,4 @@
-package de.g4memas0n.services.util;
+package com.github.g4memas0n.services.util;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

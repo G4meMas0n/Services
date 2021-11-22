@@ -1,6 +1,6 @@
-package de.g4memas0n.services.config;
+package com.github.g4memas0n.services.config;
 
-import de.g4memas0n.services.Services;
+import com.github.g4memas0n.services.Services;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.World;
