@@ -1,4 +1,4 @@
-main: de.g4memas0n.services.Services
+main: com.github.g4memas0n.services.Services
 name: Services
 version: 1.1.3
 description: A plugin that provides moderators god mode while holding service items.
