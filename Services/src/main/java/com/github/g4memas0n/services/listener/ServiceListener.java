@@ -159,7 +159,7 @@ public final class ServiceListener extends BasicListener {
                     return;
                 }
 
-                // Player has break a service item, schedule a check:
+                // Player has broken a service item, schedule a check:
                 this.instance.scheduleServiceCheck(event.getPlayer());
             }
         }

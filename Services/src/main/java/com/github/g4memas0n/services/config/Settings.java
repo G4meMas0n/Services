@@ -11,6 +11,7 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.permissions.Permission;
+import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -36,19 +37,20 @@ public final class Settings {
     private final Services instance;
     private final YamlConfiguration storage;
 
+    private Set<DamageCause> blacklist;
     private Set<Environment> environments;
     private Set<Material> items;
-    private Set<UUID> worlds;
-    private Set<DamageCause> blacklist;
     private Set<Material> disabled;
+    private Set<PotionEffectType> effects;
+    private Set<UUID> worlds;
 
+    private boolean action;
+    private boolean buckets;
+    private boolean debug;
+    private boolean durability;
     private boolean environment;
     private boolean item;
     private boolean world;
-    private boolean buckets;
-    private boolean durability;
-    private boolean action;
-    private boolean debug;
 
     private int maximum;
     private int warmup;
@@ -103,18 +105,19 @@ public final class Settings {
             this.instance.getLogger().info("Loaded default configuration from template: " + config.getName());
         }
 
+        this.blacklist = this._getDamageBlacklist();
         this.environments = this._getServiceEnvironments();
         this.items = this._getServiceItems();
-        this.worlds = this._getServiceWorlds();
-        this.blacklist = this._getDamageBlacklist();
         this.disabled = this._getDisabledDrops();
+        this.effects = this._getDisabledEffects();
+        this.worlds = this._getServiceWorlds();
 
+        this.action = this._getNotifyActionBar();
+        this.buckets = this._getUnlimitedBuckets();
+        this.durability = this._getUnlimitedDurability();
         this.environment = this._getPermissionPerEnvironment();
         this.item = this._getPermissionPerItem();
         this.world = this._getPermissionPerWorld();
-        this.buckets = this._getUnlimitedBuckets();
-        this.durability = this._getUnlimitedDurability();
-        this.action = this._getNotifyActionBar();
         this.debug = this._getDebug();
 
         this.maximum = this._getDamageMaximum();
@@ -195,7 +198,14 @@ public final class Settings {
         final Set<Material> materials = EnumSet.noneOf(Material.class);
 
         for (final String name : this.storage.getStringList("feature.disabled-drops")) {
-            final Material material = Material.matchMaterial(name, false);
+            final NamespacedKey key = NamespacedKey.fromString(name.toLowerCase());
+
+            if (key == null) {
+                this.instance.getLogger().warning("Detected malformed disabled-drop item: Key '" + name + "' is invalid.");
+                continue;
+            }
+
+            final Material material = Registry.MATERIAL.get(key);
 
             if (material == null) {
                 this.instance.getLogger().warning("Detected invalid disabled-drop item: Material '" + name + "' does not exist.");
@@ -219,6 +229,31 @@ public final class Settings {
 
     public boolean isDisabledDrop(@NotNull final Material material) {
         return this.disabled.contains(material);
+    }
+
+    private @NotNull Set<PotionEffectType> _getDisabledEffects() {
+        final Set<PotionEffectType> effects = new HashSet<>();
+
+        for (final String name : this.storage.getStringList("feature.disabled-effects")) {
+            final PotionEffectType effect = PotionEffectType.getByName(name.toUpperCase());
+
+            if (effect == null) {
+                this.instance.getLogger().warning("Detected invalid potion effect: Potion Effect '" + name + "' does not exist.");
+                continue;
+            }
+
+            effects.add(effect);
+        }
+
+        return Collections.unmodifiableSet(effects);
+    }
+
+    public boolean isDisabledEffects() {
+        return !this.effects.isEmpty();
+    }
+
+    public boolean isDisabledEffect(@NotNull final PotionEffectType effect) {
+        return this.effects.contains(effect);
     }
 
     private boolean _getUnlimitedBuckets() {
@@ -344,7 +379,7 @@ public final class Settings {
             final NamespacedKey key = NamespacedKey.fromString(name.toLowerCase());
 
             if (key == null) {
-                this.instance.getLogger().warning("Detected  service item: Key '" + name + "' is invalid.");
+                this.instance.getLogger().warning("Detected malformed service item: Key '" + name + "' is invalid.");
                 continue;
             }
 

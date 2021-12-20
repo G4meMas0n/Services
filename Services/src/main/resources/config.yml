@@ -8,6 +8,7 @@ damage:
   # Sets the damage causes which will not blocked within service: (Type: String Array, Default: ["CUSTOM", "SUICIDE", "VOID"])
   # Note: To disable the damage cause blacklist set the value to: 'blacklist: []'
   # Note: Each entry must be equals to the name of an existing damage cause.
+  # See: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/event/entity/EntityDamageEvent.DamageCause.html
   blacklist:
     - "CUSTOM"
     - "SUICIDE"
@@ -25,9 +26,15 @@ debug: false
 feature:
 
   # Sets the service-items that can not be dropped by service players: (Type: String Array, Default: [])
-  # Note: To disable this disable-drop feature set the value to: 'disabled-drops: []'
+  # Note: To disable this disabled-drops feature set the value to: 'disabled-drops: []'
   # Note: Each entry must be equal to the name-spaced key of a registered service material.
   disabled-drops: []
+
+  # Sets the potion effects that can not be applied to service players: (Type: String Array, Default: [])
+  # Note: To disable this disabled-effects feature set the value to: 'disabled-effects: []'
+  # Note: Each entry must be equal to the name of an existing potion effect type.
+  # See: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/potion/PotionEffectType.html
+  disabled-effects: []
 
   # Sets whether players in service has unlimited buckets: (Type: Boolean, Default: false)
   # Note: If enabled, players in service can place unlimited fluids of their buckets, as they get not emptied.

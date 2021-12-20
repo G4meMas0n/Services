@@ -4,6 +4,8 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.entity.EntityPotionEffectEvent;
+import org.bukkit.event.entity.EntityPotionEffectEvent.Action;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
@@ -21,6 +23,93 @@ import java.util.Iterator;
 public final class FeatureListener extends BasicListener {
 
     public FeatureListener() { }
+
+    /*
+     * Event Listener for the disabled drops configuration feature.
+     */
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onPlayerDeath(@NotNull final PlayerDeathEvent event) {
+        // Only perform the checks when disabled drops is enabled.
+        if (this.getSettings().isDisabledDrops()) {
+            final Player player = event.getEntity();
+
+            // Only filter items when player is allowed to use service:
+            if (player.hasPermission("services.service")) {
+                for (final Iterator<ItemStack> iterator = event.getDrops().iterator(); iterator.hasNext();) {
+                    final Material material = iterator.next().getType();
+
+                    if (this.getSettings().isDisabledDrop(material)) {
+                        if (this.getSettings().isPermissionPerItem()) {
+                            if (!player.hasPermission("services.item." + material.getKey().getKey())) {
+                                continue;
+                            }
+                        }
+
+                        iterator.remove();
+                    }
+                }
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onPlayerItemDrop(@NotNull final PlayerDropItemEvent event) {
+        // Only perform the checks when disabled drops is enabled.
+        if (this.getSettings().isDisabledDrops()) {
+            final Player player = event.getPlayer();
+
+            // Only block item drop when player is allowed to use service:
+            if (player.hasPermission("services.service")) {
+                final Material material = event.getItemDrop().getItemStack().getType();
+
+                if (this.getSettings().isDisabledDrop(material)) {
+                    if (this.getSettings().isPermissionPerItem()) {
+                        if (!player.hasPermission("services.item." + material.getKey().getKey())) {
+                            return;
+                        }
+                    }
+
+                    event.setCancelled(true);
+
+                    if (this.getSettings().isDebug()) {
+                        this.getLogger().info("Cancelled drop of service item '" + material + "' for player: " + player.getName());
+                    }
+                }
+            }
+        }
+    }
+
+    /*
+     * Event Listener for the disabled effects configuration feature.
+     */
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onPlayerPotionEffect(@NotNull final EntityPotionEffectEvent event) {
+        if (!((event.getEntity() instanceof Player))) {
+            return;
+        }
+
+        // Only perform the checks when disabled effects is enabled.
+        if (this.getSettings().isDisabledEffects()) {
+            if (event.getAction() == Action.CLEARED || event.getAction() == Action.REMOVED) {
+                return;
+            }
+
+            if (this.getSettings().isDisabledEffect(event.getModifiedType())) {
+                final Player player = (Player) event.getEntity();
+
+                // Only cancel effect when player is in service:
+                if (this.getManager().isService(player)) {
+                    event.setCancelled(true);
+
+                    if (this.getSettings().isDebug()) {
+                        this.getLogger().info("Cancelled added/changed potion effect '" + event.getModifiedType().getName() + "' for service player:" + player.getName());
+                    }
+                }
+            }
+        }
+    }
 
     /*
      * Event Listener for the unlimited buckets feature.
@@ -43,7 +132,7 @@ public final class FeatureListener extends BasicListener {
                         }
 
                         if (this.getSettings().isDebug()) {
-                            this.getLogger().info("Player '" + player.getName() + "' used unlimited buckets on service item: " + event.getBucket().getKey());
+                            this.getLogger().info("Filled service bucket '" + event.getBucket() + "' of service player: " + player.getName());
                         }
 
                         // Note: this event ignores the resulting item-stack.
@@ -71,52 +160,8 @@ public final class FeatureListener extends BasicListener {
                         event.setCancelled(true);
 
                         if (this.getSettings().isDebug()) {
-                            this.getLogger().info("Player '" + player.getName() + "' used unlimited durability on service item: " + event.getItem().getType().getKey());
+                            this.getLogger().info("Repaired service tool '" + event.getItem().getType() + "' of service player: " + player.getName());
                         }
-                    }
-                }
-            }
-        }
-    }
-
-    /*
-     * Event Listener for the disabled drops configuration feature.
-     */
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onPlayerDeath(@NotNull final PlayerDeathEvent event) {
-        // Only perform the checks when disabled drops is enabled.
-        if (this.getSettings().isDisabledDrops()) {
-            final Player player = event.getEntity();
-
-            // Only filter items when player is allowed to use service:
-            if (player.hasPermission("services.service")) {
-                for (final Iterator<ItemStack> iterator = event.getDrops().iterator(); iterator.hasNext();) {
-                    final Material material = iterator.next().getType();
-
-                    if (this.getSettings().isDisabledDrop(material)) {
-                        if (player.hasPermission("services.item." + material.getKey().getKey())) {
-                            iterator.remove();
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onPlayerItemDrop(@NotNull final PlayerDropItemEvent event) {
-        // Only perform the checks when disabled drops is enabled.
-        if (this.getSettings().isDisabledDrops()) {
-            final Player player = event.getPlayer();
-
-            // Only block item drop when player is allowed to use service:
-            if (player.hasPermission("services.service")) {
-                final Material material = event.getItemDrop().getItemStack().getType();
-
-                if (this.getSettings().isDisabledDrop(material)) {
-                    if (player.hasPermission("services.item." + material.getKey().getKey())) {
-                        event.setCancelled(true);
                     }
                 }
             }
