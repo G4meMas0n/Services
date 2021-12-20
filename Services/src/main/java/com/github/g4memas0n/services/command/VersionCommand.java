@@ -18,7 +18,7 @@ public final class VersionCommand extends BasicCommand {
     public VersionCommand() {
         super("version", 0, 0);
 
-        this.setPermission("services.version");
+        this.setPermission("services.manage.version");
     }
 
     @Override

@@ -8,10 +8,18 @@ api-version: 1.16
 commands:
   services:
     description: The main services command.
-    permission: services.use
+    permission: services.manage
     usage: /<command> (reload|version)
 
 permissions:
+  services.manage.*:
+    description: Allows to access all commands of this plugin.
+    default: false
+    children:
+      services.manage: true
+      services.manage.reload: true
+      services.manage.version: true
+
   services.bypass.*:
     description: Allows to bypass service restrictions and settings.
     default: false

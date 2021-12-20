@@ -18,7 +18,7 @@ public final class ReloadCommand extends BasicCommand {
     public ReloadCommand() {
         super("reload", 0, 0);
 
-        this.setPermission("services.reload");
+        this.setPermission("services.manage.reload");
     }
 
     @Override

@@ -35,7 +35,7 @@ public final class ServicesCommand extends BasicCommand implements TabExecutor {
 
         this.addCommand(new ReloadCommand());
         this.addCommand(new VersionCommand());
-        this.setPermission("services.use");
+        this.setPermission("services.manage");
     }
 
     public @NotNull String getPermission() {
