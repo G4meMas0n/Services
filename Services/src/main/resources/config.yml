@@ -88,7 +88,7 @@ service:
     - "NETHER"
     - "NORMAL"
 
-  # Sets the items that activates services. (Type: String Array, Default: ["minecraft:bedrock", "minecraft:wooden_axe"])
+  # Sets the items that activates service mode. (Type: String Array, Default: ["minecraft:bedrock", "minecraft:wooden_axe"])
   # Note: Each entry must be equal to the name-spaced key of an existing and allowed Material.
   # Note: Edible, throwable or non-item Materials are not allowed as service item.
   items:

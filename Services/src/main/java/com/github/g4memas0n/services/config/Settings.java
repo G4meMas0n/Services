@@ -3,11 +3,12 @@ package com.github.g4memas0n.services.config;
 import com.github.g4memas0n.services.Services;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.EntityType;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.permissions.Permission;
 import org.jetbrains.annotations.NotNull;
@@ -340,20 +341,27 @@ public final class Settings {
         final Set<Material> materials = EnumSet.noneOf(Material.class);
 
         for (final String name : this.storage.getStringList("service.items")) {
-            final Material material = Material.matchMaterial(name, false);
+            final NamespacedKey key = NamespacedKey.fromString(name.toLowerCase());
+
+            if (key == null) {
+                this.instance.getLogger().warning("Detected  service item: Key '" + name + "' is invalid.");
+                continue;
+            }
+
+            final Material material = Registry.MATERIAL.get(key);
 
             if (material == null) {
-                this.instance.getLogger().warning("Detected invalid service item: Material '" + name + "' does not exist.");
+                this.instance.getLogger().warning("Detected invalid service item: Material '" + key + "' does not exist.");
                 continue;
             }
 
             if (!material.isItem()) {
-                this.instance.getLogger().warning("Detected invalid service item: Material '" + name + "' is not an obtainable item.");
+                this.instance.getLogger().warning("Detected invalid service item: Material '" + key + "' is not an obtainable item.");
                 continue;
             }
 
-            if (material.isEdible() || EntityType.fromName(material.getKey().getKey()) != null) {
-                this.instance.getLogger().warning("Detected invalid service item: Material '" + name + "' is not an allowed item.");
+            if (material.isEdible() || Registry.ENTITY_TYPE.get(key) != null) {
+                this.instance.getLogger().warning("Detected invalid service item: Material '" + key + "' is not an allowed item.");
                 continue;
             }
 
