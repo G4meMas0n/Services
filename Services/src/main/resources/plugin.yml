@@ -13,7 +13,7 @@ commands:
 
 permissions:
   services.manage.*:
-    description: Allows to access all commands of this plugin.
+    description: Allows to access all managing commands of this plugin.
     default: false
     children:
       services.manage: true
