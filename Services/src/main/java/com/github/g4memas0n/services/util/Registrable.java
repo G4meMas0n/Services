@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
  * @param <T> The main class of the plugin.
  *
  * @author G4meMas0n
- * @since Release 2.0.0
+ * @since Release 1.2.0
  */
 public abstract class Registrable<T extends JavaPlugin> {
 
