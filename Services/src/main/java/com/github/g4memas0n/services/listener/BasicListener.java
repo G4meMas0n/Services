@@ -3,6 +3,7 @@ package com.github.g4memas0n.services.listener;
 import com.github.g4memas0n.services.ServiceManager;
 import com.github.g4memas0n.services.Services;
 import com.github.g4memas0n.services.config.Settings;
+import com.github.g4memas0n.services.util.Registrable;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.jetbrains.annotations.NotNull;
@@ -14,29 +15,26 @@ import java.util.logging.Logger;
  * @author G4meMas0n
  * @since Release 1.0.0
  */
-public abstract class BasicListener implements Listener {
-
-    /**
-     * This reference will never be null for all implementing listeners, as they will only be called when they are
-     * registered by {@link #register(Services)}.
-     */
-    protected Services instance;
+public abstract class BasicListener extends Registrable<Services> implements Listener {
 
     protected BasicListener() { }
 
-    public final void register(@NotNull final Services instance) {
-        if (this.instance == null) {
-            this.instance = instance;
+    public final boolean register(@NotNull final Services instance) {
+        if (super.register(instance)) {
             this.instance.getServer().getPluginManager().registerEvents(this, instance);
 
             if (this.instance.getSettings().isDebug()) {
                 this.instance.getLogger().info("Registered listener: " + this);
             }
+
+            return true;
         }
+
+        return false;
     }
 
-    public final void unregister() {
-        if (this.instance != null) {
+    public final boolean unregister() {
+        if (super.unregister()) {
             HandlerList.unregisterAll(this);
 
             if (this.instance.getSettings().isDebug()) {
@@ -44,15 +42,10 @@ public abstract class BasicListener implements Listener {
             }
 
             this.instance = null;
-        }
-    }
-
-    public final @NotNull Services getInstance() {
-        if (this.instance == null) {
-            throw new IllegalStateException("Unregistered listener '" + this + "' tried to get the plugin instance");
+            return true;
         }
 
-        return this.instance;
+        return false;
     }
 
     public final @NotNull ServiceManager getManager() {

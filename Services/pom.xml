@@ -6,7 +6,7 @@
 
     <parent>
         <artifactId>services-parent</artifactId>
-        <groupId>de.g4memas0n</groupId>
+        <groupId>com.github.g4memas0n</groupId>
         <version>parent</version>
     </parent>
 

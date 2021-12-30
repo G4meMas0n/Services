@@ -2,6 +2,7 @@ package com.github.g4memas0n.services.command;
 
 import com.github.g4memas0n.services.Services;
 import com.github.g4memas0n.services.util.Messages;
+import com.github.g4memas0n.services.util.Registrable;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -13,17 +14,11 @@ import java.util.List;
  * @author G4meMas0n
  * @since Release 1.0.0
  */
-public abstract class BasicCommand {
+public abstract class BasicCommand extends Registrable<Services> {
 
     protected final String name;
     protected final int minArgs;
     protected final int maxArgs;
-
-    /**
-     * This reference will never be null for all implementing commands, as they will only be called when they are
-     * registered by {@link #register(Services)}.
-     */
-    protected Services instance;
 
     private String permission;
 
@@ -34,10 +29,9 @@ public abstract class BasicCommand {
         this.permission = "";
     }
 
+    @Override
     public boolean register(@NotNull final Services instance) {
-        if (this.instance == null) {
-            this.instance = instance;
-
+        if (super.register(instance)) {
             if (this.instance.getSettings().isDebug()) {
                 this.instance.getLogger().info("Registered command: " + this);
             }
@@ -48,8 +42,9 @@ public abstract class BasicCommand {
         return false;
     }
 
+    @Override
     public boolean unregister() {
-        if (this.instance != null) {
+        if (super.unregister()) {
             if (this.instance.getSettings().isDebug()) {
                 this.instance.getLogger().info("Unregistered command: " + this);
             }
@@ -59,14 +54,6 @@ public abstract class BasicCommand {
         }
 
         return false;
-    }
-
-    public final @NotNull Services getInstance() {
-        if (this.instance == null) {
-            throw new IllegalStateException("Unregistered command '" + this.name + "' tried to get the plugin instance");
-        }
-
-        return this.instance;
     }
 
     public final @NotNull String getName() {

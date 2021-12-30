@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>de.g4memas0n</groupId>
     <artifactId>services-parent</artifactId>
+    <groupId>com.github.g4memas0n</groupId>
     <version>parent</version>
     <packaging>pom</packaging>
 

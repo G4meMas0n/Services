@@ -38,22 +38,6 @@ public final class ServicesCommand extends BasicCommand implements TabExecutor {
         this.setPermission("services.manage");
     }
 
-    public @NotNull String getPermission() {
-        if (this.command.getPermission() != null) {
-            return this.command.getPermission();
-        }
-
-        return super.getPermission();
-    }
-
-    public @NotNull PluginCommand getCommand() {
-        if (this.command == null) {
-            throw new IllegalStateException("Unregistered command '" + this.name + "' tried to get the plugin command");
-        }
-
-        return this.command;
-    }
-
     public void addCommand(@NotNull final BasicCommand command) {
         if (this.commands.containsKey(command.getName())) {
             return;
@@ -74,8 +58,9 @@ public final class ServicesCommand extends BasicCommand implements TabExecutor {
         if (super.register(instance)) {
             this.command.setExecutor(this);
             this.command.setTabCompleter(this);
-            this.command.setPermissionMessage(tl("command.denied"));
+            this.command.setPermission(this.getPermission());
             this.commands.values().forEach(command -> command.register(instance));
+            this.reload();
             return true;
         }
 
@@ -98,6 +83,15 @@ public final class ServicesCommand extends BasicCommand implements TabExecutor {
         }
 
         return false;
+    }
+
+    @Override
+    public void reload() {
+        if (this.command == null) {
+            throw new IllegalStateException("Unregistered command '" + this.name + "' tried to reload itself");
+        }
+
+        this.command.setPermissionMessage(tl("command.denied"));
     }
 
     @Override

@@ -19,12 +19,12 @@
 package com.github.g4memas0n.services;
 
 import com.github.g4memas0n.services.command.ServicesCommand;
-import com.github.g4memas0n.services.listener.BasicListener;
 import com.github.g4memas0n.services.listener.ConditionListener;
 import com.github.g4memas0n.services.listener.FeatureListener;
 import com.github.g4memas0n.services.listener.ServiceListener;
 import com.github.g4memas0n.services.config.Settings;
 import com.github.g4memas0n.services.util.Messages;
+import com.github.g4memas0n.services.util.Registrable;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
@@ -34,10 +34,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 import static com.github.g4memas0n.services.util.Messages.tl;
@@ -51,8 +51,7 @@ import static com.github.g4memas0n.services.util.Messages.tlEnum;
  */
 public final class Services extends JavaPlugin {
 
-    private final Set<BasicListener> listeners;
-    private final ServicesCommand command;
+    private final List<Registrable<Services>> registries;
 
     private Map<UUID, BukkitTask> schedules;
 
@@ -64,8 +63,7 @@ public final class Services extends JavaPlugin {
     private boolean enabled;
 
     public Services() {
-        this.listeners = new HashSet<>(4, 1);
-        this.command = new ServicesCommand();
+        this.registries = new ArrayList<>(4);
     }
 
     public @NotNull ServiceManager getManager() {
@@ -114,15 +112,14 @@ public final class Services extends JavaPlugin {
             this.getLogger().info("Register plugin command and listeners...");
         }
 
-        this.command.register(this);
-
-        if (this.listeners.isEmpty()) {
-            this.listeners.add(new ConditionListener());
-            this.listeners.add(new FeatureListener());
-            this.listeners.add(new ServiceListener());
+        if (this.registries.isEmpty()) {
+            this.registries.add(new ServicesCommand());
+            this.registries.add(new ConditionListener());
+            this.registries.add(new FeatureListener());
+            this.registries.add(new ServiceListener());
         }
 
-        this.listeners.forEach(listener -> listener.register(this));
+        this.registries.forEach(registry -> registry.register(this));
 
         if (this.settings.isDebug()) {
             this.getLogger().info("Plugin command and listeners has been registered.");
@@ -151,8 +148,7 @@ public final class Services extends JavaPlugin {
             this.getLogger().info("Unregister plugin command and listeners...");
         }
 
-        this.command.unregister();
-        this.listeners.forEach(BasicListener::unregister);
+        this.registries.forEach(Registrable::unregister);
 
         if (this.settings.isDebug()) {
             this.getLogger().info("Plugin command and listeners has been unregistered.");
@@ -171,7 +167,7 @@ public final class Services extends JavaPlugin {
     public void reloadConfig() {
         this.settings.load();
         this.messages.setLocale(this.settings.getLocale());
-        this.command.getCommand().setPermissionMessage(tl("command.denied"));
+        this.registries.forEach(Registrable::reload);
 
         // Perform condition check for all online players:
         if (!this.getServer().getOnlinePlayers().isEmpty()) {
