@@ -396,7 +396,7 @@ public final class Settings {
                 continue;
             }
 
-            if (material.isEdible() || Registry.ENTITY_TYPE.get(key) != null) {
+            if (material.isEdible() || Registry.ENTITY_TYPE.get(key) != null || key.getKey().contains("bottle")) {
                 this.instance.getLogger().warning("Detected invalid service item: Material '" + key + "' is not an allowed item.");
                 continue;
             }
