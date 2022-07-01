@@ -10,6 +10,7 @@ import org.bukkit.World.Environment;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.permissions.Permission;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
@@ -178,7 +179,7 @@ public final class Settings {
         final String locale = this.storage.getString("locale");
 
         if (locale != null && !locale.isEmpty()) {
-            final Matcher match = Pattern.compile("^([a-zA-Z]{2,8})([_-]([a-zA-Z]{2}|[0-9]{3}))?$").matcher(locale);
+            final Matcher match = Pattern.compile("^([a-zA-Z]{2,8})([_-]([a-zA-Z]{2}|\\d{3}))?$").matcher(locale);
 
             if (match.matches()) {
                 return match.group(3) == null ? new Locale(match.group(1)) : new Locale(match.group(1), match.group(3));
@@ -414,6 +415,16 @@ public final class Settings {
         }
 
         return Collections.unmodifiableSet(materials);
+    }
+
+    public boolean isServiceItem(@NotNull final ItemStack... stacks) {
+        for (final ItemStack stack : stacks) {
+            if (this.isServiceItem(stack.getType())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public boolean isServiceItem(@NotNull final Material item) {
